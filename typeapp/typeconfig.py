@@ -7,5 +7,6 @@ TYPES = {
     3:"Wolverine",
     4:"Captain America",
     5:"X-Men",
-    6:"Crocodile"
+    6:"Crocodile",
+    7:"Json Wei"
 }
