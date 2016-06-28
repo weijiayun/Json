@@ -5,22 +5,24 @@
     <td>
         <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 48px">
             <tbody>
+            {% for i in range(3) %}
             <tr>
                <td class="jsoneditor-tree">
                    <button class="jsoneditor-invisible" title=""></button>
                </td>
                 <td class="jsoneditor-tree">
                     <div class="jsoneditor-readonly">
-                        0
+                        {{ i }}
                     </div>
                 </td>
                 <td class="jsoneditor-separator">:</td>
                 <td class="jsoneditor-tree">
                     <div class="jsoneditor-value jsoneditor-number" contenteditable="true" spellcheck="false">
-                        1
+                        {{ 3.14*i*i }}
                     </div>
                 </td>
             </tr>
+            {% endfor %}
             </tbody>
         </table>
     </td>

@@ -45,12 +45,12 @@ div.jsoneditor-field p,div.jsoneditor-value p{
 }
 
 div.jsoneditor-value{
-	word-break:break-word
+	word-wrap: break-word;
 }
 
 div.jsoneditor-readonly{
 	min-width:16px;
-	color:gray
+	color:black;
 }
 
 div.jsoneditor-empty{
@@ -95,7 +95,7 @@ a.jsoneditor-value.jsoneditor-url:focus,a.jsoneditor-value.jsoneditor-url:hover{
 div.jsoneditor td.jsoneditor-separator{
 	padding:3px 0;
 	vertical-align:top;
-	color:gray
+	color:black;
 }
 
 div.jsoneditor-field.jsoneditor-highlight,div.jsoneditor-field[contenteditable=true]:focus,div.jsoneditor-field[contenteditable=true]:hover,div.jsoneditor-value.jsoneditor-highlight,div.jsoneditor-value[contenteditable=true]:focus,div.jsoneditor-value[contenteditable=true]:hover{
@@ -106,8 +106,8 @@ div.jsoneditor-field.jsoneditor-highlight,div.jsoneditor-field[contenteditable=t
 
 div.jsoneditor-field.jsoneditor-highlight-active,div.jsoneditor-field.jsoneditor-highlight-active:focus,div.jsoneditor-field.jsoneditor-highlight-active:hover,div.jsoneditor-value.jsoneditor-highlight-active,div.jsoneditor-value.jsoneditor-highlight-active:focus,div.jsoneditor-value.jsoneditor-highlight-active:hover{
 	background-color:#fe0;
-	border:1px solid #ffc700;
-	border-radius:2px
+	border:2px solid #ffc700;
+	border-radius:30%
 }
 
 div.jsoneditor-value.jsoneditor-string{
@@ -124,7 +124,7 @@ div.jsoneditor-value.jsoneditor-number{
 }
 
 div.jsoneditor-value.jsoneditor-boolean{
-	color:#ff8c00
+	color:purple;
 }
 
 div.jsoneditor-value.jsoneditor-null{
