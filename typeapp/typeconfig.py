@@ -10,3 +10,7 @@ TYPES = {
     6:"Crocodile",
     7:"Json Wei"
 }
+StructA = [
+    "a",
+    "b"
+]

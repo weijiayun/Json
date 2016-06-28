@@ -12,7 +12,8 @@
     <!-- Loading Flat UI -->
       <link href="../static/dist/css/flat-ui.css" rel="stylesheet">
       <link href="../static/docs/assets/css/demo.css" rel="stylesheet">
-
+      <link href="../static/dist/css/jsonedit.css" rel="stylesheet">
+      <link href="../static/dist/css/jsonedit.css" rel="stylesheet">
       <link rel="shortcut icon" href="../static/img/favicon.ico">
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
@@ -23,40 +24,37 @@
       <script src="../static/dist/js/vendor/jquery.min.js"></script>
       <script src="../static/dist/js/flat-ui.min.js"></script>
       <script src="../static/docs/assets/js/application.js"></script>
+              <script type="text/javascript">
+            window.onload=selectshow;
+            window.addtype= new Set();
+            function selectshow() {
+                var t = [];
+                addtype.add(document.getElementById('typelist').value);
+                var s = new Set(addtype);
+                for(var gg of s){
+                    if(gg != 'Types'){
+                        t.push(gg)
+                    }
+                }
+                t.join(',');
+                document.getElementById("typeshow").value=t;
+            };
+        </script>
   </head>
   <body>
+  <div class="row demo-row">
     <div class="container">
-      <div class="demo-headline">
+      <div class="demo-headline;">
         <h1 class="demo-logo">
           <div class="logo"></div>
           DFC tech.
         </h1>
       </div> <!-- /demo-headline -->
-        <script type="text/javascript">
-            window.onload=selectshow;
-            window.addtype=[];
-            function selectshow() {
-                window.addtype.push(document.getElementById('typelist').value);
-                window.addtype.join(',');
-                document.getElementById("typeshow").value=window.addtype;
-            }
-        </script>
-      <div class="row">
-        <div class="col-xs-3">
-          <h3 class="demo-panel-title">Type Select</h3>
-          <select id="typelist" class="form-control select select-primary" data-toggle="select" onchange="selectshow()">
-              {% include 'typesname.html' %}
-          </select>
-        </div> <!-- /.col-xs-3 -->
-        <div class="col-xs-6">
-          <h3 class="demo-panel-title">Selected Types</h3>
-          <div class="tagsinput-primary">
-            <input type="text" readonly id="typeshow" name="tagsinput" class="tagsinput"/>
-          </div>
-        </div> <!-- /.col-xs-6 -->
-      </div> <!-- /.row -->
-
+      {% include "showtypeinput.html" %}
+        <div>
+        {% include 'jsonedit.html'  %}
+        </div>
     </div> <!-- /container -->
-
+  </div>
   </body>
 </html>

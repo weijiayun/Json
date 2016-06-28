@@ -1,0 +1,20 @@
+<div>
+    <div class="jsoneditor jsoneditor-modes-tree">
+        <div>
+            <div class="jsoneditor-tree">
+                <table class="jsoneditor-tree">
+                    <tbody>
+                    {% include 'header.html' %}
+                    {% include 'array.html'  %}
+                    {% include 'boolean.html' %}
+                    {% include 'null.html' %}
+                    {% include 'number.html' %}
+                    {% for i in range(10) %}
+                    {% include 'string.html' %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
