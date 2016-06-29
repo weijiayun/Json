@@ -10,22 +10,14 @@
                 </table>
                 <table id="{{ struct[0] }}" style="display: none">
                     <tbody>
-                    {% include 'array.html' %}
-                    {% for boolName,boolRAT in struct[1].items() %}
-                        {% if boolRAT[1] == 'bool' %}
-                            {% include 'boolean.html' %}
-                        {% endif %}
+                    {% for listType,listmember in struct[1]["list"].member.items() %}
+                        {% include 'array.html' %}
                     {% endfor %}
-                    {% for numName,numRAT in struct[1].items() %}
-                        {% if  "int32" in numRAT[1] or numRAT[1] == "double" %}
-                            {% include 'number.html' %}
-                        {% endif %}
-                    {% endfor %}
-                    {% for strName,strRAT in struct[1].items() %}
-                        {% if strRAT[1] == 'string' %}
-                            {% include 'string.html' %}
-                        {% endif %}
-                    {% endfor %}
+                    {% include "bool.html" %}
+                    {% include "uint32.html" %}
+                    {% include "sint32.html" %}
+                    {% include "double.html" %}
+                    {% include "string.html" %}
                     {% include 'null.html' %}
                     {% include 'matrix.html' %}
                     </tbody>

@@ -1,0 +1,22 @@
+<tr id="{{ struct[0] }}uint32">
+    <td>
+        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 24px">
+            <tbody>
+            {% for uintName,uintRAT in struct[1]["uint32"].member.items() %}
+            <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
+                <td class="jsoneditor-tree">
+                    <button class="jsoneditor-invisible"></button>
+                </td>
+                <td class="jsoneditor-tree">
+                    <div class="jsoneditor-readonly" title="{{ uintRAT }}" id="m{{ struct[0] }}{{ uintName }}">{{ uintName }}</div>
+                </td>
+                <td class="jsoneditor-separator">:</td>
+                <td class="jsoneditor-tree">
+                    <div class="jsoneditor-value jsoneditor-number" contenteditable="true" spellcheck="false" title="" id="{{ struct[0] }}{{ uintName }}"></div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </td>
+</tr>

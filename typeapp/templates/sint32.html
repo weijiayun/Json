@@ -1,0 +1,22 @@
+<tr class="jsoneditor-expandable" title="array">
+    <td >
+        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 24px">
+            <tbody>
+            <tr>
+                <td class="jsoneditor-tree">
+                    <button class="jsoneditor-collapsed" onclick="collapsewin('{{ struct[0] }}sint32')" title="Click to expand/Collapse this field (Ctrl+E). Ctrl+click to expand/collapse including all childs.">^</button>
+                </td>
+                <td class="jsoneditor-tree" >
+                    <div class="jsoneditor-readonly" >Sint32</div>
+                </td>
+                <td class="jsoneditor-tree"></td>
+                <td class="jsoneditor-tree">
+                    <div class="jsoneditor-value jsoneditor-array">{{ struct[1]["sint32"].len }}</div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </td>
+</tr>
+{% include "sint32child.html" %}
+

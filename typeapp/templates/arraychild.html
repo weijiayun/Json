@@ -1,22 +1,20 @@
-<tr id="{{ struct[0] }}array" style="display: none">
+<tr id="{{ struct[0] }}{{ listType }}" style="display: none">
     <td>
         <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 48px">
             <tbody>
-            {% for listName,listRAT in struct[1].items()%}
-                {% if "list" in listRAT[1] %}
+            {% for listName,listRAT in listmember.member.items()%}
                 <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
                    <td class="jsoneditor-tree">
                        <button class="jsoneditor-invisible" title=""></button>
                    </td>
                     <td>
-                        <div class="jsoneditor-readonly" id="m{{ struct[0] }}{{ listName }}" title="{{ listRAT[1] }}">{{ listName }}</div>
+                        <div class="jsoneditor-readonly" id="m{{ struct[0] }}{{ listName }}" title="{{ listRAT }}">{{ listName }}</div>
                     </td>
                     <td class="jsoneditor-separator">:</td>
                     <td class="jsoneditor-tree">
                         <div id="{{ struct[0] }}{{ listName }}" class="jsoneditor-value jsoneditor-number" contenteditable="true" spellcheck="false"></div>
                     </td>
                 </tr>
-                {% endif %}
             {% endfor %}
             </tbody>
         </table>

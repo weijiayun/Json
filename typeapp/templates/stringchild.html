@@ -1,0 +1,22 @@
+<tr id="{{ struct[0] }}string">
+    <td>
+        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 24px">
+            <tbody>
+            {% for strName,strRAT in struct[1]["string"].member.items() %}
+            <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
+                <td class="jsoneditor-tree">
+                    <button class="jsoneditor-invisible"></button>
+                </td>
+                <td class="jsoneditor-tree">
+                    <div class="jsoneditor-readonly" title="{{ strRAT }}" id="m{{ struct[0] }}{{ strName }}">{{ strName }}</div>
+                </td>
+                <td class="jsoneditor-separator">:</td>
+                <td class="jsoneditor-tree">
+                    <div id="{{ struct[0] }}{{ strName }}" class="jsoneditor-value jsoneditor-string" contenteditable="true" spellcheck="false" title=""></div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </td>
+</tr>

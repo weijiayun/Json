@@ -1,13 +1,14 @@
-<tr>
-    <td onmouseover="shadowover(this)" onmouseout="shadowout(this)">
+<tr id="{{ struct[0] }}bool">
+    <td>
         <table class="jsoneditor-value" style="border-collapse: collapse; margin-left: 24px">
             <tbody>
-            <tr>
+            {% for boolName,boolRAT in struct[1]["bool"].member.items() %}
+            <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
                 <td class="jsoneditor-tree">
                     <button class="jsoneditor-invisible" title=""></button>
                 </td>
                 <td class="jsoneditor-tree">
-                    <div class="jsoneditor-readonly" title="{{ boolRAT[1] }}">{{ boolName }}</div>
+                    <div class="jsoneditor-readonly" title="{{ boolRAT }}">{{ boolName }}</div>
                 </td>
                 <td class="jsoneditor-separator"></td>
                 <td class="jsoneditor-tree">
@@ -17,6 +18,7 @@
                     <div class="jsoneditor-value jsoneditor-boolean" contenteditable="true" spellcheck="false" title="" id="{{ struct[0] }}{{ boolName }}">false</div>
                 </td>
             </tr>
+            {% endfor %}
             </tbody>
         </table>
     </td>

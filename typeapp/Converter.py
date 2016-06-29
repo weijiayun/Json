@@ -292,18 +292,45 @@ def GenerateSignalPythonScript(templatePath):
     signalfeederlist = [Memberlist[i] for i, var in enumerate(TypeList) if var == "signal" and RefList[i] == 'DelegateFeeder']
     required_member_list = [Memberlist[i] for i, var in enumerate(optionList) if var == "required"]
     optional_member_list = [Memberlist[i] for i, var in enumerate(optionList) if var == "optional"]
-    boolList = [Memberlist[i] for i, var in enumerate(TypeList) if var == "bool"]
-    stringList = [Memberlist[i] for i,var in enumerate(TypeList) if var == "string"]
-    signalInList = [Memberlist[i] for i,var in enumerate(TypeList) if var == "list<signal>" and not "$" in initVar[i]]
-    stringInList = [Memberlist[i] for i,var in enumerate(TypeList) if var == "list<string>" and not "$" in initVar[i]]
-    boolDict = {"len":len(boolList),"member":{boolList[i]:[optionList[i],TypeList[i]] for i in len(boolList)}}
-    stringDict = {"len":len(stringList),"member":{stringList[i]:[optionList[i],TypeList[i]] for i in len(stringList)}}
-
-    jsondict = {}
-    for i in range(len(Memberlist)):
-        jsondict[Memberlist[i]]=[optionList[i],TypeList[i]]
-    return [name,jsondict]
-
+    signalInList = [Memberlist[i] for i, var in enumerate(TypeList) if var == "list<signal>" and not "$" in initVar[i]]
+    stringInList = [Memberlist[i] for i, var in enumerate(TypeList) if var == "list<string>" and not "$" in initVar[i]]
+    boolList = {}
+    stringList ={}
+    sint32list ={}
+    uint32List = {}
+    doubleList = {}
+    for i,var in enumerate(TypeList):
+        if var == "bool":
+            boolList[Memberlist[i]]= optionList[i]
+        elif var == "string":
+            stringList[Memberlist[i]]=optionList[i]
+        elif var == "uint32":
+            uint32List[Memberlist[i]]=optionList[i]
+            uint32List[Memberlist[i]]=optionList[i]
+        elif var == "sint32":
+            sint32list[Memberlist[i]]=optionList[i]
+            sint32list[Memberlist[i]]=optionList[i]
+        elif var == "double":
+            doubleList[Memberlist[i]]=optionList[i]
+            doubleList[Memberlist[i]]=optionList[i]
+        elif "list<" not in var:
+    arrayTypeList = [TypeList[i] for i,var in enumerate(TypeList) if "list<" in var]
+    arrayDict = {}
+    for var1 in arrayTypeList:
+        arrayDict[var1]={"len":1,"member":{}}
+        for i,var2 in enumerate(TypeList):
+            if var1 == var2:
+                arrayDict[var1]["member"][Memberlist[i]]=optionList[i]
+        arrayDict[var1]["len"] = len(arrayDict[var1]["member"])
+    sint32Dict = {"len": len(sint32list), "member": sint32list}
+    uint32Dict = {"len": len(uint32List), "member": uint32List}
+    doubleDict = {"len":len(doubleList),"member":doubleList}
+    stringDict = {"len":len(stringList),"member":stringList}
+    boolDict = {"len":len(boolList),"member":boolList}
+    listDict = {"len":len(arrayDict),"member":arrayDict}
+    jsondict = {"sint32":sint32Dict,"uint32":uint32Dict,"double":doubleDict,
+                "bool":boolDict,"list":listDict,"string":stringDict}
+    return [name,jsondict,len(Memberlist)]
 def search(s,dir,outputList):
     for x1 in os.listdir(dir):
         if os.path.isfile(os.path.join(dir,x1)):
