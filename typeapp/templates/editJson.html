@@ -1,0 +1,37 @@
+<div>
+    <div class="jsoneditor jsoneditor-modes-tree">
+        <div>
+            <div class="jsoneditor-tree">
+                {% for struct in JsonDict %}
+                <table class="jsoneditor-tree">
+                    <tbody>
+                    {% include 'header.html' %}
+                    </tbody>
+                </table>
+                <table id="{{ struct[0] }}" style="display: none">
+                    <tbody>
+                    {% include 'array.html' %}
+                    {% for boolName,boolRAT in struct[1].items() %}
+                        {% if boolRAT[1] == 'bool' %}
+                            {% include 'boolean.html' %}
+                        {% endif %}
+                    {% endfor %}
+                    {% for numName,numRAT in struct[1].items() %}
+                        {% if  "int32" in numRAT[1] or numRAT[1] == "double" %}
+                            {% include 'number.html' %}
+                        {% endif %}
+                    {% endfor %}
+                    {% for strName,strRAT in struct[1].items() %}
+                        {% if strRAT[1] == 'string' %}
+                            {% include 'string.html' %}
+                        {% endif %}
+                    {% endfor %}
+                    {% include 'null.html' %}
+                    {% include 'matrix.html' %}
+                    </tbody>
+                </table>
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

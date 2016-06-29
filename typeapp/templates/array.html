@@ -1,24 +1,19 @@
 <tr class="jsoneditor-expandable" title="array">
-{#    <td>#}
-{#        <button title="Drag to move this field (Alt+Shift+Arrows)" class="jsoneditor-dragarea"></button>#}
-{#    </td>#}
-    <td>
+    <td >
         <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 24px">
             <tbody>
             <tr>
                 <td class="jsoneditor-tree">
-                    <button class="jsoneditor-collapsed" title="Click to expand/Collapse this field (Ctrl+E). Ctrl+click to expand/collapse including all childs."></button>
+                    <button class="jsoneditor-collapsed" onclick="collapsewin('{{ struct[0] }}array')" title="Click to expand/Collapse this field (Ctrl+E). Ctrl+click to expand/collapse including all childs.">^</button>
                 </td>
-                <td class="jsoneditor-tree">
+                <td class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
                     <div class="jsoneditor-readonly" >
                     Array
                     </div>
                 </td>
                 <td class="jsoneditor-tree"></td>
                 <td class="jsoneditor-tree">
-                    <div class="jsoneditor-value jsoneditor-array" title="array containing 3 items">
-                    [3]
-                    </div>
+                    <div class="jsoneditor-value jsoneditor-array" title="array containing 3 items">3</div>
                 </td>
             </tr>
             </tbody>

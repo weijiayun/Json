@@ -1,22 +1,18 @@
-<tr>
-{#     <td>#}
-{#        <button title="Drag to move this field (Alt+Shift+Arrows)" class="jsoneditor-dragarea"></button>#}
-{#    </td>#}
-    <td>
+<tr id="matrixchild1" style="display: none">
+    <td >
         <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 48px">
             <tbody>
             {% for j in range(4) %}
-            <tr>
+            <tr onmouseover="shadowover(this)" onmouseout="shadowout(this)">
                 {% for i in range(5) %}
                <td class="jsoneditor-tree">
                    <button class="jsoneditor-invisible" title=""></button>
                </td>
                 <td class="jsoneditor-tree">
-                    <div class="jsoneditor-value jsoneditor-number" contenteditable="true" spellcheck="false">{{ j*i+i }}</div>
+                    <div class="jsoneditor-value jsoneditor-number" contenteditable="true" spellcheck="false" id="Matrix{{ j }}{{ i }}">{{ j*5+i+1 }}</div>
                 </td>
                 {% endfor %}
             </tr>
-
             {% endfor %}
             </tbody>
         </table>

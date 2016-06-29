@@ -1,8 +1,6 @@
 <tr>
-{#     <td>#}
-{#        <button title="Drag to move this field (Alt+Shift+Arrows)" class="jsoneditor-dragarea"></button>#}
-{#    </td>#}
-    <td>
+
+    <td onmouseover="shadowover(this)" onmouseout="shadowout(this)">
         <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 24px">
             <tbody>
             <tr>
@@ -10,15 +8,11 @@
                     <button class="jsoneditor-invisible"></button>
                 </td>
                 <td class="jsoneditor-tree">
-                    <div class="jsoneditor-readonly">
-                        String
-                    </div>
+                    <div class="jsoneditor-readonly" title="{{ strRAT[1] }}" id="m{{ struct[0] }}{{ strName }}">{{ strName }}</div>
                 </td>
                 <td class="jsoneditor-separator">:</td>
                 <td class="jsoneditor-tree">
-                    <div id="{{ i }}" class="jsoneditor-value jsoneditor-string" contenteditable="true" spellcheck="false" title="">
-                        weijiayun
-                    </div>
+                    <div id="{{ struct[0] }}{{ strName }}" class="jsoneditor-value jsoneditor-string" contenteditable="true" spellcheck="false" title=""></div>
                 </td>
             </tr>
             </tbody>

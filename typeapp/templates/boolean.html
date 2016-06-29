@@ -1,9 +1,5 @@
-
 <tr>
-{#     <td>#}
-{#        <button title="Drag to move this field (Alt+Shift+Arrows)" class="jsoneditor-dragarea"></button>#}
-{#    </td>#}
-    <td>
+    <td onmouseover="shadowover(this)" onmouseout="shadowout(this)">
         <table class="jsoneditor-value" style="border-collapse: collapse; margin-left: 24px">
             <tbody>
             <tr>
@@ -11,16 +7,14 @@
                     <button class="jsoneditor-invisible" title=""></button>
                 </td>
                 <td class="jsoneditor-tree">
-                    <div class="jsoneditor-readonly" >
-                        BOOLEAN
-                    </div>
+                    <div class="jsoneditor-readonly" title="{{ boolRAT[1] }}">{{ boolName }}</div>
                 </td>
                 <td class="jsoneditor-separator"></td>
                 <td class="jsoneditor-tree">
-                    <input type="checkbox" id="check" onclick="get_chekbox_value('check','check1')"/>
+                    <input type="checkbox" id="m{{ struct[0] }}{{ boolName }}" onclick="get_chekbox_value('m{{ struct[0] }}{{ boolName }}','{{ struct[0] }}{{ boolName }}')"/>
                 </td>
                 <td class="jsoneditor-tree">
-                    <div class="jsoneditor-value jsoneditor-boolean"contenteditable="true" spellcheck="false" title="" id="check1">False</div>
+                    <div class="jsoneditor-value jsoneditor-boolean" contenteditable="true" spellcheck="false" title="" id="{{ struct[0] }}{{ boolName }}">false</div>
                 </td>
             </tr>
             </tbody>

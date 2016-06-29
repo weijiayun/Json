@@ -1,27 +1,22 @@
-<tr>
-{#     <td>#}
-{#        <button title="Drag to move this field (Alt+Shift+Arrows)" class="jsoneditor-dragarea"></button>#}
-{#    </td>#}
+<tr id="{{ struct[0] }}array" style="display: none">
     <td>
         <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 48px">
             <tbody>
-            {% for i in range(3) %}
-            <tr>
-               <td class="jsoneditor-tree">
-                   <button class="jsoneditor-invisible" title=""></button>
-               </td>
-                <td class="jsoneditor-tree">
-                    <div class="jsoneditor-readonly">
-                        {{ i }}
-                    </div>
-                </td>
-                <td class="jsoneditor-separator">:</td>
-                <td class="jsoneditor-tree">
-                    <div class="jsoneditor-value jsoneditor-number" contenteditable="true" spellcheck="false">
-                        {{ 3.14*i*i }}
-                    </div>
-                </td>
-            </tr>
+            {% for listName,listRAT in struct[1].items()%}
+                {% if "list" in listRAT[1] %}
+                <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
+                   <td class="jsoneditor-tree">
+                       <button class="jsoneditor-invisible" title=""></button>
+                   </td>
+                    <td>
+                        <div class="jsoneditor-readonly" id="m{{ struct[0] }}{{ listName }}" title="{{ listRAT[1] }}">{{ listName }}</div>
+                    </td>
+                    <td class="jsoneditor-separator">:</td>
+                    <td class="jsoneditor-tree">
+                        <div id="{{ struct[0] }}{{ listName }}" class="jsoneditor-value jsoneditor-number" contenteditable="true" spellcheck="false"></div>
+                    </td>
+                </tr>
+                {% endif %}
             {% endfor %}
             </tbody>
         </table>

@@ -50,9 +50,12 @@
           DFC tech.
         </h1>
       </div> <!-- /demo-headline -->
-      {% include "showtypeinput.html" %}
-        <div>
-        {% include 'jsonedit.html'  %}
+      {% include "selectAndShowType.html" %}
+        <div style="width: 100%">
+        <div class="col-sm-6">
+            {% include 'editJson.html' %}
+        </div>
+        <div class="col-sm-6">{% include 'showJson.html' %}</div>
         </div>
     </div> <!-- /container -->
   </div>

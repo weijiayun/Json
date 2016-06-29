@@ -11,6 +11,6 @@ TYPES = {
     7:"Json Wei"
 }
 StructA = [
-    "a",
-    "b"
+
 ]
+
