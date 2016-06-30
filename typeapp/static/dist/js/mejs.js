@@ -42,13 +42,13 @@ function get0bj(structid) {
 function convertToJson(obj) {
     return JSON.stringify(obj)
 }
-function showJson(structid) {
+function showJson(structid,showjsonid) {
     var result = get0bj(structid);
-    var html = '<ul>';
+    var html = '<table class="jsoneditor-value">';
     for(var x in result){
-        html += '<li>' + x+'='+result[x]+ '</li>';
+        html += '<tr class="jsoneditor-tree"><td class="jsoneditor-tree"><div class="jsoneditor-readonly" style="margin-left: 24px">' + x+' = '+'<span style="color: coral">'+result[x]+'</span>'+ '</div></td></tr>';
     }
-    html += '</ul>';
-    document.getElementById('showjsondiv').innerHTML = html;
+    html += '</table>';
+    document.getElementById(showjsonid).innerHTML = html;
     
 }

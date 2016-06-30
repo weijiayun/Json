@@ -3,9 +3,9 @@
         <div>
             <div class="jsoneditor-tree">
                 <div>
-                <button onclick="showJson('jsoncodeid')" class="btn-block btn">Json</button>
+                <button onclick="showJson('{{ struct[0] }}jsoncodeid')" class="btn-block btn">Json</button>
                 </div>
-                <div id="showjsondiv"></div>
+                <div id="{{ struct[0] }}showjsondiv"></div>
             </div>
         </div>
     </div>

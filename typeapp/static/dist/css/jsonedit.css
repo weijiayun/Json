@@ -7,7 +7,14 @@ div.jsoneditor input{
 	height:auto;
 	border:inherit
 }
+div.jsoneditor ul li{
 
+}
+ul li{
+	list-style-type:none;
+	font-size: inherit;
+	color: #00a1cb;
+}
 div.jsoneditor input:focus{
 	border:none!important;
 	box-shadow:none!important

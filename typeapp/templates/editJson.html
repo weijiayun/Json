@@ -1,9 +1,10 @@
+
 <div>
-    <div class="jsoneditor jsoneditor-modes-tree" onkeyup="showJson('jsoncodeid')">
+    <div class="jsoneditor jsoneditor-modes-tree" onkeyup="showJson('{{ struct[0] }}jsoncodeid','{{ struct[0] }}showjsondiv')">
         <div>
             <div class="jsoneditor-tree" >
-                {% set struct = JsonDict[1] %}
-            <div id="jsoncodeid" style="display: none">{{ struct[3] }}</div>
+
+            <div id="{{ struct[0] }}jsoncodeid" style="display: none">{{ struct[3] }}</div>
                 <table class="jsoneditor-tree">
                     <tbody>
                     {% include 'header.html' %}
