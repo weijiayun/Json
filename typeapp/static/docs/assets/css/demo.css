@@ -100,16 +100,16 @@ ol.linenums {
   text-align: center;
 }
 .demo-logo {
-  font: 900 80px/1px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font: 700 60px/1px "Helvetica Neue", Helvetica, Arial, sans-serif;
   letter-spacing: -2px;
   margin: 10px 0;
   text-align: center;
 }
 .demo-logo .logo {
   background: url(../img/demo/logo-mask.png) center 0 no-repeat;
-  background-size: 150px 120px;
-  height: 150px;
-  margin: 0 auto 26px;
+  background-size: 120px 100px;
+  height: 130px;
+  margin: 0 auto 1px;
   overflow: hidden;
   text-indent: -9999em;
   width: 236px;
