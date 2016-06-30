@@ -36,7 +36,6 @@ function get0bj(structid) {
     newjsoncode=new Object();
     for(var i=0;i<memberlist.length;i++){
         newjsoncode[memberlist[i]]=document.getElementById(structname+memberlist[i]).innerHTML;
-        alert(newjsoncode[memberlist[i]])
     }
     return newjsoncode;
 }
@@ -47,11 +46,9 @@ function showJson(structid) {
     var result = get0bj(structid);
     var html = '<ul>';
     for(var x in result){
-        html += '<li>' + x + '</li>';
-        alert(x)
+        html += '<li>' + x+'='+result[x]+ '</li>';
     }
     html += '</ul>';
     document.getElementById('showjsondiv').innerHTML = html;
-
     
 }

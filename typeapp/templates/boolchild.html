@@ -12,10 +12,10 @@
                 </td>
                 <td class="jsoneditor-separator"></td>
                 <td class="jsoneditor-tree">
-                    <input type="checkbox" id="m{{ struct[0] }}{{ boolName }}" onclick="get_chekbox_value('m{{ struct[0] }}{{ boolName }}','{{ struct[0] }}{{ boolName }}')"/>
+                    <input type="checkbox" value="0" id="m{{ struct[0] }}{{ boolName }}" onclick="get_chekbox_value('m{{ struct[0] }}{{ boolName }}','{{ struct[0] }}{{ boolName }}');showJson('jsoncodeid')"/>
                 </td>
                 <td class="jsoneditor-tree">
-                    <div class="jsoneditor-value jsoneditor-boolean" contenteditable="true" spellcheck="false" title="" id="{{ struct[0] }}{{ boolName }}">false</div>
+                    <div class="jsoneditor-readonly jsoneditor-boolean"  id="{{ struct[0] }}{{ boolName }}">false</div>
                 </td>
             </tr>
             {% endfor %}
