@@ -9,8 +9,10 @@ templateFileOrdirPath = '/home/linus/PycharmProjects/Json/typeapp/templ'
 tmplfilelist = []
 search('.h.tmpl', templateFileOrdirPath, tmplfilelist)
 JsonList =[]
-for f in tmplfilelist:
-    JsonList.append(get_JsonDict(f))
+for i,f in enumerate(tmplfilelist):
+    u= get_JsonDict(f)
+    u.append(i)
+    JsonList.append(u)
 
 @app.route('/')
 def index():

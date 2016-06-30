@@ -299,21 +299,30 @@ def GenerateSignalPythonScript(templatePath):
     sint32list ={}
     uint32List = {}
     doubleList = {}
+    otherList = {}
     for i,var in enumerate(TypeList):
+
         if var == "bool":
             boolList[Memberlist[i]]= optionList[i]
+            continue
         elif var == "string":
             stringList[Memberlist[i]]=optionList[i]
+            continue
         elif var == "uint32":
             uint32List[Memberlist[i]]=optionList[i]
             uint32List[Memberlist[i]]=optionList[i]
+            continue
         elif var == "sint32":
             sint32list[Memberlist[i]]=optionList[i]
             sint32list[Memberlist[i]]=optionList[i]
+            continue
         elif var == "double":
             doubleList[Memberlist[i]]=optionList[i]
             doubleList[Memberlist[i]]=optionList[i]
-        elif "list<" not in var:
+            continue
+        elif 'list<' not in var:
+            otherList[Memberlist[i]]=optionList[i]
+
     arrayTypeList = [TypeList[i] for i,var in enumerate(TypeList) if "list<" in var]
     arrayDict = {}
     for var1 in arrayTypeList:
@@ -328,9 +337,12 @@ def GenerateSignalPythonScript(templatePath):
     stringDict = {"len":len(stringList),"member":stringList}
     boolDict = {"len":len(boolList),"member":boolList}
     listDict = {"len":len(arrayDict),"member":arrayDict}
+    otherDict = {"len":len(otherList),"member":otherList}
     jsondict = {"sint32":sint32Dict,"uint32":uint32Dict,"double":doubleDict,
-                "bool":boolDict,"list":listDict,"string":stringDict}
-    return [name,jsondict,len(Memberlist)]
+                "bool":boolDict,"list":listDict,"string":stringDict,"other":otherDict}
+    import json
+    jsoncode = json.JSONEncoder().encode([name,Memberlist])
+    return [name,jsondict,len(Memberlist),jsoncode]
 def search(s,dir,outputList):
     for x1 in os.listdir(dir):
         if os.path.isfile(os.path.join(dir,x1)):

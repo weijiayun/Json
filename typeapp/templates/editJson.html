@@ -2,7 +2,8 @@
     <div class="jsoneditor jsoneditor-modes-tree">
         <div>
             <div class="jsoneditor-tree">
-                {% for struct in JsonDict %}
+                {% set struct = JsonDict[0] %}
+            <div id="jsoncodeid" style="display: none">{{ struct[3] }}</div>
                 <table class="jsoneditor-tree">
                     <tbody>
                     {% include 'header.html' %}
@@ -11,18 +12,31 @@
                 <table id="{{ struct[0] }}" style="display: none">
                     <tbody>
                     {% for listType,listmember in struct[1]["list"].member.items() %}
-                        {% include 'array.html' %}
+                        {% if listmember.len !=0 %}
+                            {% include 'array.html' %}
+                        {% endif %}
                     {% endfor %}
-                    {% include "bool.html" %}
-                    {% include "uint32.html" %}
-                    {% include "sint32.html" %}
-                    {% include "double.html" %}
-                    {% include "string.html" %}
-                    {% include 'null.html' %}
+                    {% if struct[1]["bool"].len != 0%}
+                        {% include "bool.html" %}
+                    {% endif %}
+                    {% if struct[1]["uint32"].len %}
+                        {% include "uint32.html" %}
+                    {% endif %}
+                    {% if struct[1]["sint32"].len %}
+                        {% include "sint32.html" %}
+                    {% endif %}
+                    {% if struct[1]["double"].len %}
+                        {% include "double.html" %}
+                    {% endif %}
+                    {% if struct[1]["string"].len %}
+                        {% include "string.html" %}
+                    {% endif %}
+                    {% for otherName,otherRAT in struct[1]["other"].member.items() %}
+                        {% include 'other.html' %}
+                    {% endfor %}
                     {% include 'matrix.html' %}
                     </tbody>
                 </table>
-            {% endfor %}
             </div>
         </div>
     </div>

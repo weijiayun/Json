@@ -30,8 +30,15 @@ function requiredInput(x) {
 }
 function get0bj(structid) {
     var structvalue = document.getElementById(structid).innerHTML;
-    
-    return structvalue;
+    var jsonobj = JSON.parse(structvalue);
+    var structname = jsonobj[0];
+    var memberlist = jsonobj[1];
+    newjsoncode=new Object();
+    for(var i=0;i<memberlist.length;i++){
+        newjsoncode[memberlist[i]]=document.getElementById(structname+memberlist[i]).innerHTML;
+        alert(newjsoncode[memberlist[i]])
+    }
+    return newjsoncode;
 }
 function convertToJson(obj) {
     return JSON.stringify(obj)
@@ -39,10 +46,12 @@ function convertToJson(obj) {
 function showJson(structid) {
     var result = get0bj(structid);
     var html = '<ul>';
-    for(var i=1;i<result.length;i++){
-        html += '<li>' + result[i] + '</li>';
+    for(var x in result){
+        html += '<li>' + x + '</li>';
+        alert(x)
     }
     html += '</ul>';
-    document.getElementById('showjosn').innerHTML = html;
+    document.getElementById('showjsondiv').innerHTML = html;
+
     
 }

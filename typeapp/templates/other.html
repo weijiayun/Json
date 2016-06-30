@@ -1,0 +1,20 @@
+<tr id="{{ struct[0] }}other">
+    <td>
+        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 24px">
+            <tbody>
+            <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
+                <td class="jsoneditor-tree">
+                    <button class="jsoneditor-invisible"></button>
+                </td>
+                <td class="jsoneditor-tree">
+                    <div class="jsoneditor-readonly" title="{{ otherRAT }}" id="m{{ struct[0] }}{{ otherName }}">{{ otherName }}</div>
+                </td>
+                <td class="jsoneditor-separator">:</td>
+                <td class="jsoneditor-tree">
+                    <div id="{{ struct[0] }}{{ otherName }}" class="jsoneditor-value jsoneditor-string" contenteditable="true" spellcheck="false" title=""></div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </td>
+</tr>
