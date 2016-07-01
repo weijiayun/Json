@@ -2,24 +2,17 @@
 <div>
     <div class="jsoneditor jsoneditor-modes-tree" >
         <div class="jsoneditor-tree" >
-            <script>
-                function addRow(tableId){
-{#                    var oTable = document.getElementById(tableId);#}
-{#                    var tBodies = oTable.tBodies;#}
-{#                    var tbody = tBodies[0];#}
-{#                    var tr = tbody.insertRow(tbody.rows.length);#}
-{#                    var td_1 = tr.insertCell(0);#}
-                     {% include 'SelectTypeUnit.html' %};
-                }
-            </script>
             <table id="oTable" width="100%">
             <tbody>
+            {% for StructCnt in range(StructNameList[0]) %}
             <tr>
-                <td>{% include 'SelectTypeUnit.html' %}</td>
+                <td>
+                    <div>{% include 'SelectTypeUnit.html' %}</div>
+                </td>
             </tr>
+            {% endfor %}
             </tbody>
             </table>
-            <input type="button" onClick="addRow('oTable');" style="font-size:26px;" value="+"/>
         </div>
     </div>
 </div>

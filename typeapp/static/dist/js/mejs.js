@@ -52,10 +52,12 @@ function showJson(structid,showjsonid) {
 function selectshow(SelectElemId) {
     var structvalue = document.getElementById("StructNameJson").innerHTML;
     var structNameList = JSON.parse(structvalue);
-    for(var Name of structNameList)
+    for(var cnt = 0;cnt<structNameList.length;cnt++)
     {
-        document.getElementById(Name).style.display = "none";
-        document.getElementById(Name+"ShowJsonWin").style.display = "none";
+        for(var elem of structNameList){
+            document.getElementById(cnt+elem).style.display = "none";
+            document.getElementById(cnt+elem+"ShowJsonWin").style.display = "none";
+        }
     }
     var obj = document.getElementById(SelectElemId);
     var index = obj.selectedIndex;

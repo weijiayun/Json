@@ -1,9 +1,9 @@
 <div style="display: none" id="StructNameJson">{{ StructNameJson }}</div>
 {% include 'selectType.html' %}
 {% for struct in JsonDict %}
-    <div onkeyup="showJson('{{ struct[0] }}jsoncodeid','{{ struct[0] }}showjsondiv')" >
-        <div id="{{ struct[0] }}jsoncodeid" style="display: none">{{ struct[3] }}</div>
-        <table id="{{ struct[0] }}" style="display: none">
+    <div id="{{ struct[0] }}jsoncodeid" style="display: none">{{ struct[3] }}</div>
+    <div onkeyup="showJson('{{ struct[0] }}jsoncodeid','{{ StructCnt }}{{ struct[0] }}showjsondiv')" >
+        <table id="{{ StructCnt }}{{ struct[0] }}" style="display: block">
             <tbody>
             {% if struct[1]["string"].len %}
                 {% include "string.html" %}

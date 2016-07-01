@@ -1,9 +1,9 @@
 <div class="row">
     <div class="col-xs-3">
-        <select id="{{ 1 }}typeselect" class="form-control select select-primary" data-toggle="select" onclick="selectshow('{{ 1 }}typeselect')">
+        <select id="{{ StructCnt }}typeselect" class="form-control select select-primary" data-toggle="select" onclick="selectshow('{{ StructCnt }}typeselect')">
             <option selected>Types</option>
             {% for e in JsonDict %}
-                <option value="{{ e[0] }}">{{ e[0] }}</option>
+                <option value="{{ StructCnt }}{{ e[0] }}">{{ e[0] }}</option>
             {% endfor %}
         </select>
     </div> <!-- /.col-xs-3 -->

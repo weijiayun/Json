@@ -1,4 +1,4 @@
-<tr id="{{ struct[0] }}{{ listType }}" style="display: none">
+<tr id="{{ StructCnt }}{{ struct[0] }}{{ listType }}" style="display: none">
     <td>
         <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 48px">
             <tbody>
@@ -13,11 +13,11 @@
                         {% endif %}
                     </td>
                     <td>
-                        <div class="jsoneditor-readonly" id="m{{ struct[0] }}{{ listName }}" title="{{ listRAT }}">{{ listName }}</div>
+                        <div class="jsoneditor-readonly" id="m{{ StructCnt }}{{ struct[0] }}{{ listName }}" title="{{ listRAT }}">{{ listName }}</div>
                     </td>
                     <td class="jsoneditor-separator">:</td>
                     <td class="jsoneditor-tree">
-                        <div id="{{ struct[0] }}{{ listName }}" class="jsoneditor-value jsoneditor-number" contenteditable="true" spellcheck="false"></div>
+                        <div id="{{ StructCnt }}{{ struct[0] }}{{ listName }}" class="jsoneditor-value jsoneditor-number" contenteditable="true" spellcheck="false"></div>
                     </td>
                 </tr>
             {% endfor %}
