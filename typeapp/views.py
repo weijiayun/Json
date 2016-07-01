@@ -5,7 +5,7 @@ from flask import render_template
 from typeapp import app
 from typeapp.typeconfig import TYPES,StructA
 from Converter import GenerateSignalPythonScript as get_JsonDict,search
-templateFileOrdirPath = '/home/weijiayun/PycharmProjects/Json/typeapp/templ'
+templateFileOrdirPath = '/home/linus/PycharmProjects/Json/typeapp/templ'
 tmplfilelist = []
 search('.h.tmpl', templateFileOrdirPath, tmplfilelist)
 JsonList =[]

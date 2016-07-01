@@ -15,7 +15,7 @@ function shadowout(x) {
     x.style.backgroundColor = "white";
 }
 function collapsewin(parentid) {
-    disp = document.getElementById(parentid).style;
+    var disp = document.getElementById(parentid).style;
     if (disp.display == "none")
         disp.display = "block";
     else 
@@ -51,4 +51,15 @@ function showJson(structid,showjsonid) {
     html += '</table>';
     document.getElementById(showjsonid).innerHTML = html;
     
+}
+function selectshow(SelectElemId) {
+
+    var obj = document.getElementById(SelectElemId);
+    var index = obj.selectedIndex;
+    var valoption = obj.options[index].value;
+    var disp = document.getElementById(valoption).style;
+    if (disp.display == "none")
+        disp.display = "block";
+    else
+        disp.display = "none";
 }

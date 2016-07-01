@@ -8,6 +8,11 @@
                        <button class="jsoneditor-invisible" title=""></button>
                    </td>
                     <td>
+                        {% if listRAT == "required" %}
+                        <span style="color: red">*</span>
+                        {% endif %}
+                    </td>
+                    <td>
                         <div class="jsoneditor-readonly" id="m{{ struct[0] }}{{ listName }}" title="{{ listRAT }}">{{ listName }}</div>
                     </td>
                     <td class="jsoneditor-separator">:</td>

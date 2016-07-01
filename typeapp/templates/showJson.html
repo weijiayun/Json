@@ -2,10 +2,12 @@
     <div class="jsoneditor jsoneditor-modes-tree">
         <div>
             <div class="jsoneditor-tree">
-                <div>
-                <button onclick="showJson('{{ struct[0] }}jsoncodeid')" class="btn-block btn">Json</button>
-                </div>
-                <div id="{{ struct[0] }}showjsondiv"></div>
+                {% for showstruct in JsonDict %}
+                    <div>
+                        <button onclick="showJson('{{ showstruct[0] }}jsoncodeid')" class="btn-block btn">Json</button>
+                    </div>
+                    <div id="{{ showstruct[0] }}showjsondiv"></div>
+                {% endfor %}
             </div>
         </div>
     </div>

@@ -1,10 +1,11 @@
 
 <div>
-    <div class="jsoneditor jsoneditor-modes-tree" onkeyup="showJson('{{ struct[0] }}jsoncodeid','{{ struct[0] }}showjsondiv')">
-        <div>
-            <div class="jsoneditor-tree" >
-
-            <div id="{{ struct[0] }}jsoncodeid" style="display: none">{{ struct[3] }}</div>
+    <div class="jsoneditor jsoneditor-modes-tree" >
+        <div class="jsoneditor-tree" >
+            {% include 'selectType.html' %}
+            {% for struct in JsonDict %}
+                <div id="{{ struct[0] }}{{ struct[4] }}forSelect" style="display: none" onkeyup="showJson('{{ struct[0] }}jsoncodeid','{{ struct[0] }}showjsondiv')" >
+                <div id="{{ struct[0] }}jsoncodeid" style="display: none">{{ struct[3] }}</div>
                 <table class="jsoneditor-tree">
                     <tbody>
                     {% include 'header.html' %}
@@ -39,6 +40,7 @@
                     </tbody>
                 </table>
             </div>
+            {% endfor %}
         </div>
     </div>
 </div>

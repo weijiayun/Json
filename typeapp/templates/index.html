@@ -25,22 +25,6 @@
       <script src="../static/dist/js/flat-ui.min.js"></script>
       <script src="../static/docs/assets/js/application.js"></script>
       <script src="../static/dist/js/mejs.js"></script>
-      <script type="text/javascript">
-            window.addtype= new Set();
-            function selectshow() {
-                var t = [];
-                addtype.add(document.getElementById('typelist').value);
-                u = document.getElementById('typelist').value;
-                var s = new Set(addtype);
-                for(var gg of s){
-                    if(gg != 'Types'){
-                        t.push(gg)
-                    }
-                }
-                t.join(',');
-                document.getElementById("typeshow").value=t;
-            }
-        </script>
   </head>
   <body>
   <div class="row demo-row">
@@ -51,13 +35,13 @@
           DFC tech.
         </h1>
       </div> <!-- /demo-headline -->
-      {% include "selectAndShowType.html" %}
         <div style="width: 100%">
-            {% set struct = JsonDict[1] %}
         <div class="col-sm-6">
             {% include 'editJson.html' %}
         </div>
-        <div class="col-sm-6">{% include 'showJson.html' %}</div>
+        <div class="col-sm-6">
+            {% include 'showJson.html' %}
+        </div>
         </div>
     </div> <!-- /container -->
   </div>
