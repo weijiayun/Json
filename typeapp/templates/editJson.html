@@ -2,45 +2,24 @@
 <div>
     <div class="jsoneditor jsoneditor-modes-tree" >
         <div class="jsoneditor-tree" >
-            {% include 'selectType.html' %}
-            {% for struct in JsonDict %}
-                <div id="{{ struct[0] }}{{ struct[4] }}forSelect" style="display: none" onkeyup="showJson('{{ struct[0] }}jsoncodeid','{{ struct[0] }}showjsondiv')" >
-                <div id="{{ struct[0] }}jsoncodeid" style="display: none">{{ struct[3] }}</div>
-                <table class="jsoneditor-tree">
-                    <tbody>
-                    {% include 'header.html' %}
-                    </tbody>
-                </table>
-                <table id="{{ struct[0] }}" style="display: none" >
-                    <tbody>
-                    {% if struct[1]["string"].len %}
-                        {% include "string.html" %}
-                    {% endif %}
-                    {% for listType,listmember in struct[1]["list"].member.items() %}
-                        {% if listmember.len !=0 %}
-                            {% include 'array.html' %}
-                        {% endif %}
-                    {% endfor %}
-                    {% if struct[1]["bool"].len != 0%}
-                        {% include "bool.html" %}
-                    {% endif %}
-                    {% if struct[1]["uint32"].len %}
-                        {% include "uint32.html" %}
-                    {% endif %}
-                    {% if struct[1]["sint32"].len %}
-                        {% include "sint32.html" %}
-                    {% endif %}
-                    {% if struct[1]["double"].len %}
-                        {% include "double.html" %}
-                    {% endif %}
-                    {% for otherName,otherRAT in struct[1]["other"].member.items() %}
-                        {% include 'other.html' %}
-                    {% endfor %}
-                    {% include 'matrix.html' %}
-                    </tbody>
-                </table>
-            </div>
-            {% endfor %}
+            <script>
+                function addRow(tableId){
+{#                    var oTable = document.getElementById(tableId);#}
+{#                    var tBodies = oTable.tBodies;#}
+{#                    var tbody = tBodies[0];#}
+{#                    var tr = tbody.insertRow(tbody.rows.length);#}
+{#                    var td_1 = tr.insertCell(0);#}
+                     {% include 'SelectTypeUnit.html' %};
+                }
+            </script>
+            <table id="oTable" width="100%">
+            <tbody>
+            <tr>
+                <td>{% include 'SelectTypeUnit.html' %}</td>
+            </tr>
+            </tbody>
+            </table>
+            <input type="button" onClick="addRow('oTable');" style="font-size:26px;" value="+"/>
         </div>
     </div>
 </div>

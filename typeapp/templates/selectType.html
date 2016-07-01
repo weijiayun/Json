@@ -3,7 +3,7 @@
         <select id="{{ 1 }}typeselect" class="form-control select select-primary" data-toggle="select" onclick="selectshow('{{ 1 }}typeselect')">
             <option selected>Types</option>
             {% for e in JsonDict %}
-                <option value="{{ e[0] }}{{ e[4] }}forSelect">{{ e[0] }}</option>
+                <option value="{{ e[0] }}">{{ e[0] }}</option>
             {% endfor %}
         </select>
     </div> <!-- /.col-xs-3 -->

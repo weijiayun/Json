@@ -1,6 +1,3 @@
-
-
-
 function get_chekbox_value(checkboxid,showcheckid) {
     if(document.getElementById(checkboxid).checked){
         document.getElementById(showcheckid).innerHTML= 'true';
@@ -53,13 +50,26 @@ function showJson(structid,showjsonid) {
     
 }
 function selectshow(SelectElemId) {
-
+    var structvalue = document.getElementById("StructNameJson").innerHTML;
+    var structNameList = JSON.parse(structvalue);
+    for(var Name of structNameList)
+    {
+        document.getElementById(Name).style.display = "none";
+        document.getElementById(Name+"ShowJsonWin").style.display = "none";
+    }
     var obj = document.getElementById(SelectElemId);
     var index = obj.selectedIndex;
     var valoption = obj.options[index].value;
-    var disp = document.getElementById(valoption).style;
-    if (disp.display == "none")
-        disp.display = "block";
-    else
-        disp.display = "none";
+    var disp1 = document.getElementById(valoption).style;
+    var disp2 = document.getElementById(valoption+"ShowJsonWin").style;
+    if (disp1.display == "none"){
+        disp1.display = "block";
+        disp2.display = "block";
+    }
+    else{
+        disp1.display = "none";
+        disp2.display = "none";
+    }
+
+
 }
