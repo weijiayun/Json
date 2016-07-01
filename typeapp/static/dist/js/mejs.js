@@ -25,31 +25,33 @@ function requiredInput(x) {
         return false;
     }
 }
-function get0bj(structid) {
+function get0bj(cnt,structid) {
     var structvalue = document.getElementById(structid).innerHTML;
     var jsonobj = JSON.parse(structvalue);
     var structname = jsonobj[0];
     var memberlist = jsonobj[1];
-    newjsoncode=new Object();
+
+    newjsoncode=Object();
     for(var i=0;i<memberlist.length;i++){
-        newjsoncode[memberlist[i]]=document.getElementById(structname+memberlist[i]).innerHTML;
+        newjsoncode[memberlist[i]]=document.getElementById(cnt+structname+memberlist[i]).innerHTML;
     }
+
     return newjsoncode;
 }
 function convertToJson(obj) {
     return JSON.stringify(obj)
 }
-function showJson(structid,showjsonid) {
-    var result = get0bj(structid);
+function showJson(cnt,structid,showjsonid){
+    var result = get0bj(cnt,structid);
     var html = '<table class="jsoneditor-value">';
     for(var x in result){
+
         html += '<tr class="jsoneditor-tree"><td class="jsoneditor-tree"><div class="jsoneditor-readonly" style="margin-left: 24px">' + x+' = '+'<span style="color: coral">'+result[x]+'</span>'+ '</div></td></tr>';
     }
     html += '</table>';
     document.getElementById(showjsonid).innerHTML = html;
-    
 }
-function selectshow(SelectElemId) {
+function selectshow(SelectElemId){
     var structvalue = document.getElementById("StructNameJson").innerHTML;
     var structNameList = JSON.parse(structvalue);
     for(var cnt = 0;cnt<structNameList.length;cnt++)

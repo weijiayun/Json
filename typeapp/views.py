@@ -5,7 +5,7 @@ from typeapp import app
 from typeapp.typeconfig import TYPES,StructA
 from Converter import GenerateSignalPythonScript as get_JsonDict,search
 import json
-templateFileOrdirPath = '/home/weijiayun/PycharmProjects/Json/typeapp/templ'
+templateFileOrdirPath = 'typeapp/templ'
 tmplfilelist = []
 search('.h.tmpl', templateFileOrdirPath, tmplfilelist)
 JsonList =[]

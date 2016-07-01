@@ -1,6 +1,15 @@
+struct FeedcodeMaxQty()
+{
+    required sint32 MaxQty;
+    required string Feedcode;
+};
+
 struct Automaton(required:Automaton)
 {
-    required list<IOrderSpliter> Spliters;
+    required list<string> SplitTyoExchange;
+    required list<FeedcodeMaxQty> MaxOrderQty;
+    required list<string> CloseYdPriorityQue;
+    required string SplitType default ShyGirl;
     required string Type equal Automaton;
     required list<IStrategy> Strategies;
     required list<IInstructionComponent> Components;
