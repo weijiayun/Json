@@ -1,4 +1,4 @@
-<tr id="{{ struct[0] }}other">
+<tr id="{{ StructCnt }}{{ struct[0] }}other">
     <td>
         <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 24px">
             <tbody>
@@ -7,11 +7,11 @@
                     <button class="jsoneditor-invisible"></button>
                 </td>
                 <td class="jsoneditor-tree">
-                    <div class="jsoneditor-readonly" title="{{ otherRAT }}" id="m{{ struct[0] }}{{ otherName }}">{{ otherName }}</div>
+                    <div class="jsoneditor-readonly" title="{{ otherRAT }}" id="m{{ StructCnt }}{{ struct[0] }}{{ otherName }}">{{ otherName }}</div>
                 </td>
                 <td class="jsoneditor-separator">:</td>
                 <td class="jsoneditor-tree">
-                    <div id="{{ struct[0] }}{{ otherName }}" class="jsoneditor-value jsoneditor-string" contenteditable="true" spellcheck="false" title=""></div>
+                    <div id="{{ StructCnt }}{{ struct[0] }}{{ otherName }}" class="jsoneditor-value jsoneditor-string" contenteditable="true" spellcheck="false" title=""></div>
                 </td>
             </tr>
             </tbody>
