@@ -2,7 +2,7 @@
     <div class="jsoneditor jsoneditor-modes-tree">
         <div>
             <div class="jsoneditor-tree">
-            {% for showCnt in range(9) %}
+            {% for showCnt in range(StructNameList[0]) %}
                 {% for showstruct in JsonDict %}
                     <div id="{{ showCnt }}{{ showstruct[0] }}ShowJsonWin" style="display: none">
                         <div>

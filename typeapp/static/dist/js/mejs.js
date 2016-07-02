@@ -33,7 +33,10 @@ function get0bj(cnt,structid) {
 
     newjsoncode=Object();
     for(var i=0;i<memberlist.length;i++){
-        newjsoncode[memberlist[i]]=document.getElementById(cnt+structname+memberlist[i]).innerHTML;
+        if(memberlist[i] == "Type")
+            newjsoncode[memberlist[i]]=structname;
+        else 
+            newjsoncode[memberlist[i]]=document.getElementById(cnt+structname+memberlist[i]).innerHTML;
     }
 
     return newjsoncode;
@@ -51,14 +54,16 @@ function showJson(cnt,structid,showjsonid){
     html += '</table>';
     document.getElementById(showjsonid).innerHTML = html;
 }
-function selectshow(SelectElemId){
+function selectshow(item,SelectElemId){
     var structvalue = document.getElementById("StructNameJson").innerHTML;
     var structNameList = JSON.parse(structvalue);
     for(var cnt = 0;cnt<structNameList.length;cnt++)
     {
         for(var elem of structNameList){
-            document.getElementById(cnt+elem).style.display = "none";
-            document.getElementById(cnt+elem+"ShowJsonWin").style.display = "none";
+            if(cnt == item){
+                document.getElementById(cnt+elem).style.display = "none";
+                document.getElementById(cnt+elem+"ShowJsonWin").style.display = "none";}
+
         }
     }
     var obj = document.getElementById(SelectElemId);
@@ -74,6 +79,5 @@ function selectshow(SelectElemId){
         disp1.display = "none";
         disp2.display = "none";
     }
-
-
 }
+

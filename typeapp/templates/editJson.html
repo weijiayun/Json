@@ -1,17 +1,22 @@
-
 <div>
     <div class="jsoneditor jsoneditor-modes-tree" >
         <div class="jsoneditor-tree" >
             <table id="oTable" width="100%">
-            <tbody>
-            {% for StructCnt in range(StructNameList[0]) %}
-            <tr>
-                <td>
-                    <div>{% include 'SelectTypeUnit.html' %}</div>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
+                <tbody>
+                {% for StructCnt in range(StructNameList[0]) %}
+                    <tr id="{{ StructCnt }}item">
+                        {% if loop.index==1 %}
+                            <td style="display: block">
+                                <div>{% include 'SelectTypeUnit.html' %}</div>
+                            </td>
+                        {% else %}
+                            <td style="display: none">
+                                <div>{% include 'SelectTypeUnit.html' %}</div>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
             </table>
         </div>
     </div>
