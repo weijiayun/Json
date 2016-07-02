@@ -69,13 +69,24 @@ function showJson(cnt,showjsonid){
     var result =DictAndJson[0];
     var html = '<table class="jsoneditor-value">';
     for(var x in result){
-
         html += '<tr class="jsoneditor-tree"><td class="jsoneditor-tree"><div class="jsoneditor-readonly" style="margin-left: 24px">' + x+' = '+'<span style="color: coral">'+result[x]+'</span>'+ '</div></td></tr>';
     }
     html += '</table>';
-    html += '<p class="jsoneditor-readonly" style="text-justify: auto">'+DictAndJson[1]+'</p>';
-    document.getElementById(showjsonid).innerHTML = html;
+    html += '<p class="jsoneditor-readonly" style="width: 460px">'+DictAndJson[1]+'</p>';
+    document.getElementById(showjsonid+"showjsondiv").innerHTML = html;
 }
+function ButtonShowJson(cnt,showjsonid){
+    collapsewin(showjsonid+"ShowJsonWin");
+    var DictAndJson = get0bj(cnt);
+    var result =DictAndJson[0];
+    var html = '<table class="jsoneditor-value">';
+    for(var x in result){
+        html += '<tr class="jsoneditor-tree"><td class="jsoneditor-tree"><div class="jsoneditor-readonly" style="margin-left: 24px">' + x+' = '+'<span style="color: coral">'+result[x]+'</span>'+ '</div></td></tr>';
+    }
+    html += '</table>';
+    html += '<p class="jsoneditor-readonly" style="width: 460px">'+DictAndJson[1]+'</p>';
+    document.getElementById(showjsonid+"showjsondiv").innerHTML = html;
+
 function selectshow(item,SelectElemId){
     var structvalue = document.getElementById("StructNameJson").innerHTML;
     var structNameList = JSON.parse(structvalue);
