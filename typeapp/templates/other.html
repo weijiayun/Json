@@ -1,10 +1,15 @@
 <tr id="{{ StructCnt }}{{ struct[0] }}other">
     <td>
-        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 24px">
+        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 30px">
             <tbody>
             <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
                 <td class="jsoneditor-tree">
                     <button class="jsoneditor-invisible"></button>
+                </td>
+                <td>
+                    {% if otherRAT == "required" %}
+                        <span style="color: red">*</span>
+                    {% endif %}
                 </td>
                 <td class="jsoneditor-tree">
                     <div class="jsoneditor-readonly" title="{{ otherRAT }}" id="m{{ StructCnt }}{{ struct[0] }}{{ otherName }}">{{ otherName }}</div>

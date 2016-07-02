@@ -4,14 +4,11 @@
             <div class="jsoneditor-tree">
             {% for showCnt in range(StructNameList[0]) %}
                 {% for showstruct in JsonDict %}
-                    <div>
-                        <button id="{{ showCnt }}{{ showstruct[0]}}button"  style="width: 60px;display: none" onclick="ButtonShowJson({{ showCnt }},'{{ showCnt }}{{ showstruct[0]}}')" >Json</button>
-                    </div>
                     <div id="{{ showCnt }}{{ showstruct[0] }}ShowJsonWin" style="display: none">
+                    <button style="width: 80px;" onclick="submitform('{{ showCnt }}{{ showstruct[0]}}form','{{ showCnt }}{{ showstruct[0]}}input',{{ showCnt }})" >Save Json</button>
                         <div id="{{ showCnt }}{{ showstruct[0] }}showjsondiv"></div>
                     <form name="{{ showCnt }}{{ showstruct[0]}}form" action="" id="{{ showCnt }}{{ showstruct[0]}}form" method="post">
                         <input type="text" id="{{ showCnt }}{{ showstruct[0]}}input" name="{{ showCnt }}{{ showstruct[0]}}input" style="display: none" />
-                        <input type="button" onclick="submitform('{{ showCnt }}{{ showstruct[0]}}form','{{ showCnt }}{{ showstruct[0]}}input',{{ showCnt }})" value="Save Json"/>
                     </form>
                     </div>
                 {% endfor %}

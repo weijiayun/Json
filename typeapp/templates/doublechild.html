@@ -1,11 +1,16 @@
 <tr id="{{ StructCnt }}{{ struct[0] }}double" style="display: none">
     <td>
-        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 48px">
+        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 30px">
             <tbody>
             {% for dblName,dblRAT in struct[1]["double"].member.items() %}
             <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
                 <td class="jsoneditor-tree">
                     <button class="jsoneditor-invisible"></button>
+                </td>
+                <td>
+                    {% if dblRAT == "required" %}
+                        <span style="color: red">*</span>
+                    {% endif %}
                 </td>
                 <td class="jsoneditor-tree">
                     <div class="jsoneditor-readonly" title="{{ dblRAT[1] }}" id="m{{ StructCnt }}{{ struct[0] }}{{ dblName }}">{{ dblName }}</div>

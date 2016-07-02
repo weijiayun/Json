@@ -95,9 +95,7 @@ function selectshow(item,SelectElemId){
         for(var elem of structNameList){
             if(cnt == item){
                 document.getElementById(cnt+elem).style.display = "none";
-                document.getElementById(cnt+elem+"button").style.display = "none";
                 document.getElementById(cnt+elem+"ShowJsonWin").style.display = "none";}
-
         }
     }
     var obj = document.getElementById(SelectElemId);
@@ -105,16 +103,15 @@ function selectshow(item,SelectElemId){
     var valoption = obj.options[index].value;
     var disp1 = document.getElementById(valoption).style;
     var disp2 = document.getElementById(valoption+"ShowJsonWin").style;
-    var disp3 = document.getElementById(cnt+elem+"button").style;
+    
     if (disp1.display == "none"){
         disp1.display = "block";
         disp2.display = "block";
-        disp3.display = "block";
     }
     else{
         disp1.display = "none";
         disp2.display = "none";
-        disp3.display = "none";
+        //disp3.display = "none";
     }
 }
 function addItem(itemId) {

@@ -1,11 +1,16 @@
 <tr id="{{ StructCnt }}{{ struct[0] }}uint32" style="display: none;">
     <td>
-        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 48px">
+        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 30px">
             <tbody>
             {% for uintName,uintRAT in struct[1]["uint32"].member.items() %}
             <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
                 <td class="jsoneditor-tree">
                     <button class="jsoneditor-invisible"></button>
+                </td>
+                <td>
+                    {% if uintRAT == "required" %}
+                        <span style="color: red">*</span>
+                    {% endif %}
                 </td>
                 <td class="jsoneditor-tree">
                     <div class="jsoneditor-readonly" title="{{ uintRAT }}" id="m{{ StructCnt }}{{ struct[0] }}{{ uintName }}">{{ uintName }}</div>

@@ -1,11 +1,16 @@
 <tr id="{{ StructCnt }}{{ struct[0] }}sint32" style="display: none">
     <td>
-        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 48px">
+        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 30px">
             <tbody>
             {% for sintName,sintRAT in struct[1]["sint32"].member.items() %}
             <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
                 <td class="jsoneditor-tree">
                     <button class="jsoneditor-invisible"></button>
+                </td>
+                <td>
+                    {% if sintRAT == "required" %}
+                        <span style="color: red">*</span>
+                    {% endif %}
                 </td>
                 <td class="jsoneditor-tree">
                     <div class="jsoneditor-readonly" title="{{ sintRAT }}" id="m{{ StructCnt }}{{ struct[0] }}{{ sintName }}">{{ sintName }}</div>
