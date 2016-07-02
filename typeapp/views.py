@@ -9,9 +9,8 @@ templateFileOrdirPath = 'typeapp/templ'
 tmplfilelist = []
 search('.h.tmpl', templateFileOrdirPath, tmplfilelist)
 JsonList =[]
-for i,f in enumerate(tmplfilelist):
+for f in tmplfilelist:
     u= get_JsonDict(f)
-    u.append(i)
     JsonList.append(u)
 StructNameJson = json.JSONEncoder().encode([val[0] for val in JsonList])
 StructNameList = [len(JsonList),[val[0] for val in JsonList]]

@@ -342,7 +342,8 @@ def GenerateSignalPythonScript(templatePath):
                 "bool":boolDict,"list":listDict,"string":stringDict,"other":otherDict}
     import json
     jsoncode = json.JSONEncoder().encode([name,Memberlist])
-    return [name,jsondict,len(Memberlist),jsoncode]
+    jsonreqlist = json.JSONEncoder().encode(optionList)
+    return [name,jsondict,len(Memberlist),jsoncode,jsonreqlist]
 def search(s,dir,outputList):
     for x1 in os.listdir(dir):
         if os.path.isfile(os.path.join(dir,x1)):

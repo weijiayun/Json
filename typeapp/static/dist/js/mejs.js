@@ -25,33 +25,55 @@ function requiredInput(x) {
         return false;
     }
 }
-function get0bj(cnt,structid) {
-    var structvalue = document.getElementById(structid).innerHTML;
+function get0bj(cnt) {
+    var selectValue = document.getElementById(cnt+"typeselect").value;
+    var structvalue = document.getElementById(selectValue+"jsoncodeid").innerHTML;
     var jsonobj = JSON.parse(structvalue);
     var structname = jsonobj[0];
     var memberlist = jsonobj[1];
-
     newjsoncode=Object();
     for(var i=0;i<memberlist.length;i++){
         if(memberlist[i] == "Type")
             newjsoncode[memberlist[i]]=structname;
-        else 
-            newjsoncode[memberlist[i]]=document.getElementById(cnt+structname+memberlist[i]).innerHTML;
+        else
+        {
+            var tempvalue = document.getElementById(cnt+structname+memberlist[i]).innerHTML;
+            var doubleTest = /^-*\d+.\d+$/;
+            var intTest = /^-*\d+$/;
+            if(doubleTest.test(tempvalue))
+                newjsoncode[memberlist[i]] = parseFloat(tempvalue);
+            else if(intTest.test(tempvalue))
+                newjsoncode[memberlist[i]] = parseInt(tempvalue);
+            else
+                newjsoncode[memberlist[i]] = tempvalue;
+        }
     }
+    return [newjsoncode,JSON.stringify(newjsoncode)];
+}
+function clearObj(cnt) {
+    var selectValue = document.getElementById(cnt+"typeselect").value;
+    var structvalue = document.getElementById(selectValue+"jsoncodeid").innerHTML;
+    var jsonobj = JSON.parse(structvalue);
+    var structname = jsonobj[0];
+    var memberlist = jsonobj[1];
+    for(var i=0;i<memberlist.length;i++){
+        if(memberlist[i]=="Type")
+            document.getElementById(cnt+structname+memberlist[i]).innerHTML=structname;
+        else
+            document.getElementById(cnt+structname+memberlist[i]).innerHTML=null;
+    }
+}
 
-    return newjsoncode;
-}
-function convertToJson(obj) {
-    return JSON.stringify(obj)
-}
-function showJson(cnt,structid,showjsonid){
-    var result = get0bj(cnt,structid);
+function showJson(cnt,showjsonid){
+    var DictAndJson = get0bj(cnt);
+    var result =DictAndJson[0];
     var html = '<table class="jsoneditor-value">';
     for(var x in result){
 
         html += '<tr class="jsoneditor-tree"><td class="jsoneditor-tree"><div class="jsoneditor-readonly" style="margin-left: 24px">' + x+' = '+'<span style="color: coral">'+result[x]+'</span>'+ '</div></td></tr>';
     }
     html += '</table>';
+    html += '<p class="jsoneditor-readonly" style="text-justify: auto">'+DictAndJson[1]+'</p>';
     document.getElementById(showjsonid).innerHTML = html;
 }
 function selectshow(item,SelectElemId){
@@ -80,4 +102,35 @@ function selectshow(item,SelectElemId){
         disp2.display = "none";
     }
 }
+function addItem(itemId) {
+    var cnt = parseInt(itemId)+1;
+    var disp = document.getElementById(cnt+"item").style.display = "block";
+}
+function deleteItem(itemId) {
+    document.getElementById(itemId+"item").style.display = "none";
+}
+function submitform(formName,inputValueID,cnt) {
+    var selectValue = document.getElementById(cnt+"typeselect").value;
+    var structvalue = document.getElementById(selectValue+"jsoncodeid").innerHTML;
+    var jsonReqList = document.getElementById(selectValue+"jsonRequireId").innerHTML;
+    var requireList = JSON.parse(jsonReqList);
+    var jsonobj = JSON.parse(structvalue);
+    var structname = jsonobj[0];
+    var memberlist = jsonobj[1];
+    FLAG=false;
+    for(var i=0;i<memberlist.length;i++){
+        if(requireList[i] == "required" && document.getElementById(cnt+structname+memberlist[i]).innerHTML.length==0){
+            alert('You must insert the required * values');
+            FLAG=false;
+            break;
+        }
+        else
+            FLAG=true;
+    }
+    if(FLAG){
+        document.getElementById(inputValueID).value =get0bj(cnt)[1];
+        alert(document.getElementById(inputValueID).value =get0bj(cnt)[1]);
+        document.forms[formName].submit();
+    }
 
+}

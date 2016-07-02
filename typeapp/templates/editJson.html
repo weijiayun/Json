@@ -4,17 +4,21 @@
             <table id="oTable" width="100%">
                 <tbody>
                 {% for StructCnt in range(StructNameList[0]) %}
-                    <tr id="{{ StructCnt }}item">
-                        {% if loop.index==1 %}
-                            <td style="display: block">
-                                <div>{% include 'SelectTypeUnit.html' %}</div>
-                            </td>
-                        {% else %}
-                            <td style="display: none">
-                                <div>{% include 'SelectTypeUnit.html' %}</div>
-                            </td>
-                        {% endif %}
+                {% if StructCnt== 0 %}
+                    <tr id="{{ StructCnt }}item" style="display: block">
+                        <td style="width: 28px"><input id="{{ StructCnt }}" type="button" value="+" style="font-size: 26px"  onclick="addItem({{ StructCnt }})" /></td>
+                        <td style="width: 28px"><input id="{{ StructCnt }}" type="button" style="display: none" /></td>
+                        <td>{% include 'SelectTypeUnit.html' %}</td>
+                        <td><input type="button" style="font-size: 26px" value="Clear" onclick="clearObj({{ StructCnt }})" /></td>
                     </tr>
+                {% else %}
+                    <tr id="{{ StructCnt }}item" style="display: none">
+                        <td style="width: 28px"><input id="{{ StructCnt }}" type="button" style="font-size: 26px"  value="+" onclick="addItem({{ StructCnt }})" /></td>
+                        <td style="width: 28px"><input id="{{ StructCnt }}" type="button" style="font-size: 26px"  value="-" onclick="deleteItem({{ StructCnt }})" /></td>
+                        <td>{% include 'SelectTypeUnit.html' %}</td>
+                        <td><input type="button" style="font-size: 26px;" value="Clear" onclick="clearObj({{ StructCnt }})" /></td>
+                    </tr>
+                    {% endif %}
                 {% endfor %}
                 </tbody>
             </table>

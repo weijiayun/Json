@@ -6,9 +6,13 @@
                 {% for showstruct in JsonDict %}
                     <div id="{{ showCnt }}{{ showstruct[0] }}ShowJsonWin" style="display: none">
                         <div>
-                            <button onclick="showJson({{ showCnt }},'{{ showCnt }}{{ showstruct[0] }}jsoncodeid','{{ showCnt }}{{ showstruct[0]}}showjsondiv')" class="btn-block btn">Json</button>
+                            <button onclick="showJson({{ showCnt }},'{{ showCnt }}{{ showstruct[0]}}showjsondiv')" class="btn-block btn">Json</button>
                         </div>
                         <div id="{{ showCnt }}{{ showstruct[0] }}showjsondiv"></div>
+                    <form name="{{ showCnt }}{{ showstruct[0]}}form" action="" id="{{ showCnt }}{{ showstruct[0]}}form">
+                        <input type="text" id="{{ showCnt }}{{ showstruct[0]}}input" style="display: none" />
+                        <input type="button" onclick="submitform('{{ showCnt }}{{ showstruct[0]}}form','{{ showCnt }}{{ showstruct[0]}}input',{{ showCnt }})" value="Save Json"/>
+                    </form>
                     </div>
                 {% endfor %}
             {% endfor %}
