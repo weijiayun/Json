@@ -73,20 +73,20 @@ function showJson(cnt,showjsonid){
     }
     html += '</table>';
     html += '<p class="jsoneditor-readonly" style="width: 460px">'+DictAndJson[1]+'</p>';
-    document.getElementById(showjsonid+"showjsondiv").innerHTML = html;
+    document.getElementById(showjsonid).innerHTML = html;
 }
-function ButtonShowJson(cnt,showjsonid){
-    collapsewin(showjsonid+"ShowJsonWin");
+function ButtonShowJson(cnt,showjsonid) {
+    collapsewin(showjsonid + "ShowJsonWin");
     var DictAndJson = get0bj(cnt);
-    var result =DictAndJson[0];
+    var result = DictAndJson[0];
     var html = '<table class="jsoneditor-value">';
-    for(var x in result){
-        html += '<tr class="jsoneditor-tree"><td class="jsoneditor-tree"><div class="jsoneditor-readonly" style="margin-left: 24px">' + x+' = '+'<span style="color: coral">'+result[x]+'</span>'+ '</div></td></tr>';
+    for (var x in result) {
+        html += '<tr class="jsoneditor-tree"><td class="jsoneditor-tree"><div class="jsoneditor-readonly" style="margin-left: 24px">' + x + ' = ' + '<span style="color: coral">' + result[x] + '</span>' + '</div></td></tr>';
     }
     html += '</table>';
-    html += '<p class="jsoneditor-readonly" style="width: 460px">'+DictAndJson[1]+'</p>';
-    document.getElementById(showjsonid+"showjsondiv").innerHTML = html;
-
+    html += '<p class="jsoneditor-readonly" style="width: 460px">' + DictAndJson[1] + '</p>';
+    document.getElementById(showjsonid + "showjsondiv").innerHTML = html;
+}
 function selectshow(item,SelectElemId){
     var structvalue = document.getElementById("StructNameJson").innerHTML;
     var structNameList = JSON.parse(structvalue);
@@ -95,6 +95,7 @@ function selectshow(item,SelectElemId){
         for(var elem of structNameList){
             if(cnt == item){
                 document.getElementById(cnt+elem).style.display = "none";
+                document.getElementById(cnt+elem+"button").style.display = "none";
                 document.getElementById(cnt+elem+"ShowJsonWin").style.display = "none";}
 
         }
@@ -104,13 +105,16 @@ function selectshow(item,SelectElemId){
     var valoption = obj.options[index].value;
     var disp1 = document.getElementById(valoption).style;
     var disp2 = document.getElementById(valoption+"ShowJsonWin").style;
+    var disp3 = document.getElementById(cnt+elem+"button").style;
     if (disp1.display == "none"){
         disp1.display = "block";
         disp2.display = "block";
+        disp3.display = "block";
     }
     else{
         disp1.display = "none";
         disp2.display = "none";
+        disp3.display = "none";
     }
 }
 function addItem(itemId) {
