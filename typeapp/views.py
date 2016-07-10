@@ -20,7 +20,10 @@ StructNameList = [len(JsonList),[val[0] for val in JsonList]]
 def index(NoStructName=""):
     if request.method == "POST":
         print NoStructName
-        print request.form["{}input".format(NoStructName)]
+        if len(NoStructName) == 0:
+            print request.form["SubmitAllInput"]
+        else:
+            print request.form["{}input".format(NoStructName)]
     return render_template('index.html',
                            types=TYPES,
                            structA = StructA,

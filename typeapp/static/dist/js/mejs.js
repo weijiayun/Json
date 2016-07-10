@@ -120,6 +120,7 @@ function addItem(itemId) {
 }
 function deleteItem(itemId) {
     document.getElementById(itemId+"item").style.display = "none";
+    clearObj(itemId);
 }
 function submitform(formName,inputValueID,cnt) {
     var selectValue = document.getElementById(cnt+"typeselect").value;
@@ -141,8 +142,41 @@ function submitform(formName,inputValueID,cnt) {
     }
     if(FLAG){
         document.getElementById(inputValueID).value =get0bj(cnt)[1];
-        alert(document.getElementById(inputValueID).value =get0bj(cnt)[1]);
+        // alert(document.getElementById(inputValueID).value =get0bj(cnt)[1]);
         document.forms[formName].submit();
     }
 
+}
+function submitAllForm(formName,inputValueID,totalStruct) {
+    var allSelectedJsonStructInfo=Object();
+    FLAG=false;
+    for(var cnt=0;cnt<totalStruct;cnt++){
+        if(document.getElementById(cnt+"item").style.display == "block"){
+            var selectValue = document.getElementById(cnt+"typeselect").value;
+            var structvalue = document.getElementById(selectValue+"jsoncodeid").innerHTML;
+            var jsonReqList = document.getElementById(selectValue+"jsonRequireId").innerHTML;
+            var requireList = JSON.parse(jsonReqList);
+            var jsonobj = JSON.parse(structvalue);
+            var structname = jsonobj[0];
+            var memberlist = jsonobj[1];
+            FLAG=false;
+            for(var i=0;i<memberlist.length;i++){
+                if(requireList[i] == "required" && document.getElementById(cnt+structname+memberlist[i]).innerHTML.length==0){
+                    alert('You must insert the required * values of '+structname);
+                    FLAG=false;
+                    break;
+                }
+                else
+                    FLAG=true;
+            }
+            if(FLAG){
+                allSelectedJsonStructInfo[structname]=get0bj(cnt)[1];
+            }
+        }
+    }
+    if(FLAG){
+        document.getElementById(inputValueID).value =JSON.stringify(allSelectedJsonStructInfo);
+        // alert(document.getElementById(inputValueID).value =get0bj(cnt)[1]);
+        document.forms[formName].submit();
+    }
 }
