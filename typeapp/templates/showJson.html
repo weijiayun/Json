@@ -7,7 +7,7 @@
                     <div id="{{ showCnt }}{{ showstruct[0] }}ShowJsonWin" style="display: none">
                     <button style="width: 80px;" onclick="submitform('{{ showCnt }}{{ showstruct[0]}}form','{{ showCnt }}{{ showstruct[0]}}input',{{ showCnt }})" >Save Json</button>
                         <div id="{{ showCnt }}{{ showstruct[0] }}showjsondiv"></div>
-                    <form name="{{ showCnt }}{{ showstruct[0]}}form" action="" id="{{ showCnt }}{{ showstruct[0]}}form" method="post">
+                    <form name="{{ showCnt }}{{ showstruct[0]}}form" action="{{url_for('index',NoStructName=showCnt|string+showstruct[0]) }}" id="{{ showCnt }}{{ showstruct[0]}}form" method="post">
                         <input type="text" id="{{ showCnt }}{{ showstruct[0]}}input" name="{{ showCnt }}{{ showstruct[0]}}input" style="display: none" />
                     </form>
                     </div>

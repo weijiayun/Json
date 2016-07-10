@@ -14,10 +14,13 @@ for f in tmplfilelist:
     JsonList.append(u)
 StructNameJson = json.JSONEncoder().encode([val[0] for val in JsonList])
 StructNameList = [len(JsonList),[val[0] for val in JsonList]]
+
 @app.route('/',methods=["GET","POST"])
-def index():
+@app.route('/<NoStructName>',methods=["GET","POST"])
+def index(NoStructName=""):
     if request.method == "POST":
-        print request.form["0Automatoninput"]
+        print NoStructName
+        print request.form["{}input".format(NoStructName)]
     return render_template('index.html',
                            types=TYPES,
                            structA = StructA,
