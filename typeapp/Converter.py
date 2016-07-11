@@ -301,7 +301,6 @@ def GenerateSignalPythonScript(templatePath):
     doubleList = {}
     otherList = {}
     for i,var in enumerate(TypeList):
-
         if var == "bool":
             boolList[Memberlist[i]]= optionList[i]
             continue
@@ -322,14 +321,14 @@ def GenerateSignalPythonScript(templatePath):
             continue
         elif 'list<' not in var:
             otherList[Memberlist[i]]=optionList[i]
-
-    arrayTypeList = [TypeList[i] for i,var in enumerate(TypeList) if "list<" in var]
+    arrayTypeList = [re.split('[<>]', TypeList[i])[1] for i,var in enumerate(TypeList) if "list<" in var]
     arrayDict = {}
     for var1 in arrayTypeList:
         arrayDict[var1]={"len":1,"member":{}}
         for i,var2 in enumerate(TypeList):
-            if var1 == var2:
+            if var1 in var2:
                 arrayDict[var1]["member"][Memberlist[i]]=optionList[i]
+                continue
         arrayDict[var1]["len"] = len(arrayDict[var1]["member"])
     sint32Dict = {"len": len(sint32list), "member": sint32list}
     uint32Dict = {"len": len(uint32List), "member": uint32List}

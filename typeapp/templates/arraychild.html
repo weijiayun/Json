@@ -4,18 +4,13 @@
             <tbody>
             {% for listName,listRAT in listmember.member.items()%}
                 <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
-                   <td class="jsoneditor-tree">
-                       <button class="jsoneditor-invisible" title=""></button>
-                   </td>
                     <td>
                         {% if listRAT == "required" %}
-                        <span style="color: red">*</span>
+                            <div class="jsoneditor-readonly" id="m{{ StructCnt }}{{ struct[0] }}{{ listName }}" title="{{ listRAT }}"><span style="color: red">*</span>{{ listName }}: </div>
+                        {% else %}
+                            <div class="jsoneditor-readonly" id="m{{ StructCnt }}{{ struct[0] }}{{ listName }}" title="{{ listRAT }}">{{ listName }}: </div>
                         {% endif %}
                     </td>
-                    <td>
-                        <div class="jsoneditor-readonly" id="m{{ StructCnt }}{{ struct[0] }}{{ listName }}" title="{{ listRAT }}">{{ listName }}</div>
-                    </td>
-                    <td class="jsoneditor-separator">:</td>
                     <td class="jsoneditor-tree">
                         <div id="{{ StructCnt }}{{ struct[0] }}{{ listName }}" class="jsoneditor-value jsoneditor-number" contenteditable="true" spellcheck="false"></div>
                     </td>
@@ -23,5 +18,36 @@
             {% endfor %}
             </tbody>
         </table>
+        <table style="margin-left: 40px" border="1" id="{{ StructCnt }}{{ struct[0] }}{{ listType }}csv">
+        {% set collength=listmember.member|length %}
+            <tbody>
+            <tr style="display: none">
+                {% for listName,listRAT in listmember.member.items()%}
+                    <th>{{ listName }}</th>
+                {% endfor %}
+            </tr>
+            <tr style="height: 30px">
+
+                {% for listName,listRAT in listmember.member.items()%}
+                    <th>
+                        {% if listRAT == "required" %}
+                            <div id="m{{ StructCnt }}{{ struct[0] }}{{ listName }}" title="{{ listRAT }}"> <span style="color: red">*</span>{{ listName }} </div>
+                        {% else %}
+                            <div id="m{{ StructCnt }}{{ struct[0] }}{{ listName }}" title="{{ listRAT }}"> {{ listName }} </div>
+                        {% endif %}
+                    </th>
+                {% endfor %}
+            </tr>
+                <tr>
+                    {% for i in range(collength) %}
+                        <td><input type="text" id="{{ StructCnt }}{{ struct[0] }}{{ listType }}csv{{ i }}" style="width: 100%;height: 30px"/></td>
+                    {% endfor %}
+                    <td>
+                        <button style="width: 55px;" onclick="addrow('{{ StructCnt }}{{ struct[0] }}{{ listType }}csv',{{ collength }},'-1','{{ listType }}')" >Add</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
     </td>
 </tr>

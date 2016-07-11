@@ -1,3 +1,15 @@
+function numberConvt(strNum) {
+    var doubleTest = /^-*\d+.\d+$/;
+    var intTest = /^-*\d+$/;
+    var tempvalue;
+    if(doubleTest.test(strNum))
+        tempvalue = parseFloat(strNum);
+    else if(intTest.test(strNum))
+        tempvalue = parseInt(strNum);
+    else
+        tempvalue = strNum;
+    return tempvalue;
+}
 function get_chekbox_value(checkboxid,showcheckid) {
     if(document.getElementById(checkboxid).checked){
         document.getElementById(showcheckid).innerHTML= 'true';
@@ -25,6 +37,31 @@ function requiredInput(x) {
         return false;
     }
 }
+function get_table_values(tableId,listName) {
+    var t = document.getElementById(tableId);
+    var header= new Array();
+    for(var k=0;k<t.rows[0].cells.length;k++){
+        header[k]=t.rows[0].cells[k].innerHTML;
+    }
+    var valueList = new Array();
+    var tempDict = new Object();
+    for(var i=2;i< t.rows.length-1;i++)
+    {
+        for(var j=0;j<t.rows[i].cells.length-1;j++)
+        {
+            tempDict[header[j]]=numberConvt(t.rows[i].cells[j].innerHTML)
+        }
+        valueList[i-2]=tempDict;
+        tempDict=null;
+        tempDict = new Object();
+    }
+    var tempObj=new Object();
+    tempObj[listName]=valueList;
+
+     alert(JSON.stringify(tempObj));
+    
+}
+
 function get0bj(cnt) {
     var selectValue = document.getElementById(cnt+"typeselect").value;
     var structvalue = document.getElementById(selectValue+"jsoncodeid").innerHTML;
@@ -32,20 +69,12 @@ function get0bj(cnt) {
     var structname = jsonobj[0];
     var memberlist = jsonobj[1];
     newjsoncode=Object();
-    for(var i=0;i<memberlist.length;i++){
-        if(memberlist[i] == "Type")
-            newjsoncode[memberlist[i]]=structname;
-        else
-        {
-            var tempvalue = document.getElementById(cnt+structname+memberlist[i]).innerHTML;
-            var doubleTest = /^-*\d+.\d+$/;
-            var intTest = /^-*\d+$/;
-            if(doubleTest.test(tempvalue))
-                newjsoncode[memberlist[i]] = parseFloat(tempvalue);
-            else if(intTest.test(tempvalue))
-                newjsoncode[memberlist[i]] = parseInt(tempvalue);
-            else
-                newjsoncode[memberlist[i]] = tempvalue;
+    for(var i=0;i<memberlist.length;i++) {
+        if (memberlist[i] == "Type")
+            newjsoncode[memberlist[i]] = structname;
+        else {
+            var tempvalue = document.getElementById(cnt + structname + memberlist[i]).innerHTML;
+            newjsoncode[memberlist[i]] = numberConvt(tempvalue);
         }
     }
     return [newjsoncode,JSON.stringify(newjsoncode)];
@@ -179,4 +208,26 @@ function submitAllForm(formName,inputValueID,totalStruct) {
         // alert(document.getElementById(inputValueID).value =get0bj(cnt)[1]);
         document.forms[formName].submit();
     }
+}
+function delrow(obj) {
+    var rowIndex = obj.parentNode.parentNode.rowIndex;
+    var tableID = obj.parentElement.parentElement.parentElement.parentElement.id;
+    var tb = document.getElementById(tableID);
+    tb.deleteRow(rowIndex);
+}
+
+function addrow(tableId,collength,rowIndex,listName) {
+    var tb = document.getElementById(tableId);
+    if(rowIndex=="-1")
+        rowIndex=tb.rows.length-1;
+    var row = tb.insertRow(rowIndex);
+    for(var i=0;i<collength;i++){
+        var col=row.insertCell(i);
+        col.style.height="30px";
+        col.innerHTML=document.getElementById(tableId+i).value;
+    }
+    var collast=row.insertCell(collength);
+    collast.innerHTML='<button onclick="delrow(this)" style="width: 55px">Delete</button>';
+    alert(listName);
+    get_table_values(tableId,listName)
 }
