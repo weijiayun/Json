@@ -56,36 +56,41 @@ def outInstrCsvfile(memblist,InstrumentStructMembers,n,name,dirpath):
 
 
 def TypeExpand(optionList,typeList,memberList,reflist,initvars,typename,ElemNameSuffix,expandNum=1):
-        for typeElem in typename:
-            if typeElem in typeList:
-                typeIndex=typeList.index(typeElem)
-                tempmemberName=memberList[typeIndex]
-                initvalue=initvars[typeIndex]
-                option=optionList[typeIndex]
-                ref = reflist[typeIndex]
-                del memberList[typeIndex]
-                del typeList[typeIndex]
-                del initvars[typeIndex]
-                del optionList[typeIndex]
-                del reflist[typeIndex]
-                ElemNameSuffix.reverse()
-                for nameSuffix in ElemNameSuffix:
-                    if nameSuffix[0] in typeElem:
-                        for i in range(expandNum,0,-1):
-                            for s in nameSuffix:
-                                memberList.insert(typeIndex,tempmemberName+'_'+s+str(i))
-                                typeList.insert(typeIndex,typeElem)
-                                initvars.insert(typeIndex,initvalue)
-                                optionList.insert(typeIndex,option)
-                                reflist.insert(typeIndex,ref)
+    expTypeMember = {}
+    for typeElem in typename:
+        if typeElem in typeList:
+            typeIndex=typeList.index(typeElem)
+            tempmemberName=memberList[typeIndex]
+            initvalue=initvars[typeIndex]
+            option=optionList[typeIndex]
+            ref = reflist[typeIndex]
+            expTypeMember[typeElem]=tempmemberName
+            del memberList[typeIndex]
+            del typeList[typeIndex]
+            del initvars[typeIndex]
+            del optionList[typeIndex]
+            del reflist[typeIndex]
+            ElemNameSuffix.reverse()
+            for nameSuffix in ElemNameSuffix:
+                if nameSuffix[0] in typeElem:
+                    for i in range(expandNum,0,-1):
+                        for s in nameSuffix:
+                            memberList.insert(typeIndex,tempmemberName+'_'+s+str(i))
+                            typeList.insert(typeIndex,typeElem)
+                            initvars.insert(typeIndex,initvalue)
+                            optionList.insert(typeIndex,option)
+                            reflist.insert(typeIndex,ref)
+    return expTypeMember
 
 def kwExpand(optionList,typeList,memberList,reflist,initvars,ElemNameSuffix,keyword,expandNum=1,iskeywords=True):
+    expTypeMember={}
     if keyword in memberList:
         typeIndex=memberList.index(keyword)
         tempTypeName=typeList[typeIndex]
         initvalues=initvars[typeIndex]
         option=optionList[typeIndex]
         ref = reflist[typeIndex]
+        expTypeMember[tempTypeName]=keyword
         del memberList[typeIndex]
         del typeList[typeIndex]
         del initvars[typeIndex]
@@ -102,6 +107,7 @@ def kwExpand(optionList,typeList,memberList,reflist,initvars,ElemNameSuffix,keyw
                 initvars.insert(typeIndex,initvalues)
                 optionList.insert(typeIndex,option)
                 reflist.insert(typeIndex,ref)
+    return expTypeMember
 
 def findAllList(Path):
     f=open(Path)
@@ -204,8 +210,6 @@ def FindStructList(Path,structName):
         StructureNameNotMatchError(name)
     return TotalList
 
-
-
 def dollarFuncCheck(memberlist,initVars):
     funcDict={memberlist[i]:e for i,e in enumerate(initVars) if '$'in e}
     dollarCheckResultsDict = {}
@@ -276,8 +280,11 @@ def GenerateSignalPythonScript(templatePath):
         del RefList[NameIndex + 1]
 
     signalfuncdict = dollarFuncCheck(Memberlist, initVar)
-    waitForMemberlist=copy.deepcopy(Memberlist)
-
+    oldMemberlist=copy.deepcopy(Memberlist)
+    oldTypeList = copy.deepcopy(TypeList)
+    # oldMemTypeDict={}
+    # for i in range(Memberlist):
+    #     oldMemTypeDict[Memberlist[i]]=TypeList[i]
 
 ####################job to expand types#######################
     expandtype=['list<OrderByNominal>','list<OrderByVolume>']
@@ -287,6 +294,7 @@ def GenerateSignalPythonScript(templatePath):
     kwExpand(optionList,TypeList,Memberlist,RefList,initVar,nameSuffix2,'Instruments',1)
     nameSuffix3=['Action','START','END']
     kwExpand(optionList,TypeList,Memberlist,RefList,initVar,nameSuffix3,'Ranges',1,False)
+
 
     signalvarslist = [Memberlist[i] for i, var in enumerate(TypeList) if var == "signal" and RefList[i] != 'DelegateFeeder']
     signalfeederlist = [Memberlist[i] for i, var in enumerate(TypeList) if var == "signal" and RefList[i] == 'DelegateFeeder']
@@ -329,6 +337,7 @@ def GenerateSignalPythonScript(templatePath):
             if var1 in var2:
                 arrayDict[var1]["member"][Memberlist[i]]=optionList[i]
                 continue
+
         arrayDict[var1]["len"] = len(arrayDict[var1]["member"])
     sint32Dict = {"len": len(sint32list), "member": sint32list}
     uint32Dict = {"len": len(uint32List), "member": uint32List}
