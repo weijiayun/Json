@@ -6,17 +6,17 @@
                 {% for StructCnt in range(StructNameList[0]) %}
                 {% if StructCnt== 0 %}
                     <tr id="{{ StructCnt }}item" style="display: block">
-                        <td style="width: 28px"><input id="{{ StructCnt }}" type="button" value="+" style="font-size: 26px"  onclick="addItem({{ StructCnt }})" /></td>
-                        <td style="width: 28px"><input id="{{ StructCnt }}" type="button" style="display: none" /></td>
+                        <td><button id="{{ StructCnt }}"  style="font-size: 26px;width: 28px;height: 41px"  onclick="addItem({{ StructCnt }})" >+</button></td>
+                        <td><button id="{{ StructCnt }}"  style="display: none;width: 28px;height: 41px" ></button></td>
                         <td>{% include 'SelectTypeUnit.html' %}</td>
-                        <td><input type="button" style="font-size: 26px" value="Clear" onclick="clearObj({{ StructCnt }})" /></td>
+                        <td><button style="font-size: 20px;width: 80px;height: 41px"  onclick="clearObj({{ StructCnt }})" >Clear</button></td>
                     </tr>
                 {% else %}
                     <tr id="{{ StructCnt }}item" style="display: none">
-                        <td style="width: 28px"><input id="{{ StructCnt }}" type="button" style="font-size: 26px"  value="+" onclick="addItem({{ StructCnt }})" /></td>
-                        <td style="width: 28px"><input id="{{ StructCnt }}" type="button" style="font-size: 26px"  value="-" onclick="deleteItem({{ StructCnt }})" /></td>
+                        <td><button id="{{ StructCnt }}" style="font-size: 26px;width: 28px;height: 41px" onclick="addItem({{ StructCnt }})" >+</button></td>
+                        <td><button id="{{ StructCnt }}" style="font-size: 26px;width: 28px;height: 41px" onclick="deleteItem({{ StructCnt }})" >-</button></td>
                         <td>{% include 'SelectTypeUnit.html' %}</td>
-                        <td><input type="button" style="font-size: 26px;" value="Clear" onclick="clearObj({{ StructCnt }})" /></td>
+                        <td><button style="font-size: 20px;width: 80px;height: 41px"  onclick="clearObj({{ StructCnt }})" >Clear</button></td>
                     </tr>
                     {% endif %}
                 {% endfor %}
