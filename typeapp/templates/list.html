@@ -1,18 +1,18 @@
-<tr class="jsoneditor-expandable" title="array" style="display: none">
+<tr class="jsoneditor-expandable" title="array">
     <td >
         <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 0px">
             <tbody>
             <tr>
                 <td class="jsoneditor-tree">
-                    <button class="jsoneditor-collapsed" onclick="collapsewin('{{ StructCnt }}{{ struct[0] }}double')">^</button>
+                    <button class="jsoneditor-collapsed" onclick="collapsewin('{{ StructCnt }}{{ struct[0] }}{{ listName }}')">^</button>
                 </td>
                 <td class="jsoneditor-tree">
-                    <div class="jsoneditor-readonly" >Double</div>
+                    <div class="jsoneditor-readonly" >{{ listName }}</div>
                 </td>
             </tr>
             </tbody>
         </table>
     </td>
 </tr>
-{% include "doublechild.html" %}
+{% include "listchild.html" %}
 

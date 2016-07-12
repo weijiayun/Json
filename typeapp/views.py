@@ -12,6 +12,7 @@ JsonList =[]
 for f in tmplfilelist:
     u= get_JsonDict(f)
     JsonList.append(u)
+
 StructNameJson = json.JSONEncoder().encode([val[0] for val in JsonList])
 StructNameList = [len(JsonList),[val[0] for val in JsonList]]
 

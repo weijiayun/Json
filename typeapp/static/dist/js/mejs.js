@@ -58,8 +58,6 @@ function get_table_values(tableId,listName) {
     var tempObj=new Object();
     tempObj[listName]=valueList;
 
-     alert(JSON.stringify(tempObj));
-    
 }
 
 function get0bj(cnt) {
@@ -228,6 +226,5 @@ function addrow(tableId,collength,rowIndex,listName) {
     }
     var collast=row.insertCell(collength);
     collast.innerHTML='<button onclick="delrow(this)" style="width: 55px">Delete</button>';
-    alert(listName);
     get_table_values(tableId,listName)
 }

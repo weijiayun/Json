@@ -4,33 +4,31 @@
     <div id="{{ StructCnt }}{{ struct[0] }}jsoncodeid" style="display: none">{{ struct[3] }}</div>
     <div id="{{ StructCnt }}{{ struct[0] }}jsonRequireId" style="display: none">{{ struct[4] }}</div>
     <div onkeyup="showJson({{ StructCnt }},'{{ StructCnt }}{{ struct[0] }}showjsondiv')" onclick="showJson({{ StructCnt }},'{{ StructCnt }}{{ struct[0] }}showjsondiv')">
-        <table id="{{ StructCnt }}{{ struct[0] }}" style="display: none">
-            <tbody>
-            {% if struct[1]["string"].len %}
-                {% include "string.html" %}
-            {% endif %}
-            {% for listType,listmember in struct[1]["list"].member.items() %}
-                {% if listmember.len !=0 %}
-                    {% include 'array.html' %}
-                {% endif %}
-            {% endfor %}
-            {% if struct[1]["bool"].len != 0%}
-                {% include "bool.html" %}
-            {% endif %}
-            {% if struct[1]["uint32"].len %}
-                {% include "uint32.html" %}
-            {% endif %}
-            {% if struct[1]["sint32"].len %}
-                {% include "sint32.html" %}
-            {% endif %}
-            {% if struct[1]["double"].len %}
-                {% include "double.html" %}
-            {% endif %}
-            {% for otherName,otherRAT in struct[1]["other"].member.items() %}
-                {% include 'other.html' %}
-            {% endfor %}
-            {% include 'matrix.html' %}
-            </tbody>
-        </table>
+    <table id="{{ StructCnt }}{{ struct[0] }}" style="display: none">
+    <tbody>
+    {% if struct[1]["string"]|length != 0 %}
+        {% include "string.html" %}
+    {% endif %}
+    {% for listName,listValue in struct[1]["list"].items() %}
+        {% if listValue[1]|length !=0 %}
+            {% include 'list.html' %}
+        {% endif %}
+    {% endfor %}
+    {% if struct[1]["bool"]|length != 0%}
+        {% include "bool.html" %}
+    {% endif %}
+    {% if struct[1]["number"]|length != 0 %}
+        {% include "double.html" %}
+    {% endif %}
+    {% if struct[1]["enum"]|length != 0 %}
+        {% for enumName,enumValue in struct[1]["enum"].items() %}
+            {% include 'enum.html' %}
+        {% endfor %}
+    {% endif %}
+{#    {% if struct[1]["mat"]|length != 0 %}#}
+{#        {% include 'matrix.html' %}#}
+{#    {% endif %}#}
+    </tbody>
+    </table>
     </div>
 {% endfor %}

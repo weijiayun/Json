@@ -2,28 +2,29 @@
     <td>
         <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 0px">
             <tbody>
-            {% for strName,strRAT in struct[1]["string"].member.items() %}
-            <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
-                <td class="jsoneditor-tree">
-                    <button class="jsoneditor-invisible"></button>
-                </td>
-                <td>
-                    {% if strRAT == "required" %}
-                        <span style="color: red">*</span>
-                    {% endif %}
-                </td>
-                <td class="jsoneditor-tree">
-                    <div class="jsoneditor-readonly" title="{{ strRAT }}" id="m{{ StructCnt }}{{ struct[0] }}{{ strName }}">{{ strName }}</div>
-                </td>
-                <td class="jsoneditor-separator">:</td>
-                <td class="jsoneditor-tree">
-                    {% if strName=="Type" %}
-                        <div id="{{ StructCnt }}{{ struct[0] }}{{ strName }}" class="jsoneditor-readonly" contenteditable="true" spellcheck="false" title="">{{ struct[0] }}</div>
-                    {% else %}
-                        <div id="{{ StructCnt }}{{ struct[0] }}{{ strName }}" class="jsoneditor-value jsoneditor-string" contenteditable="true" spellcheck="false" title=""></div>
-                    {% endif %}
-                </td>
-            </tr>
+            {% for strName,strVAR in struct[1]["string"].items() %}
+                {% set strRAT=strVAR[0] %}
+                {% set strVal=strVAR[3] %}
+                <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
+                    <td class="jsoneditor-tree">
+                        <button class="jsoneditor-invisible"></button>
+                    </td>
+                    <td>
+                        {% if strRAT == "required" %}
+                            <span style="color: red">*</span>
+                        {% endif %}
+                    </td>
+                    <td class="jsoneditor-tree">
+                        <div class="jsoneditor-readonly" title="{{ strRAT }}" id="m{{ StructCnt }}{{ struct[0] }}{{ strName }}">{{ strName }}: </div>
+                    </td>
+                    <td class="jsoneditor-tree">
+                        {% if strName=="Type" %}
+                            <div id="{{ StructCnt }}{{ struct[0] }}{{ strName }}" class="jsoneditor-readonly" contenteditable="true" spellcheck="false" title="">{{ struct[0] }}</div>
+                        {% else %}
+                            <div id="{{ StructCnt }}{{ struct[0] }}{{ strName }}" class="jsoneditor-value jsoneditor-string" contenteditable="true" spellcheck="false" title="">{{ strVal }}</div>
+                        {% endif %}
+                    </td>
+                </tr>
             {% endfor %}
             </tbody>
         </table>

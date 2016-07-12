@@ -54,60 +54,63 @@ def outInstrCsvfile(memblist,InstrumentStructMembers,n,name,dirpath):
             f.write("{},".format(m))
     f.close()
 
-
-def TypeExpand(optionList,typeList,memberList,reflist,initvars,typename,ElemNameSuffix,expandNum=1):
-    expTypeMember = {}
-    for typeElem in typename:
-        if typeElem in typeList:
-            typeIndex=typeList.index(typeElem)
-            tempmemberName=memberList[typeIndex]
-            initvalue=initvars[typeIndex]
-            option=optionList[typeIndex]
-            ref = reflist[typeIndex]
-            expTypeMember[typeElem]=tempmemberName
-            del memberList[typeIndex]
-            del typeList[typeIndex]
-            del initvars[typeIndex]
-            del optionList[typeIndex]
-            del reflist[typeIndex]
-            ElemNameSuffix.reverse()
-            for nameSuffix in ElemNameSuffix:
-                if nameSuffix[0] in typeElem:
-                    for i in range(expandNum,0,-1):
-                        for s in nameSuffix:
-                            memberList.insert(typeIndex,tempmemberName+'_'+s+str(i))
-                            typeList.insert(typeIndex,typeElem)
-                            initvars.insert(typeIndex,initvalue)
-                            optionList.insert(typeIndex,option)
-                            reflist.insert(typeIndex,ref)
-    return expTypeMember
-
-def kwExpand(optionList,typeList,memberList,reflist,initvars,ElemNameSuffix,keyword,expandNum=1,iskeywords=True):
-    expTypeMember={}
-    if keyword in memberList:
-        typeIndex=memberList.index(keyword)
-        tempTypeName=typeList[typeIndex]
-        initvalues=initvars[typeIndex]
-        option=optionList[typeIndex]
-        ref = reflist[typeIndex]
-        expTypeMember[tempTypeName]=keyword
-        del memberList[typeIndex]
-        del typeList[typeIndex]
-        del initvars[typeIndex]
-        del optionList[typeIndex]
-        del reflist[typeIndex]
-        ElemNameSuffix.reverse()
-        for i in range(expandNum,0,-1):
-            for s in ElemNameSuffix:
-                if iskeywords:
-                    memberList.insert(typeIndex,keyword+'_'+s+str(i))
-                else:
-                    memberList.insert(typeIndex,s+str(i))
-                typeList.insert(typeIndex,tempTypeName)
-                initvars.insert(typeIndex,initvalues)
-                optionList.insert(typeIndex,option)
-                reflist.insert(typeIndex,ref)
-    return expTypeMember
+def FindListStruct(lns,TypeName):
+    name = re.split(r'[<>]',TypeName)[1]
+    npos1 = -1
+    npos2 = 0
+    for line in lns:
+        npos1 += 1
+        if name+'(' in line:
+            npos1 += 2
+            break
+    for i in range(npos1, len(lns)):
+        if '};' in lns[i]:
+            npos2 = i
+            break
+    temTotalList = []
+    for i in range(npos1, npos2):
+        elemrow = lns[i].strip()
+        if elemrow == '':
+            continue
+        if elemrow[-1] == ';':
+            elemrow = elemrow[:-1]
+        elemlist = elemrow.strip().split(' ')
+        temTotalList.append(elemlist)
+    TotalList = []
+    for e in temTotalList:
+        if len(e)>4:
+            if e[3] == "equal":
+                TotalList.append([e[0], e[1], e[2], "equal",e[-1]])
+            elif e[3] == "default":
+                TotalList.append([e[0], e[1], e[2], "default",e[-1]])
+            elif e[3] == "reference":
+                TotalList.append([e[0], e[1], e[2],"reference",e[-1]])
+        else:
+            TotalList.append([e[0], e[1], e[2],"",""])
+    return TotalList
+def FindEnumStruct(lns,TypeName):
+    name=TypeName
+    npos1 = -1
+    npos2 = 0
+    for line in lns:
+        npos1 += 1
+        if "enum "+name in line:
+            npos1 += 2
+            break
+    for i in range(npos1, len(lns)):
+        if '};' in lns[i]:
+            npos2 = i
+            break
+    temTotalList = []
+    for i in range(npos1, npos2):
+        elemrow = lns[i].strip()
+        if elemrow == '':
+            continue
+        if elemrow[-1] == ',':
+            elemrow = elemrow[:-1]
+        elemlist = re.split('=\s+',elemrow)[0:2]
+        temTotalList.append(elemlist)
+    return temTotalList
 
 def findAllList(Path):
     f=open(Path)
@@ -142,216 +145,65 @@ def findAllList(Path):
         if elemlist[2]=='Id' or elemlist[2]=='Description':
             continue
         temTotalList.append(elemlist)
-    TotalList=[]
+    TotalDict={}
     for e in temTotalList:
-        if len(e)>4:
-            if e[-2]=='reference':
-                TotalList.append(dict(option=e[0],type=e[1],varname=e[2],Reference=e[-1],Default=""))
-                continue
-            elif e[-2] == 'default' or e[-2] == 'equal':
-                if '""' == e[-1]:
-                    TotalList.append(dict(option=e[0], type=e[1], varname=e[2], Reference="", Default=""))
-                else:
-                    TotalList.append(dict(option=e[0], type=e[1], varname=e[2], Reference="", Default=e[-1]))
-                continue
+        if "list<" in e[1]:
+            TotalDict[e[2]] = [e[0], e[1], FindListStruct(lns, e[1])]
+        elif "::" in e[1]:
+            TotalDict[e[2]] = [e[0], e[1], FindEnumStruct(lns, e[1])]
+        elif len(e)>4:
+            if e[3] == "equal":
+                TotalDict[e[2]] = [e[0], e[1], "equal", e[-1]]
+            elif e[3] == "default":
+                TotalDict[e[2]] = [e[0], e[1],"default",e[-1]]
+            elif e[3] == "reference":
+                TotalDict[e[2]] = [e[0], e[1],"reference",e[-1]]
         else:
-            TotalList.append(dict(option=e[0],type=e[1],varname=e[2],Reference="",Default=""))
-            continue
-    if TotalList==[]:
-        StructureNameNotMatchError(name)
-    return [name,TotalList,method]
+            TotalDict[e[2]] = [e[0], e[1], "", ""]
+    return [name,TotalDict]
 
-def FindStructList(Path,structName):
-    f = open(Path)
-    name = structName
-    lns = f.readlines()
-    f.close()
-    npos1 = -1
-    npos2 = 0
-    for line in lns:
-        npos1 += 1
-        if name+'(' in line:
-            npos1 += 2
-            break
-        else:
-            return None
-    for i in range(npos1, len(lns)):
-        if '};' in lns[i]:
 
-            npos2 = i
-            break
-    temTotalList = []
-    for i in range(npos1, npos2):
-        elemrow = lns[i].strip()
-        if elemrow == '':
-            continue
-        if elemrow[-1] == ';':
-            elemrow = elemrow[:-1]
-        elemlist = elemrow.strip().split(' ')
-        if elemlist[2] == 'Id' or elemlist[2] == 'Description':
-            continue
-        temTotalList.append(elemlist)
-    TotalList = []
-    for e in temTotalList:
-        if len(e) > 4:
-            if e[-2] == 'reference':
-                TotalList.append(dict(option=e[0], type=e[1], varname=e[2], Reference=e[-1], Default=""))
-                continue
-            elif e[-2] == 'default' or e[-2] == 'equal':
-                if '""' == e[-1]:
-                    TotalList.append(dict(option=e[0], type=e[1], varname=e[2], Reference="", Default=""))
-                else:
-                    TotalList.append(dict(option=e[0], type=e[1], varname=e[2], Reference="", Default=e[-1]))
-                continue
-        else:
-            TotalList.append(dict(option=e[0], type=e[1], varname=e[2], Reference="", Default=""))
-            continue
-    if TotalList == []:
-        StructureNameNotMatchError(name)
-    return TotalList
+def readDim(typeName):
+    tval = re.split(r'[<>,]', typeName)
+    if len(tval) == 3:
+        tval = [1, eval(tval[1])]
+    else:
+        tval = [eval(i) for i in tval[1:3]]
+    return tval
 
-def dollarFuncCheck(memberlist,initVars):
-    funcDict={memberlist[i]:e for i,e in enumerate(initVars) if '$'in e}
-    dollarCheckResultsDict = {}
-    for key,value in funcDict.items():
-        DigitList = []
-        value1 = re.split(r'[\(\)]',value)
-        dollarsValue = re.split(r',',value1[1])
-        for i,elem in enumerate(dollarsValue):
-            if "$$" in elem:
-                DigitList.append(0)
-            else:
-                if elem == "$none" or elem == '$None':
-                    DigitList.append(0)
-                else:
-                    DigitList.append(1)
-        value1 = re.split(r'[$\(]',value)
-        funcName = value1[1]
-        value1 = re.split(r'[\(\)]',value.replace("$",""))
-        DollarsList =  value1[1].split(',')
-        initvaltempstr ="$("+";".join(DollarsList)+")"
-        initVars[initVars.index(value)] = initvaltempstr
-        dollarCheckResultsDict[key]=[funcName,DollarsList,DigitList]
-    return dollarCheckResultsDict
-#################################################################################################
 
 def GenerateSignalPythonScript(templatePath):
     SignalList=findAllList(templatePath)
-    AllList=SignalList[1]
-    name=SignalList[0]
-    optionList = []
-    TypeList=[]
-    Memberlist=[]
-    initVar=[]
-    RefList=[]
-
-    for e in AllList:
-        TypeList.append(e['type'])
-        Memberlist.append(e['varname'])
-        initVar.append(e['Default'])
-        optionList.append(e['option'])
-        RefList.append(e['Reference'])
-
-####################Type,Name,sort in the first###############
-    if 'Type' in Memberlist:
-        NameIndex=Memberlist.index('Type')
-        Memberlist.insert(0,Memberlist[NameIndex])
-        del Memberlist[NameIndex+1]
-        TypeList.insert(0,TypeList[NameIndex])
-        del TypeList[NameIndex+1]
-        initVar.insert(0,initVar[NameIndex])
-        del initVar[NameIndex+1]
-        optionList.insert(0, optionList[NameIndex])
-        del optionList[NameIndex + 1]
-        RefList.insert(0,RefList[NameIndex])
-        del RefList[NameIndex+1]
-
-    if 'Name' in Memberlist:
-        NameIndex=Memberlist.index('Name')
-        Memberlist.insert(0,Memberlist[NameIndex])
-        del Memberlist[NameIndex+1]
-        TypeList.insert(0,TypeList[NameIndex])
-        del TypeList[NameIndex+1]
-        initVar.insert(0,initVar[NameIndex])
-        del initVar[NameIndex+1]
-        optionList.insert(0, optionList[NameIndex])
-        del optionList[NameIndex + 1]
-        RefList.insert(0, RefList[NameIndex])
-        del RefList[NameIndex + 1]
-
-    signalfuncdict = dollarFuncCheck(Memberlist, initVar)
-    oldMemberlist=copy.deepcopy(Memberlist)
-    oldTypeList = copy.deepcopy(TypeList)
-    # oldMemTypeDict={}
-    # for i in range(Memberlist):
-    #     oldMemTypeDict[Memberlist[i]]=TypeList[i]
-
-####################job to expand types#######################
-    expandtype=['list<OrderByNominal>','list<OrderByVolume>']
-    nameSuffix1=[['Nominal','Type'],['Volume','Type']]
-    TypeExpand(optionList,TypeList,Memberlist,RefList,initVar,expandtype,nameSuffix1,2)
-    nameSuffix2=['InstrumentName','IsConnect','Market']
-    kwExpand(optionList,TypeList,Memberlist,RefList,initVar,nameSuffix2,'Instruments',1)
-    nameSuffix3=['Action','START','END']
-    kwExpand(optionList,TypeList,Memberlist,RefList,initVar,nameSuffix3,'Ranges',1,False)
-
-
-    signalvarslist = [Memberlist[i] for i, var in enumerate(TypeList) if var == "signal" and RefList[i] != 'DelegateFeeder']
-    signalfeederlist = [Memberlist[i] for i, var in enumerate(TypeList) if var == "signal" and RefList[i] == 'DelegateFeeder']
-    required_member_list = [Memberlist[i] for i, var in enumerate(optionList) if var == "required"]
-    optional_member_list = [Memberlist[i] for i, var in enumerate(optionList) if var == "optional"]
-    signalInList = [Memberlist[i] for i, var in enumerate(TypeList) if var == "list<signal>" and not "$" in initVar[i]]
-    stringInList = [Memberlist[i] for i, var in enumerate(TypeList) if var == "list<string>" and not "$" in initVar[i]]
-    boolList = {}
-    stringList ={}
-    sint32list ={}
-    uint32List = {}
-    doubleList = {}
-    otherList = {}
-    for i,var in enumerate(TypeList):
-        if var == "bool":
-            boolList[Memberlist[i]]= optionList[i]
-            continue
-        elif var == "string":
-            stringList[Memberlist[i]]=optionList[i]
-            continue
-        elif var == "uint32":
-            uint32List[Memberlist[i]]=optionList[i]
-            uint32List[Memberlist[i]]=optionList[i]
-            continue
-        elif var == "sint32":
-            sint32list[Memberlist[i]]=optionList[i]
-            sint32list[Memberlist[i]]=optionList[i]
-            continue
-        elif var == "double":
-            doubleList[Memberlist[i]]=optionList[i]
-            doubleList[Memberlist[i]]=optionList[i]
-            continue
-        elif 'list<' not in var:
-            otherList[Memberlist[i]]=optionList[i]
-    arrayTypeList = [re.split('[<>]', TypeList[i])[1] for i,var in enumerate(TypeList) if "list<" in var]
+    name = SignalList[0]
+    AllInfoDict=SignalList[1]
     arrayDict = {}
-    for var1 in arrayTypeList:
-        arrayDict[var1]={"len":1,"member":{}}
-        for i,var2 in enumerate(TypeList):
-            if var1 in var2:
-                arrayDict[var1]["member"][Memberlist[i]]=optionList[i]
-                continue
+    boolDict={}
+    stringDict={}
+    NumDict={}
+    matDict={}
+    enumDict={}
 
-        arrayDict[var1]["len"] = len(arrayDict[var1]["member"])
-    sint32Dict = {"len": len(sint32list), "member": sint32list}
-    uint32Dict = {"len": len(uint32List), "member": uint32List}
-    doubleDict = {"len":len(doubleList),"member":doubleList}
-    stringDict = {"len":len(stringList),"member":stringList}
-    boolDict = {"len":len(boolList),"member":boolList}
-    listDict = {"len":len(arrayDict),"member":arrayDict}
-    otherDict = {"len":len(otherList),"member":otherList}
-    jsondict = {"sint32":sint32Dict,"uint32":uint32Dict,"double":doubleDict,
-                "bool":boolDict,"list":listDict,"string":stringDict,"other":otherDict}
-    import json
-    jsoncode = json.JSONEncoder().encode([name,Memberlist])
-    jsonreqlist = json.JSONEncoder().encode(optionList)
-    return [name,jsondict,len(Memberlist),jsoncode,jsonreqlist]
+    for key,value in AllInfoDict.items():
+        if "list<" in value[1]:
+            arrayDict[key] = [value[0], value[2]]
+        elif value[1] == "bool":
+            boolDict[key]=[value[0],value]
+        elif value[1] == "string":
+            stringDict[key]=[value[0],value]
+        elif value[1] == "uint32" or value[1] == "sint32" or value[1] == "double":
+            NumDict[key]=[value[0],value]
+        elif "mat<" in value[1] or "vec<" in value[1]:
+            matDict[key]=[value[0],readDim(value[1])]
+        elif '::' in value[1]:
+            print value[2]
+            enumDict[key]=[value[0],value[2]]
+
+    jsondict = {
+        "number":NumDict,"mat":matDict,
+        "bool":boolDict,"list":arrayDict,
+        "string":stringDict,"enum":enumDict
+        }
+    return [name,jsondict]
 def search(s,dir,outputList):
     for x1 in os.listdir(dir):
         if os.path.isfile(os.path.join(dir,x1)):
@@ -363,7 +215,7 @@ def search(s,dir,outputList):
 
 
 if __name__=='__main__':
-    filePath='/nethome/jiayun.wei/PycharmProjects/Json/typeapp/SizeStrategy.h.tmpl'
+    filePath='templ/strategy/Automaton.h.tmpl'
     GenerateSignalPythonScript(filePath)
 
 

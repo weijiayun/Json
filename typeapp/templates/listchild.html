@@ -1,0 +1,24 @@
+<tr id="{{ StructCnt }}{{ struct[0] }}{{ listName }}" style="display: none">
+    <td>
+        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 30px">
+            <tbody>
+            {% set listRAT=listValue[0] %}
+            {% for elem in listValue[1] %}
+                <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
+                    <td>
+                        {% if elem[0] == "required" %}
+                            <div class="jsoneditor-readonly" id="m{{ StructCnt }}{{ struct[0] }}{{ listName }}{{ elem[2] }}" title="{{ elem[0] }}"><span style="color: red">*</span>{{ elem[2] }}: </div>
+                        {% else %}
+                            <div class="jsoneditor-readonly" id="m{{ StructCnt }}{{ struct[0] }}{{ listName }}{{ elem[2] }}" title="{{ elem[0] }}">{{ elem[2] }}: </div>
+                        {% endif %}
+                    </td>
+                    <td class="jsoneditor-tree">
+                        <div id="{{ StructCnt }}{{ struct[0] }}{{ listName }}" class="jsoneditor-value jsoneditor-number" contenteditable="true" spellcheck="false">{{ elem[-1] }}</div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% include 'tableT.html' %}
+    </td>
+</tr>

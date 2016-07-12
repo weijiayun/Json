@@ -1,0 +1,33 @@
+<tr id="{{ StructCnt }}{{ struct[0] }}other">
+    <td>
+        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 0px">
+        {% set enumRAT=enumValue[0] %}
+            <tbody>
+            <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
+                <td class="jsoneditor-tree">
+                    <button class="jsoneditor-invisible"></button>
+                </td>
+                <td>
+                    {% if enumRAT == "required" %}
+                        <span style="color: red">*</span>
+                    {% endif %}
+                </td>
+                <td class="jsoneditor-tree">
+                    <div class="jsoneditor-readonly" title="{{ enumRAT }}" id="m{{ StructCnt }}{{ struct[0] }}{{ enumName }}">{{ enumName }}: </div>
+                </td>
+                <td class="jsoneditor-tree">
+                    <div id="{{ StructCnt }}{{ struct[0] }}{{ enumName }}" class="jsoneditor-readonly">
+                        <div class="col-xs-3">
+                            <select id="{{ StructCnt }}{{ struct[0] }}{{ enumName }}select" class="form-control select select-primary" style="width: inherit"  data-toggle="select">
+                                {% for e in enumValue[1] %}
+                                    <option value="{{ StructCnt }}{{ e[0] }}">{{ e[0] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div> <!-- /.col-xs-3 -->
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </td>
+</tr>
