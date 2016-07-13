@@ -1,21 +1,12 @@
 #!/opt/Apps/local/Python/anaconda/bin/python2.7
 __author__ = 'jiayun.wei'
 from flask import render_template,request,redirect,url_for
+from jinja2 import Environment
 from typeapp import app
-from typeapp.typeconfig import TYPES,StructA
-from Converter import GenerateSignalPythonScript as get_JsonDict,search
+from typeapp.typeconfig import INPUTOBJECT,INPUTOBJECT1
+
 import json
-templateFileOrdirPath = 'typeapp/templ'
-tmplfilelist = []
-search('.h.tmpl', templateFileOrdirPath, tmplfilelist)
-JsonList =[]
-for f in tmplfilelist:
-    u= get_JsonDict(f)
-    JsonList.append(u)
-
-StructNameJson = json.JSONEncoder().encode([val[0] for val in JsonList])
-StructNameList = [len(JsonList),[val[0] for val in JsonList]]
-
+JsonDict=json.dumps({"Automaton":INPUTOBJECT,"Automatontest":INPUTOBJECT1})
 @app.route('/',methods=["GET","POST"])
 @app.route('/<NoStructName>',methods=["GET","POST"])
 def index(NoStructName=""):
@@ -27,10 +18,6 @@ def index(NoStructName=""):
             print request.form["{}input".format(NoStructName)]
         return redirect(url_for('index'))
     return render_template('index.html',
-                           types=TYPES,
-                           structA = StructA,
-                           JsonDict=JsonList,
-                           StructNameJson = StructNameJson,
-                           StructNameList = StructNameList
+                           JsonDict=JsonDict,
                            )
 

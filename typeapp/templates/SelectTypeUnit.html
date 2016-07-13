@@ -1,34 +1,26 @@
-<div style="display: none" id="StructNameJson">{{ StructNameJson }}</div>
-{% include 'selectType.html' %}
-{% for struct in JsonDict %}
-    <div id="{{ StructCnt }}{{ struct[0] }}jsoncodeid" style="display: none">{{ struct[3] }}</div>
-    <div id="{{ StructCnt }}{{ struct[0] }}jsonRequireId" style="display: none">{{ struct[4] }}</div>
-    <div onkeyup="showJson({{ StructCnt }},'{{ StructCnt }}{{ struct[0] }}showjsondiv')" onclick="showJson({{ StructCnt }},'{{ StructCnt }}{{ struct[0] }}showjsondiv')">
-    <table id="{{ StructCnt }}{{ struct[0] }}" style="display: none">
+
+<table id="{{ StructName }}" style="display: none;margin-left: 40px" >
     <tbody>
-    {% if struct[1]["string"]|length != 0 %}
-        {% include "string.html" %}
-    {% endif %}
-    {% for listName,listValue in struct[1]["list"].items() %}
-        {% if listValue[1]|length !=0 %}
+    {% set FieldsVar = StructInfo[StructName].Fields %}
+    {% for varName in FieldsVar %}
+        {% set varType=FieldsVar[varName].Type %}
+        {% set varReq=FieldsVar[varName].Requiredness %}
+        {% set varIsFixed=FieldsVar[varName].IsFixed %}
+        {% set varDefault=FieldsVar[varName].Default %}
+        {% set varReference=FieldsVar[varName].Reference %}
+        {% if varType=="sint32" or varType=="uint32" or varType=="double"%}
+            {% include 'double.html' %}
+        {% elif varType=="string"%}
+            {% include 'string.html' %}
+        {% elif "::" in varType %}
+            {% include 'enum.html' %}
+        {% elif "list<" in varType %}
+            {% set listTypeName=varType|getListTypeName %}
             {% include 'list.html' %}
+        {% elif "mat<" in varType or "vec<" in varType%}
+            {% set matDim=varType|getDim %}
+            {% include "matrix.html" %}
         {% endif %}
     {% endfor %}
-    {% if struct[1]["bool"]|length != 0%}
-        {% include "bool.html" %}
-    {% endif %}
-    {% if struct[1]["number"]|length != 0 %}
-        {% include "double.html" %}
-    {% endif %}
-    {% if struct[1]["enum"]|length != 0 %}
-        {% for enumName,enumValue in struct[1]["enum"].items() %}
-            {% include 'enum.html' %}
-        {% endfor %}
-    {% endif %}
-{#    {% if struct[1]["mat"]|length != 0 %}#}
-{#        {% include 'matrix.html' %}#}
-{#    {% endif %}#}
     </tbody>
-    </table>
-    </div>
-{% endfor %}
+</table>

@@ -114,31 +114,16 @@ function ButtonShowJson(cnt,showjsonid) {
     html += '<p class="jsoneditor-readonly" style="width: 460px">' + DictAndJson[1] + '</p>';
     document.getElementById(showjsonid + "showjsondiv").innerHTML = html;
 }
-function selectshow(item,SelectElemId){
-    var structvalue = document.getElementById("StructNameJson").innerHTML;
-    var structNameList = JSON.parse(structvalue);
-    for(var cnt = 0;cnt<structNameList.length;cnt++)
-    {
-        for(var elem of structNameList){
-            if(cnt == item){
-                document.getElementById(cnt+elem).style.display = "none";
-                document.getElementById(cnt+elem+"ShowJsonWin").style.display = "none";}
-        }
-    }
+function selectshow(SelectElemId){
     var obj = document.getElementById(SelectElemId);
     var index = obj.selectedIndex;
     var valoption = obj.options[index].value;
     var disp1 = document.getElementById(valoption).style;
-    var disp2 = document.getElementById(valoption+"ShowJsonWin").style;
-    
     if (disp1.display == "none"){
         disp1.display = "block";
-        disp2.display = "block";
     }
     else{
         disp1.display = "none";
-        disp2.display = "none";
-        //disp3.display = "none";
     }
 }
 function addItem(itemId) {
@@ -222,6 +207,7 @@ function addrow(tableId,collength,rowIndex,listName) {
     for(var i=0;i<collength;i++){
         var col=row.insertCell(i);
         col.style.height="30px";
+        //col.contentEditable="true";
         col.innerHTML=document.getElementById(tableId+i).value;
     }
     var collast=row.insertCell(collength);

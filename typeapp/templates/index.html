@@ -34,13 +34,11 @@
           <div class="logo"></div>
           DFC tech.
         </h1>
+          {% set StrategyDict = JsonDict|jsontoObj %}
       </div> <!-- /demo-headline -->
         <div style="width: 100%">
-        <div class="col-sm-6">
+        <div class="col-sm-12">
             {% include 'editJson.html' %}
-        </div>
-        <div class="col-sm-6">
-            {% include 'showJson.html' %}
         </div>
         </div>
     </div> <!-- /container -->

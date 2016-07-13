@@ -1,23 +1,22 @@
-<tr title="array" >
-    <td >
-        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 24px">
+<tr onmouseover="shadowover(this)" onmouseout="shadowout(this)">
+    {% if varReq=="required" %}
+        <td><span style="color: red">*</span>{{ varName }} [{{ matDim[0] }}x{{ matDim[1] }}]</td>
+    {% else %}
+        <td>{{ varName }} [{{ matDim[0] }}x{{ matDim[1] }}]</td>
+    {% endif %}
+</tr>
+<tr>
+    <td>
+        <table border="1">
             <tbody>
-            <tr>
-                <td class="jsoneditor-tree">
-                    <button  onclick="collapsewin('matrixchild1')" title="Click to expand/Collapse this field (Ctrl+E). Ctrl+click to expand/collapse including all childs.">^</button>
-                </td>
-                <td class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
-                    <div class="jsoneditor-readonly" >
-                    Matrix[4x5]
-                    </div>
-                </td>
-                <td class="jsoneditor-tree"></td>
-                <td class="jsoneditor-tree">
-                    <div class="jsoneditor-value jsoneditor-array" title="array containing 3 items"></div>
-                </td>
-            </tr>
+            {% for matrow in range(matDim[0]) %}
+                <tr style="height: 30px;">
+                {% for matCol in range(matDim[1])%}
+                    <td contenteditable="true" style="background-color: #d9edf7;width: 100px" spellcheck="false" class="jsoneditor-value jsoneditor-number"></td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
     </td>
 </tr>
-{% include "matrixchild.html" %}

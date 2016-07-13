@@ -195,9 +195,7 @@ def GenerateSignalPythonScript(templatePath):
         elif "mat<" in value[1] or "vec<" in value[1]:
             matDict[key]=[value[0],readDim(value[1])]
         elif '::' in value[1]:
-            print value[2]
             enumDict[key]=[value[0],value[2]]
-
     jsondict = {
         "number":NumDict,"mat":matDict,
         "bool":boolDict,"list":arrayDict,

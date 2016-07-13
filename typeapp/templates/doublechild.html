@@ -1,26 +1,13 @@
-<tr id="{{ StructCnt }}{{ struct[0] }}double" style="display: block">
+<tr id="{{ StructName }}double" style="display: block" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
     <td>
-        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 0px">
-            <tbody>
-            {% for dblName,dblVAR in struct[1]["number"].items() %}
-                <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
-                    <td class="jsoneditor-tree">
-                        <button class="jsoneditor-invisible"></button>
-                    </td>
-                    <td>
-                        {% if dblVAR[0] == "required" %}
-                            <span style="color: red">*</span>
-                        {% endif %}
-                    </td>
-                    <td class="jsoneditor-tree">
-                        <div class="jsoneditor-readonly"  id="m{{ StructCnt }}{{ struct[0] }}{{ dblName }}">{{ dblName }}: </div>
-                    </td>
-                    <td class="jsoneditor-tree">
-                        <div class="jsoneditor-value jsoneditor-number" contenteditable="true" spellcheck="false"  id="{{ StructCnt }}{{ struct[0] }}{{ dblName }}">{{dblVAR[1][-1]}}</div>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        {% if varReq == "required" %}
+            <span style="color: red">*</span>
+        {% endif %}
+    </td>
+    <td class="jsoneditor-tree">
+        <div class="jsoneditor-readonly"  id="m{{ StructName }}{{ varName }}">{{ varName }}: </div>
+    </td>
+    <td class="jsoneditor-tree">
+        <div class="jsoneditor-value jsoneditor-number" contenteditable="true" spellcheck="false"  id="{{ StructName }}{{ varName }}">{{ varDefault }}</div>
     </td>
 </tr>

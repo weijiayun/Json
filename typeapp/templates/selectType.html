@@ -1,10 +1,12 @@
 <div class="row">
     <div class="col-xs-3">
-        <select id="{{ StructCnt }}typeselect" class="form-control select select-primary" data-toggle="select" onclick="selectshow({{ StructCnt }},'{{ StructCnt }}typeselect')">
+        <select id="StrategySelect" class="form-control select select-primary" data-toggle="select" onclick="selectshow('StrategySelect')">
             <option selected>Types</option>
-            {% for e in JsonDict %}
-                <option value="{{ StructCnt }}{{ e[0] }}">{{ e[0] }}</option>
-            {% endfor %}
+            {% with %}
+                {% for e in StrategyDict %}
+                    <option value="{{ e }}">{{ e }}</option>
+                {% endfor %}
+            {% endwith %}
         </select>
     </div> <!-- /.col-xs-3 -->
 </div> <!-- /.row -->

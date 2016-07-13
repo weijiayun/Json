@@ -37,5 +37,10 @@
     <tr><td>7</td><td><a href="javascript:void(0)" onclick="delIndex(this)">del</a></td></tr>
         </tbody>
     </table>
+{% set t=JsonDict|jsontoObj %}
+<p>{{ t|length }}</p>
+{% for key in t %}
+<p>{{ key }}</p>
+{% endfor %}
 </body>
 </html>

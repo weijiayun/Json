@@ -1,32 +1,13 @@
-<tr id="{{ StructCnt }}{{ struct[0] }}string" style="display: block">
+<tr id="{{ StructName }}double" style="display: block" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
     <td>
-        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 0px">
-            <tbody>
-            {% for strName,strVAR in struct[1]["string"].items() %}
-                {% set strRAT=strVAR[0] %}
-                {% set strVal=strVAR[3] %}
-                <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
-                    <td class="jsoneditor-tree">
-                        <button class="jsoneditor-invisible"></button>
-                    </td>
-                    <td>
-                        {% if strRAT == "required" %}
-                            <span style="color: red">*</span>
-                        {% endif %}
-                    </td>
-                    <td class="jsoneditor-tree">
-                        <div class="jsoneditor-readonly" title="{{ strRAT }}" id="m{{ StructCnt }}{{ struct[0] }}{{ strName }}">{{ strName }}: </div>
-                    </td>
-                    <td class="jsoneditor-tree">
-                        {% if strName=="Type" %}
-                            <div id="{{ StructCnt }}{{ struct[0] }}{{ strName }}" class="jsoneditor-readonly" contenteditable="true" spellcheck="false" title="">{{ struct[0] }}</div>
-                        {% else %}
-                            <div id="{{ StructCnt }}{{ struct[0] }}{{ strName }}" class="jsoneditor-value jsoneditor-string" contenteditable="true" spellcheck="false" title="">{{ strVal }}</div>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        {% if varReq == "required" %}
+            <span style="color: red">*</span>
+        {% endif %}
+    </td>
+    <td class="jsoneditor-tree">
+        <div class="jsoneditor-readonly"  id="m{{ StructName }}{{ varName }}">{{ varName }}: </div>
+    </td>
+    <td class="jsoneditor-tree">
+        <div class="jsoneditor-value jsoneditor-string" contenteditable="true" spellcheck="false"  id="{{ StructName }}{{ varName }}">{{ varDefault }}</div>
     </td>
 </tr>

@@ -3,22 +3,12 @@
         <div class="jsoneditor-tree" >
             <table id="oTable" width="100%">
                 <tbody>
-                {% for StructCnt in range(StructNameList[0]) %}
-                {% if StructCnt== 0 %}
-                    <tr id="{{ StructCnt }}item" style="display: block">
-                        <td><button id="{{ StructCnt }}"  style="font-size: 26px;width: 28px;height: 41px"  onclick="addItem({{ StructCnt }})" >+</button></td>
-                        <td><button id="{{ StructCnt }}"  style="display: none;width: 28px;height: 41px" ></button></td>
-                        <td>{% include 'SelectTypeUnit.html' %}</td>
-                        <td><button style="font-size: 20px;width: 80px;height: 41px"  onclick="clearObj({{ StructCnt }})" >Clear</button></td>
-                    </tr>
-                {% else %}
-                    <tr id="{{ StructCnt }}item" style="display: none">
-                        <td><button id="{{ StructCnt }}" style="font-size: 26px;width: 28px;height: 41px" onclick="addItem({{ StructCnt }})" >+</button></td>
-                        <td><button id="{{ StructCnt }}" style="font-size: 26px;width: 28px;height: 41px" onclick="deleteItem({{ StructCnt }})" >-</button></td>
-                        <td>{% include 'SelectTypeUnit.html' %}</td>
-                        <td><button style="font-size: 20px;width: 80px;height: 41px"  onclick="clearObj({{ StructCnt }})" >Clear</button></td>
-                    </tr>
-                    {% endif %}
+                <tr>
+                    <td>{% include 'selectType.html' %}</td>
+                    <td><button style="font-size: 20px;width: 80px;height: 41px"  onclick="clearObj({{ StructName }})" >Clear</button></td>
+                </tr>
+                {% for StructName,StructInfo in StrategyDict.items() %}
+                    <tr><td>{% include 'SelectTypeUnit.html' %}</td></tr>
                 {% endfor %}
                 </tbody>
             </table>
