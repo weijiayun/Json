@@ -9,7 +9,6 @@
         </tr>
     {% endwith %}
     <tr style="height: 30px">
-        {% with %}
         {% for listVarName in listFieldsVar%}
             {% set listVarType=listFieldsVar[listVarName].Type %}
             {% set listVarReq=listFieldsVar[listVarName].Requiredness %}
@@ -32,7 +31,6 @@
         <td>
             <button style="width: 55px;" onclick="addrow('{{ StructName }}{{ varName }}csv',{{ listFieldsVar|length }},'-1','{{ varName }}')" >Add</button>
         </td>
-    {% endwith %}
     </tr>
     </tbody>
 </table>

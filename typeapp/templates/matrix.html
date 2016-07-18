@@ -4,10 +4,11 @@
     {% else %}
         <td>{{ varName }} [{{ matDim[0] }}x{{ matDim[1] }}]</td>
     {% endif %}
+    <td style="display: none">{{ varName }}</td>
 </tr>
 <tr>
     <td>
-        <table border="1">
+        <table border="1" id="{{ StructName }}{{ varName }}matrix">
             <tbody>
             {% for matrow in range(matDim[0]) %}
                 <tr style="height: 30px;">

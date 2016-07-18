@@ -1,28 +1,16 @@
 <tr id="{{ StructName }}{{ varName }}">
     <td>
-        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 0px">
-            <tbody>
-                <tr class="jsoneditor-tree" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
-                    <td>
-                        {% if varReq == "required" %}
-                            <span style="color: red">*</span>
-                        {% endif %}
-                    </td>
-                    <td class="jsoneditor-tree">
-                        <div class="jsoneditor-readonly" id="m{{ StructName }}{{varName }}">{{ varName }}: </div>
-                    </td>
-                    <td>
-                        <div class="col-xs-3">
-                            <select id="{{ StructName }}{{varName }}select"  style=" width: auto" >
-                                {% set enumFieldsVar = StructInfo[varType].Fields %}
-                                {% for enumVarName in enumFieldsVar %}
-                                    <option value="{{ enumVarName }}">{{ enumVarName }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </td>
+        {% if varReq == "required" %}
+            <span style="color: red">*</span>
+        {% endif %}
+        <span onmouseover="shadowover(this)" onmouseout="shadowout(this)">{{ varName }} </span>
+        <select id="{{ StructName }}{{varName }}select"  style=" width: auto" >
+            {% set enumFieldsVar = StructInfo[varType].Fields %}
+            {% for enumVarName in enumFieldsVar %}
+                <option value="{{ enumVarName }}">{{ enumVarName }}</option>
+            {% endfor %}
+        </select>
+    <td id="m{{ StructName }}{{varName }}" style="display: none">{{ varName }}</td>
 </tr>
+
+

@@ -1,18 +1,10 @@
 <tr class="jsoneditor-expandable" title="array">
-    <td >
-        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 0px">
-            <tbody>
-            <tr>
-                <td class="jsoneditor-tree">
-                    <button class="jsoneditor-collapsed" onclick="collapsewin('{{ StructName }}{{ varName }}')">^</button>
-                </td>
-                <td class="jsoneditor-tree">
-                    <div class="jsoneditor-readonly" >{{ varName }}</div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <td ><button class="jsoneditor-collapsed" onclick="collapsewin('{{ StructName }}{{ varName }}')">^</button> {{ varName }}</td>
+    <td class="jsoneditor-readonly" style="color: transparent">{{ varName }}</td>
+</tr>
+<tr>
+    <td id="{{ StructName }}{{ varName }}" style="display: block">
+        {% include 'listTable.html' %}
     </td>
 </tr>
-{% include "listchild.html" %}
 

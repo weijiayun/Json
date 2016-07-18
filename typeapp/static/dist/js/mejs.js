@@ -115,16 +115,21 @@ function ButtonShowJson(cnt,showjsonid) {
     document.getElementById(showjsonid + "showjsondiv").innerHTML = html;
 }
 function selectshow(SelectElemId){
+    var JSONDICT = document.getElementById("JsonDict").innerHTML;
+    var jsonDict = JSON.parse(JSONDICT);
     var obj = document.getElementById(SelectElemId);
     var index = obj.selectedIndex;
     var valoption = obj.options[index].value;
     var disp1 = document.getElementById(valoption).style;
-    if (disp1.display == "none"){
-        disp1.display = "block";
+    for(var e in jsonDict){
+        var tempdisp = document.getElementById(e).style;
+        if(e == valoption){
+            tempdisp.display = "block";
+        }
+        else
+            tempdisp.display = "none";
     }
-    else{
-        disp1.display = "none";
-    }
+
 }
 function addItem(itemId) {
     var cnt = parseInt(itemId)+1;
@@ -213,4 +218,57 @@ function addrow(tableId,collength,rowIndex,listName) {
     var collast=row.insertCell(collength);
     collast.innerHTML='<button onclick="delrow(this)" style="width: 55px">Delete</button>';
     get_table_values(tableId,listName)
+}
+function treeToCode(SelectElemId) {
+    var JSONDICT = document.getElementById("JsonDict").innerHTML;
+    var jsonDict = JSON.parse(JSONDICT);
+    var obj = document.getElementById(SelectElemId);
+    var index = obj.selectedIndex;
+    var valoption = obj.options[index].value;
+    tbl = document.getElementById(valoption);
+    Jsoncode = Object();
+    for(var i=0;i<tbl.rows.length;i++){
+        var r=tbl.rows[i];
+        var varName = r.cells[1].innerHTML;
+        var varType = jsonDict[valoption][valoption]["Fields"][varName]["Type"];
+        if(varType == "string" || varType == "double"){
+            Jsoncode[varName]=numberConvt(r.cells[3].innerHTML);
+        }
+        else if(varType.match("list&lt;")){
+            i=i+1;
+            listTbl = document.getElementById(valoption+varName+"csv");
+            var cols = jsonDict[valoption][varType.slice(8,-4)]["Fields"];
+            listDict = new Object();
+            listArray = new Array();
+            var colindex = 0;
+            for(colName in cols){
+                for(var li=2;li<listTbl.rows.length-1;li++){
+                    listArray[li-2] = numberConvt(listTbl.rows[li].cells[colindex].innerHTML);
+                }
+                listDict[colName] = listArray;
+                colindex += 1;
+            }
+            Jsoncode[varName]=listDict;
+        }
+        else if(varType == "bool"){
+            Jsoncode[varName]=numberConvt(r.cells[3].innerHTML);
+        }
+        else if(varType.match("mat&lt;")||varType.match("vec&lt;")){
+            i=i+1;
+            matTbl = document.getElementById(valoption+varName+"matrix");
+            matBigArr = new Array();
+            matSmallArr = new Array();
+            for(var mi=0;mi<matTbl.rows.length;mi++){
+                for(var mj=0;mj<matTbl.rows[mi].cells.length;mj++){
+                    matSmallArr[mj] = numberConvt(matTbl.rows[mi].cells[mj].innerHTML)
+                }
+                matBigArr[mi] = matSmallArr;
+            }
+            Jsoncode[varName] = matBigArr;
+        }
+        else if(varType.match("::")){
+            Jsoncode[varName]=numberConvt(document.getElementById(valoption+varName+"select").value);
+        }
+    }
+    alert(JSON.stringify(Jsoncode));
 }

@@ -20,6 +20,8 @@
         {% elif "mat<" in varType or "vec<" in varType%}
             {% set matDim=varType|getDim %}
             {% include "matrix.html" %}
+        {% elif varType == "bool"%}
+            {% include 'bool.html' %}
         {% endif %}
     {% endfor %}
     </tbody>

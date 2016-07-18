@@ -87,6 +87,14 @@ INPUTOBJECT = {
             #     "Default": None,
             #     "Reference": "strategy"
             # },
+            "IsDaylight":{
+                "Type": "bool",
+                "Requiredness": "required",
+                "IsAuto": False,
+                "IsFixed": False,
+                "Default": False,
+                "Reference": None
+            },
             "Market": {
                 "Type": "sint32",
                 "Requiredness": "required",

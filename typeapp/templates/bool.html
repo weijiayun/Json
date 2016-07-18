@@ -1,19 +1,13 @@
-<tr class="jsoneditor-expandable" title="array" style="display: none">
-    <td >
-        <table class="jsoneditor-value" style="border-collapse: collapse;margin-left: 0px">
-            <tbody>
-            <tr>
-                <td class="jsoneditor-tree">
-                    <button class="jsoneditor-collapsed" onclick="collapsewin('{{ StructCnt }}{{ struct[0] }}bool')" >^</button>
-                </td>
-                <td class="jsoneditor-tree" >
-                    <div class="jsoneditor-readonly" >Boolean</div>
-                </td>
-                <td class="jsoneditor-tree"></td>
-            </tr>
-            </tbody>
-        </table>
+<tr id="{{ StructName }}bool" style="display: block">
+    <td>
+        {% if varReq == "required" %}
+            <span style="color: red">*</span>
+        {% endif %}
     </td>
+    <td class="jsoneditor-readonly">{{ varName }}</td>
+    <td class="jsoneditor-tree">
+        <input type="checkbox" value="0" id="m{{ StructName }}{{ varName }}"
+               onclick="get_chekbox_value('m{{ StructName }}{{ varName }}','{{ StructName }}{{ varName }}')"/>
+    </td>
+    <td class="jsoneditor-readonly jsoneditor-boolean" style="color: deepskyblue" >{{ varDefault }}</td>
 </tr>
-{% include "boolchild.html" %}
-

@@ -34,12 +34,20 @@
           <div class="logo"></div>
           DFC tech.
         </h1>
+          <div id="JsonDict" style="display: none">{{ JsonDict }}</div>
           {% set StrategyDict = JsonDict|jsontoObj %}
       </div> <!-- /demo-headline -->
         <div style="width: 100%">
-        <div class="col-sm-12">
-            {% include 'editJson.html' %}
-        </div>
+            <select id="StrategyJsonToCodeSelect" onchange="treeToCode('StrategyJsonToCodeSelect')" style="width: 200px;height: 40px;">
+                {% with %}
+                    {% for e in StrategyDict %}
+                        <option value="{{ e }}">{{ e }}</option>
+                    {% endfor %}
+                {% endwith %}
+            </select>
+            <div class="col-sm-12">
+                {% include 'editJson.html' %}
+            </div>
         </div>
     </div> <!-- /container -->
   </div>
