@@ -1,4 +1,4 @@
-function numberConvt(strNum) {
+function JsonFormatConvt(strNum) {
     var doubleTest = /^-*\d+.\d+$/;
     var intTest = /^-*\d+$/;
     var tempvalue;
@@ -10,11 +10,23 @@ function numberConvt(strNum) {
         tempvalue = strNum;
     return tempvalue;
 }
+String.prototype.format=function()
+{
+    if(arguments.length==0) return this;
+    for(var s=this, i=0; i<arguments.length; i++)
+        s=s.replace(new RegExp("\\{"+i+"\\}","g"), arguments[i]);
+    return s;
+};
+
 function get_chekbox_value(checkboxid,showcheckid) {
     if(document.getElementById(checkboxid).checked){
         document.getElementById(showcheckid).innerHTML= 'true';
+        document.getElementById(showcheckid+"boolval").innerHTML= 'true';
     }
-    else document.getElementById(showcheckid).innerHTML= 'false';
+    else {
+        document.getElementById(showcheckid).innerHTML= 'false';
+        document.getElementById(showcheckid+"boolval").innerHTML= 'false';
+    }
 }
 
 function shadowover(x) {
@@ -49,7 +61,7 @@ function get_table_values(tableId,listName) {
     {
         for(var j=0;j<t.rows[i].cells.length-1;j++)
         {
-            tempDict[header[j]]=numberConvt(t.rows[i].cells[j].innerHTML)
+            tempDict[header[j]]=JsonFormatConvt(t.rows[i].cells[j].innerHTML)
         }
         valueList[i-2]=tempDict;
         tempDict=null;
@@ -72,7 +84,7 @@ function get0bj(cnt) {
             newjsoncode[memberlist[i]] = structname;
         else {
             var tempvalue = document.getElementById(cnt + structname + memberlist[i]).innerHTML;
-            newjsoncode[memberlist[i]] = numberConvt(tempvalue);
+            newjsoncode[memberlist[i]] = JsonFormatConvt(tempvalue);
         }
     }
     return [newjsoncode,JSON.stringify(newjsoncode)];
@@ -217,7 +229,6 @@ function addrow(tableId,collength,rowIndex,listName) {
     }
     var collast=row.insertCell(collength);
     collast.innerHTML='<button onclick="delrow(this)" style="width: 55px">Delete</button>';
-    get_table_values(tableId,listName)
 }
 function treeToCode(SelectElemId) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
@@ -232,7 +243,7 @@ function treeToCode(SelectElemId) {
         var varName = r.cells[1].innerHTML;
         var varType = jsonDict[valoption][valoption]["Fields"][varName]["Type"];
         if(varType == "string" || varType == "double"){
-            Jsoncode[varName]=numberConvt(r.cells[3].innerHTML);
+            Jsoncode[varName]=JsonFormatConvt(r.cells[3].innerHTML);
         }
         else if(varType.match("list&lt;")){
             i=i+1;
@@ -243,7 +254,7 @@ function treeToCode(SelectElemId) {
             var colindex = 0;
             for(colName in cols){
                 for(var li=2;li<listTbl.rows.length-1;li++){
-                    listArray[li-2] = numberConvt(listTbl.rows[li].cells[colindex].innerHTML);
+                    listArray[li-2] = JsonFormatConvt(listTbl.rows[li].cells[colindex].innerHTML);
                 }
                 listDict[colName] = listArray;
                 colindex += 1;
@@ -251,7 +262,7 @@ function treeToCode(SelectElemId) {
             Jsoncode[varName]=listDict;
         }
         else if(varType == "bool"){
-            Jsoncode[varName]=numberConvt(r.cells[3].innerHTML);
+            Jsoncode[varName]=JsonFormatConvt(r.cells[3].innerHTML);
         }
         else if(varType.match("mat&lt;")||varType.match("vec&lt;")){
             i=i+1;
@@ -260,15 +271,110 @@ function treeToCode(SelectElemId) {
             matSmallArr = new Array();
             for(var mi=0;mi<matTbl.rows.length;mi++){
                 for(var mj=0;mj<matTbl.rows[mi].cells.length;mj++){
-                    matSmallArr[mj] = numberConvt(matTbl.rows[mi].cells[mj].innerHTML)
+                    matSmallArr[mj] = JsonFormatConvt(matTbl.rows[mi].cells[mj].innerHTML)
                 }
                 matBigArr[mi] = matSmallArr;
             }
             Jsoncode[varName] = matBigArr;
         }
         else if(varType.match("::")){
-            Jsoncode[varName]=numberConvt(document.getElementById(valoption+varName+"select").value);
+            Jsoncode[varName]=JsonFormatConvt(document.getElementById(valoption+varName+"select").value);
         }
     }
-    alert(JSON.stringify(Jsoncode));
+    
+}
+function csvTreeToJsonTree(StructName,varName) {
+    var JSONDICT = document.getElementById("JsonDict").innerHTML;
+    var jsonDict = JSON.parse(JSONDICT);
+    var listTbl = document.getElementById(StructName+varName+"csv");
+    var varType = jsonDict[StructName][StructName]["Fields"][varName]["Type"];
+    var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
+    var listDict = new Object();
+    var listArray = new Array();
+    var colindex = 0;
+    for(var colName in cols){
+        for(var li=2;li<listTbl.rows.length-1;li++){
+            listArray[li-2] = JsonFormatConvt(listTbl.rows[li].cells[colindex].innerHTML);
+        }
+        listDict[colName] = listArray;
+        colindex += 1;
+    }
+    var html = "<table style='margin-left: 40px' id='{0}'>".format(StructName+varName+"jsontree");
+    for(var i=0;i<listTbl.rows.length-3;i++) {
+        for (var e in listDict) {
+            html += "<tr>";
+            html += "<td class='jsoneditor-readonly'>" + e + ": " + "</td>";
+            html += '<td class="jsoneditor-value.jsoneditor-number" contenteditable="true" spellcheck="false" style="width: 60px">'+listDict[e][i]+'</td>';
+            html += "</tr>";
+        }
+    }
+    html +="<tr><td><button onclick='jsonAdd(\"{0}\",\"{1}\")'>+</button>".format(StructName,varName);
+    html +="<button onclick='jsondel(\"{0}\",\"{1}\")'>-</button></td></tr>".format(StructName,varName);
+    html += "</table>";
+    document.getElementById(StructName+varName+"showJson").innerHTML = html;
+    document.getElementById(StructName+varName+"showCsv").style.display = "none";
+}
+function getPropertyCount(o){  
+    var n, count = 0;  
+    for(n in o){  
+        if(o.hasOwnProperty(n)){  
+            count++;  
+        }  
+    }  
+    return count;  
+}  
+function jsonTreeToCodeTree(StructName,varName) {
+
+    var JSONDICT = document.getElementById("JsonDict").innerHTML;
+    var jsonDict = JSON.parse(JSONDICT);
+    var listTbl = document.getElementById(StructName+varName+"csv");
+    var varType = jsonDict[StructName][StructName]["Fields"][varName]["Type"];
+    var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
+    var tb1 = document.getElementById(StructName+varName+"jsontree");
+    var listArray = new Array();
+    for(var i1=0;i1<tb1.rows.length-1;i1++){
+            listArray.push(tb1.rows[i1].cells[1].innerHTML);
+    }
+    document.getElementById(StructName+varName+"showCsv").style.display = "block";
+    var colLen = getPropertyCount(cols);
+    var rowLen = listArray.length/colLen;
+    for(var k1=2;k1<tb2.rows.length-1;k1++){
+        tb2.deleteRow(rowIndex-2);
+    } 
+    var tb2 = document.getElementById(StructName+varName+"csv");
+    for(var i2=0;i2<rowLen;i2++){
+        var row = tb2.insertRow(rowIndex);
+        for(var j2=0;i<collength;j2++){
+            var col=row.insertCell(j2);
+            col.style.height="30px";
+            col.innerHTML=listArray[j2+i2*colLen];
+        }
+        var collast=row.insertCell(collength);
+        collast.innerHTML='<button onclick="delrow(this)" style="width: 55px">Delete</button>';
+    }
+    document.getElementById(StructName+varName+"showCsv").style.display = "block";
+}
+
+function jsonAdd(StructName,varName) {
+    var JSONDICT = document.getElementById("JsonDict").innerHTML;
+    var jsonDict = JSON.parse(JSONDICT);
+    var listTbl = document.getElementById(StructName+varName+"csv");
+    var varType = jsonDict[StructName][StructName]["Fields"][varName]["Type"];
+    var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
+    tb=document.getElementById(StructName+varName+"jsontree");
+    for(var colelem in cols){
+        rowIndex=tb.rows.length-1;
+        var row = tb.insertRow(rowIndex);
+        var col1=row.insertCell(0);
+        col1.innerHTML = colelem+": ";
+        var col2=row.insertCell(1);
+        col2.setAttribute("contenteditable","true");
+        col2.style.width="60px";
+    }
+}
+function jsondel(StructName,varName) {
+    var tb = document.getElementById(StructName+varName+"jsontree");
+    var rowIndex = tb.rows.length;
+    tb.deleteRow(rowIndex-2);
+    tb.deleteRow(rowIndex-3);
 }
