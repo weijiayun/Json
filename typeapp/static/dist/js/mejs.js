@@ -377,4 +377,5 @@ function jsondel(StructName,varName) {
     var rowIndex = tb.rows.length;
     tb.deleteRow(rowIndex-2);
     tb.deleteRow(rowIndex-3);
+    
 }
