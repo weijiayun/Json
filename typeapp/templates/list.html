@@ -1,0 +1,16 @@
+<tr>
+    <td >
+        <button onclick="collapsewin('{{ StructName }}{{ varName }}')">^</button> <span onmouseover="shadowover(this)" onmouseout="shadowout(this)">{{ varName }} </span>
+        <button id="{{ StructName }}{{ varName }}JsonButton" onclick="csvTreeToJsonTree('{{ StructName }}','{{ varName }}')" style="width: auto;">Json</button>
+        <button id="{{ StructName }}{{ varName }}CsvButton" onclick="jsonTreeToCodeTree('{{ StructName }}','{{ varName }}')" style="width: auto;">Csv</button>
+    </td>
+    <td class="jsoneditor-readonly" style="display: none">{{ varName }}</td>
+
+</tr>
+<tr id="{{ StructName }}{{ varName }}" style="display: block">
+    <td id="{{ StructName }}{{ varName }}showCsv">
+        {% include 'listTable.html' %}
+    </td>
+    <td id="{{ StructName }}{{ varName }}showJson"></td>
+</tr>
+

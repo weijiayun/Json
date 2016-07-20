@@ -1,0 +1,23 @@
+<tr onmouseover="shadowover(this)" onmouseout="shadowout(this)">
+    {% if varReq=="required" %}
+        <td><span style="color: red">*</span>{{ varName }} [{{ matDim[0] }}x{{ matDim[1] }}]</td>
+    {% else %}
+        <td>{{ varName }} [{{ matDim[0] }}x{{ matDim[1] }}]</td>
+    {% endif %}
+    <td style="display: none">{{ varName }}</td>
+</tr>
+<tr>
+    <td>
+        <table border="1" id="{{ StructName }}{{ varName }}matrix" style="margin-left: 40px">
+            <tbody>
+            {% for matrow in range(matDim[0]) %}
+                <tr style="height: 30px;">
+                {% for matCol in range(matDim[1])%}
+                    <td contenteditable="true" style="background-color: #d9edf7;width: 100px;" spellcheck="false" class="jsoneditor-value jsoneditor-number"></td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </td>
+</tr>

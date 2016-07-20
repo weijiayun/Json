@@ -1,0 +1,43 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>DFC</title>
+    <meta name="description" content="DFC"/>
+      <meta name="viewport" content="width=1000, initial-scale=1.0, maximum-scale=1.0">
+    <!-- Loading Bootstrap -->
+      <link href="../static/css/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+      <link href="../static/css/jsonedit.css" rel="stylesheet">
+      <link rel="stylesheet" type="text/css" href="../static/css/jquery.multiselect.css" />
+      <link rel="stylesheet" type="text/css" href="../static/css/style.css" />
+      <link rel="stylesheet" type="text/css" href="../static/css/prettify.css" />
+      <link rel="stylesheet" type="text/css" href="../static/css/jquery-ui.css" />
+      <script src="../static/js/jquery-3.1.0.min.js"></script>
+      <script src="../static/js/mejs.js"></script>
+      <script src="../static/js/jquery-ui.js"></script>
+      <script type="text/javascript" src="../static/js/jquery.ui.core.js"></script>
+      <script type="text/javascript" src="../static/js/jquery.ui.widget.js"></script>
+      <script type="text/javascript" src="../static/js/prettify.js"></script>
+      <script type="text/javascript" src="../static/js/jquery.multiselect.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+    <div class="container">
+        <h1 class="demo-logo">
+          DFC tech.
+        </h1>
+          <div id="JsonDict" style="display: none">{{ JsonDict }}</div>
+          {% set StrategyDict = JsonDict|jsontoObj %}
+        <div style="width: 100%">
+            <select id="StrategyJsonToCodeSelect" onchange="treeToCode('StrategyJsonToCodeSelect')" style="width: 200px;height: 40px;">
+                {% with %}
+                    {% for e in StrategyDict %}
+                        <option value="{{ e }}">{{ e }}</option>
+                    {% endfor %}
+                {% endwith %}
+            </select>
+            <div class="col-sm-12">
+                {% include 'editJson.html' %}
+            </div>
+        </div>
+    </div>
+  </body>
+</html>

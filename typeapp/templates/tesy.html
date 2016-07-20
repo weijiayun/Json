@@ -1,0 +1,33 @@
+<html>
+<head>
+    <script src="../static/js/jquery-3.1.0.min.js"></script>
+    <title>title</title>
+    <script type="text/javascript">
+        function ajaxLog(s) {
+            alert(s)
+        }
+        function refask() {
+            var reffeedback = $.ajax("/reference/market", {
+                dataType: 'json'
+            }).done(function (data) {
+               alert(JSON.stringify(data));
+            }).fail(function (xhr,status) {
+                ajaxLog("失败: "+xhr.status+', 原因: '+status);
+            });
+
+        }
+    </script>
+</head>
+<body>
+<button id="a" name="a" onclick="refask()">click me</button>
+<select multiple="multiple" size="5" id="ddlConditions">
+    <option value="1">Option 1</option>
+    <option value="2">Option 2</option>
+    <option value="3">Option 3</option>
+    <option value="4">Option 4</option>
+    <option value="5">Option 5</option>
+    <option value="6">Option 6</option>
+    <option value="7">Option 7</option>
+</select>
+</body>
+</html>
