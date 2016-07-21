@@ -1,9 +1,5 @@
-.toolTip { /* This is the hook that the jQuery script will use */
-	padding-right: 20px; /* This is need to make sure that the help icon is always visible */
-	/*background: transparent url(images/help.gif) no-repeat right;*/
-	color: #3366FF;
-	cursor: help;
-	position: relative; /* This contains the .toolTipWrapper div that is absolutely positioned  */
+.toolTip {
+	width: auto;
 }
 div.jsoneditor,div.jsoneditor-outer{
 	-moz-box-sizing:border-box;
@@ -1386,13 +1382,6 @@ td.convert-left,td.convert-right{
 	margin:0
 }
 
-td.convert-right{
-	background:url(img/jsoneditor-icons.svg) 0 -48px
-}
-
-td.convert-left{
-	background:url(img/jsoneditor-icons.svg) -24px -48px
-}
 
 .jsoneditor .search input{
 	background:0 0

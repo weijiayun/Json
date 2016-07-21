@@ -1,22 +1,41 @@
 function JsonFormatConvt(strNum) {
-    var doubleTest = /^-*\d+.\d+$/;
-    var intTest = /^-*\d+$/;
+    var doubleTest = /^-*\d+.\d+$/i;
+    var intTest = /^-*\d+$/i;
+    var falseTest = /^False$/i;
+    var trueTest = /^True$/i;
+    
     var tempvalue;
     if(doubleTest.test(strNum))
         tempvalue = parseFloat(strNum);
     else if(intTest.test(strNum))
         tempvalue = parseInt(strNum);
+    else if(falseTest.test(strNum))
+        tempvalue = false;
+    else if(trueTest.test(strNum))
+        tempvalue = true;
     else
         tempvalue = strNum;
     return tempvalue;
 }
-function numberMatch(number) {
-    var doubleTest = /^-*\d+.\d+$/;
-    var intTest = /^-*\d+$/;
-    if(!(doubleTest.test(number) || intTest.test(number))){
-        
-    }
-}
+$(function (){
+    $('.numberCheck').blur(function(){
+        var number = this.innerHTML;
+        number = number.replace(new RegExp("\\<br\\>","g"),"");
+        var doubleTest = /^-*\d+.\d+$/i;
+        var intTest = /^-*\d+$/i;
+        if(!(doubleTest.test(number) || intTest.test(number))){
+            $(this).tips({
+            side:2,  //1,2,3,4 分别代表 上右下左
+            msg:'Error:STRING!!! Please input number',//tips的文本内容
+            color:'#FFF',//文字颜色，默认为白色
+            //bg:'',//背景色，默认为红色
+            time:1,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
+            x:0,// 默认为0 横向偏移 正数向右偏移 负数向左偏移
+            y:0 // 默认为0 纵向偏移 正数向下偏移 负数向上偏移
+        });
+        }
+    });
+});
 function propomtLable(popInfo) {
     var html = "<div class='webui-popover right in' id='webuiPopover89' style='display: none; width: 224px;position: relative'>";
     html += "<div class='arrow'></div>";
@@ -253,7 +272,7 @@ function addrow(tableId,collength,rowIndex,listName) {
     var bkgcolor = randomColor();
     for(var i=0;i<collength;i++){
         var col=row.insertCell(i);
-        col.className="jsonlist";
+        col.className="jsonlist numberCheck";
         col.innerHTML=document.getElementById(tableId+i).value;
         col.style.textAlign="center";
         col.style.backgroundColor=bkgcolor;
@@ -364,13 +383,13 @@ function csvTreeToJsonTree(StructName,varName) {
         for (var e in listDict) {
             html += "<tr>";
             html += "<td class='jsoneditor-readonly'>" + e + ": " + "</td>";
-            html += "<td class='jsonlist' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
+            html += "<td class='jsonlist numberCheck' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
             html += listDict[e][i]+'</td>';
             html += "</tr>";
         }
     }
-    html +="<tr><td><button onclick='jsonAdd(\"{0}\",\"{1}\")'>+</button>".format(StructName,varName);
-    html +="<button onclick='jsondel(\"{0}\",\"{1}\")'>-</button></td></tr>".format(StructName,varName);
+    html +="<tr><td><button onclick='jsonAdd(\"{0}\",\"{1}\")' style='width: 30px'>+</button>".format(StructName,varName);
+    html +="<button onclick='jsondel(\"{0}\",\"{1}\")'style='width: 30px'>-</button></td></tr>".format(StructName,varName);
     html += "</table></div>";
     document.getElementById(StructName+varName+"showJson").innerHTML = html;
     document.getElementById(StructName+varName+"showCsv").style.display = "none";
@@ -414,7 +433,7 @@ function jsonTreeToCsvTree(StructName,varName) {
             var col=row.insertCell(j2);
             col.style.height="30px";
             col.innerHTML=listArray[j2+i2*colLen];
-            col.className="jsonlist";
+            col.className="jsonlist numberCheck";
             col.style.textAlign="center";
             col.setAttribute("contenteditable","true");
             col.setAttribute("spellcheck","false");
@@ -444,7 +463,7 @@ function jsonAdd(StructName,varName) {
         var col1=row.insertCell(0);
         col1.innerHTML = colelem+": ";
         var col2=row.insertCell(1);
-        col2.className="jsonlist";
+        col2.className="jsonlist numberCheck";
         col2.style.textAlign="center";
         col2.setAttribute("contenteditable","true");
         col2.setAttribute("spellcheck","false");
@@ -508,25 +527,3 @@ function get_Multi_Reference_List(structName,varName) {
     });
 }
 
-function showValues() {
-    var valuestr = $("#sela").multiselect("MyValues");
-    alert(valuestr);
-}
-
-$(document).ready(function() {
-	$('.toolTip').hover(
-		function() {
-		$(this).append(
-			'<div class="webui-popover right in" id="webuiPopover89" style="display: block; width: 224px;">'
-			+'<div class="arrow"></div>'
-			+'<div class="webui-popover-inner">'
-			+'<div class="webui-popover-content">Please enter valid number!</div>'
-			+'</div>'
-			+'</div>'
-		);
-	},
-	function() {
-		$(this).children().remove();
-		}
-	);
-});
