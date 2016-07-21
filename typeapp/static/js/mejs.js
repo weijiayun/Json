@@ -430,9 +430,9 @@ function get_Reference_List(structName,varName) {
         function returnval(obj){
             $("#{0}".format(structName+varName+"refSelect")).get(0).value=obj.name;
         }
-        var refdata = JSON.parse(data); 
+        var refdata = data;
         var html = "<div class='dropdown'>";
-        html += "<button type='button' class='btn dropdown-toggle btn-block btn-primary' id='{0}' data-toggle='{0}'>".format(structName+varName+"refSelect");
+        html += "<button type='button' class='btn dropdown-toggle btn-large btn-primary' id='{0}' data-toggle='dropdown'>".format(structName+varName+"refSelect");
         html += "{}".format(varName);
         html += "<span class='caret'></span></button>";
         html +="<ul class='dropdown-menu' role='menu' aria-labelledby='dropdownMenu1'>";
