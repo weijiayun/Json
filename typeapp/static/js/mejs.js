@@ -421,18 +421,27 @@ function randomColor() {
 function ajaxLog(s) {
     alert(s)
 }
+
+
 function get_Reference_List(structName,varName) {
     var refFeedback = $.ajax("/reference/market", {
         dataType: 'json'
     }).done(function (data) {
-        document.getElementById(structName+varName+"REFDATA").innerHTML=JSON.stringify(data);
-        var html = "<select id='{0}'>".format(structName+varName+"refSelect");
-        var refdata = JSON.parse(document.getElementById(structName+varName+"REFDATA").innerHTML); 
-        for(var e in refdata){
-            html += "<option value='{0}'>{1}</option>".format(refdata[e],refdata[e]);
+        function returnval(obj){
+            $("#{0}".format(structName+varName+"refSelect")).get(0).value=obj.name;
         }
-        html +="</select>";
-    document.getElementById(structName+varName+"tdSelect").innerHTML = html;
+        var refdata = JSON.parse(data); 
+        var html = "<div class='dropdown'>";
+        html += "<button type='button' class='btn dropdown-toggle btn-block btn-primary' id='{0}' data-toggle='{0}'>".format(structName+varName+"refSelect");
+        html += "{}".format(varName);
+        html += "<span class='caret'></span></button>";
+        html +="<ul class='dropdown-menu' role='menu' aria-labelledby='dropdownMenu1'>";
+        for(var e in refdata){
+            html +="<li role='presentation'>";
+            html +="<a role='menuitem' tabindex='-1' href='#' onclick='returnval(this)' name='{0}'>{1}</a></li>".format(refdata[e],refdata[e]);
+        }
+        html +="</ul></div>";
+        document.getElementById(structName+varName+"tdSelect").innerHTML = html;
     }).fail(function (xhr,status) {
         ajaxLog("失败: "+xhr.status+'\n原因: '+status);
     });

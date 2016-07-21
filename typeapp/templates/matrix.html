@@ -1,6 +1,6 @@
 <tr onmouseover="shadowover(this)" onmouseout="shadowout(this)">
     {% if varReq=="required" %}
-        <td><span style="color: red">*</span>{{ varName }} [{{ matDim[0] }}x{{ matDim[1] }}]</td>
+        <td class="jsoneditor-readonly jsoneditor-value" ><span style="color: red">*</span>{{ varName }} [{{ matDim[0] }}x{{ matDim[1] }}]</td>
     {% else %}
         <td>{{ varName }} [{{ matDim[0] }}x{{ matDim[1] }}]</td>
     {% endif %}

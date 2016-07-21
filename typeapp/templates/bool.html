@@ -4,7 +4,7 @@
             <span style="color: red">*</span>
         {% endif %}
     </td>
-    <td class="jsoneditor-readonly" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{{ varName }}</td>
+    <td class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{{ varName }}</td>
     <td class="jsoneditor-tree">
         <input type="checkbox" value="0" id="m{{ StructName }}{{ varName }}"
                onclick="get_chekbox_value('m{{ StructName }}{{ varName }}','{{ StructName }}{{ varName }}')"/>

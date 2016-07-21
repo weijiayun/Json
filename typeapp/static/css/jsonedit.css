@@ -52,7 +52,7 @@ td.jsoneditor-field,td.jsoneditor-readonly{
 	word-wrap:break-word;
 }
 td.jsoneditor-value{
-	border:1px solid;
+	border:1px solid transparent;
 	min-height:16px;
 	min-width:32px;
 	padding:2px;
@@ -122,7 +122,8 @@ td.jsoneditor td.jsoneditor-separator{
 
 td.jsoneditor-field.jsoneditor-highlight,td.jsoneditor-field[contenteditable=true]:focus,td.jsoneditor-field[contenteditable=true]:hover,td.jsoneditor-value.jsoneditor-highlight,td.jsoneditor-value[contenteditable=true]:focus,td.jsoneditor-value[contenteditable=true]:hover{
 	background-color:#FFFFAB;
-	border:1px solid #ff0;
+	border:2px solid #428bca;
+	border-radius: 5px;
 
 }
 

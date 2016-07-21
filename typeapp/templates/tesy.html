@@ -1,33 +1,42 @@
+
+<!DOCTYPE html>
 <html>
 <head>
-    <script src="../static/js/jquery-3.1.0.min.js"></script>
-    <title>title</title>
-    <script type="text/javascript">
-        function ajaxLog(s) {
-            alert(s)
-        }
-        function refask() {
-            var reffeedback = $.ajax("/reference/market", {
-                dataType: 'json'
-            }).done(function (data) {
-               alert(JSON.stringify(data));
-            }).fail(function (xhr,status) {
-                ajaxLog("失败: "+xhr.status+', 原因: '+status);
-            });
+   <title>Bootstrap Dropdowns</title>
+   <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+   <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+   <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+	<script>
 
-        }
-    </script>
+	</script>
 </head>
 <body>
-<button id="a" name="a" onclick="refask()">click me</button>
-<select multiple="multiple" size="5" id="ddlConditions">
-    <option value="1">Option 1</option>
-    <option value="2">Option 2</option>
-    <option value="3">Option 3</option>
-    <option value="4">Option 4</option>
-    <option value="5">Option 5</option>
-    <option value="6">Option 6</option>
-    <option value="7">Option 7</option>
-</select>
+<h3 id="headid"></h3>
+<div class="dropdown">
+   <button type="button" class="btn dropdown-toggle btn-primary" id="dropdownMenu1"
+      data-toggle="dropdown">
+      theme
+      <span class="caret"></span>
+   </button>
+   <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1" >
+      <li role="presentation">
+         <a role="menuitem" tabindex="-1" href="#" onclick="returnval(this)" name="Java">Java</a>
+      </li>
+      <li role="presentation">
+         <a role="menuitem" tabindex="-1" href="#" onclick="returnval(this)" name="data mining">data mining</a>
+      </li>
+      <li role="presentation">
+         <a role="menuitem" tabindex="-1" href="#" onclick="returnval(this)" name="data transp">
+             data transportation
+         </a>
+      </li>
+      <li role="presentation" class="divider"></li>
+      <li role="presentation">
+          <a role="menuitem" tabindex="-1" href="#" name="sepatated link" onclick="returnval(this)">sepatated link</a>
+      </li>
+   </ul>
+</div>
+
+
 </body>
 </html>
