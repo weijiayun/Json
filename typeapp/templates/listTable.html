@@ -1,4 +1,4 @@
-<table style="margin-left: 40px" border="1" id="{{ StructName }}{{ varName }}csv">
+<table style="margin-left: 40px" id="{{ StructName }}{{ varName }}csv">
     <tbody>
     {% set listFieldsVar = StructInfo[listTypeName].Fields %}
     {% with %}
@@ -15,21 +15,23 @@
             {% set listVarIsFixed=listFieldsVar[listVarName].IsFixed %}
             {% set listVarDefault=listFieldsVar[listVarName].Default %}
             {% set listVarReference=listFieldsVar[listVarName].Reference %}
-            <th>
+            <th style="text-align: center">
                 {% if listVarReq == "required" %}
                     <div > <span style="color: red">*</span>{{ listVarName }} </div>
                 {% else %}
                     <div> {{ listVarName }} </div>
                 {% endif %}
             </th>
+
         {% endfor %}
+        <th style="border-right: solid transparent"></th>
     </tr>
     <tr>
         {% for i in range(listFieldsVar|length) %}
             <td><input type="text" id="{{ StructName }}{{ varName }}csv{{ i }}" style="width: 100%;height: 30px"/></td>
         {% endfor %}
         <td>
-            <button style="width: 55px;" onclick="addrow('{{ StructName }}{{ varName }}csv',{{ listFieldsVar|length }},'-1','{{ varName }}')" >Add</button>
+            <button style="width: 93px;" onclick="addrow('{{ StructName }}{{ varName }}csv',{{ listFieldsVar|length }},'-1','{{ varName }}')" >Add</button>
         </td>
     </tr>
     </tbody>

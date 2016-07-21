@@ -31,9 +31,16 @@ function get_chekbox_value(checkboxid,showcheckid) {
 
 function shadowover(x) {
     x.style.backgroundColor = "gray";
+    x.style.borderRadius="2px";
 }
 function shadowout(x) {
     x.style.backgroundColor = "white";
+}
+function overbutton(obj) {
+    obj.childNodes.style.display="block";
+}
+function outbutton(obj) {
+    obj.childNodes.style.display="none";
 }
 function collapsewin(parentid) {
     var disp = document.getElementById(parentid).style;
@@ -226,9 +233,16 @@ function addrow(tableId,collength,rowIndex,listName) {
         col.style.height="30px";
         //col.contentEditable="true";
         col.innerHTML=document.getElementById(tableId+i).value;
+        col.style.textAlign="center";
+        col.style.backgroundColor="#0095dd";
+        col.style.borderRadius="5px";
+        col.setAttribute("contenteditable","true");
+        col.setAttribute("spellcheck","false");
     }
     var collast=row.insertCell(collength);
-    collast.innerHTML='<button onclick="delrow(this)" style="width: 55px">Delete</button>';
+    // collast.onmouseover=overbutton(this);
+    // collast.onmouseout=outbutton(this);
+    collast.innerHTML='<button onclick="delrow(this)" style="width: 93px" >Delete</button>';
 }
 function treeToCode(SelectElemId) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
@@ -329,7 +343,7 @@ function csvTreeToJsonTree(StructName,varName) {
         for (var e in listDict) {
             html += "<tr>";
             html += "<td class='jsoneditor-readonly'>" + e + ": " + "</td>";
-            html += '<td class="jsonlist" contenteditable="true" spellcheck="false" style="width: 60px">'+listDict[e][i]+'</td>';
+            html += '<td class="jsonlist" contenteditable="true" spellcheck="false" style="width: 80px">'+listDict[e][i]+'</td>';
             html += "</tr>";
         }
     }
@@ -378,7 +392,9 @@ function jsonTreeToCodeTree(StructName,varName) {
             col.innerHTML=listArray[j2+i2*colLen];
         }
         var collast=row.insertCell(colLen);
-        collast.innerHTML='<button onclick="delrow(this)" style="width: 55px">Delete</button>';
+        // collast.onmouseover=overbutton(this);
+        // collast.onmouseout=outbutton(this);
+        collast.innerHTML='<button onclick="delrow(this)" style="width:auto" >Delete</button>';
     }
     document.getElementById(StructName+varName+"showCsv").style.display = "block";
     document.getElementById(StructName+varName+"jsontree").style.display = "none";
@@ -398,8 +414,12 @@ function jsonAdd(StructName,varName) {
         var col1=row.insertCell(0);
         col1.innerHTML = colelem+": ";
         var col2=row.insertCell(1);
-        col2.setAttribute("contenteditable","true");
         col2.className="jsonlist";
+        col2.style.width="80px";
+        col2.style.textAlign="center";
+        row.style.borderRadius="5px";
+        col2.setAttribute("contenteditable","true");
+        col2.setAttribute("spellcheck","false");
         row.style.backgroundColor= backgroundColor;
     }
 }
@@ -422,25 +442,24 @@ function ajaxLog(s) {
     alert(s)
 }
 
-
+function returnval(ID,obj){
+    $("#{0}refSelect".format(ID)).get(0).value=obj.name;
+    $("#{0}buttonvalue".format(ID)).get(0).innerHTML=obj.name;
+}
 function get_Reference_List(structName,varName) {
     var refFeedback = $.ajax("/reference/market", {
         dataType: 'json'
     }).done(function (data) {
-        function returnval(obj){
-            $("#{0}".format(structName+varName+"refSelect")).get(0).value=obj.name;
-        }
-        var refdata = data;
-        var html = "<div class='dropdown'>";
+        var html = "<span class='dropdown'>";
         html += "<button type='button' class='btn dropdown-toggle btn-large btn-primary' id='{0}' data-toggle='dropdown'>".format(structName+varName+"refSelect");
-        html += "{}".format(varName);
+        html += "<span id='{0}'>{1}</span>".format(structName+varName+"buttonvalue",varName);
         html += "<span class='caret'></span></button>";
         html +="<ul class='dropdown-menu' role='menu' aria-labelledby='dropdownMenu1'>";
-        for(var e in refdata){
+        for(var e in data){
             html +="<li role='presentation'>";
-            html +="<a role='menuitem' tabindex='-1' href='#' onclick='returnval(this)' name='{0}'>{1}</a></li>".format(refdata[e],refdata[e]);
+            html +="<a role='menuitem' tabindex='-1' onmouseover='shadowover(this)' onmouseout='shadowout(this)' onclick='returnval(\"{0}\",this)' name='{1}'>{2}</a></li>".format(structName+varName,data[e],data[e]);
         }
-        html +="</ul></div>";
+        html +="</ul></span>";
         document.getElementById(structName+varName+"tdSelect").innerHTML = html;
     }).fail(function (xhr,status) {
         ajaxLog("失败: "+xhr.status+'\n原因: '+status);

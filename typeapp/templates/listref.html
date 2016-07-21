@@ -1,5 +1,5 @@
 <tr>
-    <td>
+    <td onmouseover="shadowover(this)" onmouseout="shadowout(this)">
         {% if varReq == "required" %}
             <span style="color: red">*</span> <button onclick="get_Multi_Reference_List('{{ StructName }}','{{ varName }}')" style="width: auto">{{ varName }}</button><span id="{{ StructName }}{{ varName }}tdSelect"></span>
         {% endif %}

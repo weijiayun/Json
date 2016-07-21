@@ -3,13 +3,13 @@ div.jsoneditor,div.jsoneditor-outer{
 	-webkit-box-sizing:border-box
 }
 .jsonlist{
-	border:1px solid;
 	min-height:16px;
 	min-width:32px;
 	padding:2px;
 	margin:1px;
 	word-wrap:break-word;
 	border-radius:5px
+
 }
 
 td.jsoneditor input{

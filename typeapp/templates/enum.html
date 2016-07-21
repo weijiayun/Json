@@ -1,9 +1,9 @@
 <tr id="{{ StructName }}{{ varName }}">
-    <td class="jsoneditor-readonly jsoneditor-value" >
+    <td class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)" >
         {% if varReq == "required" %}
             <span style="color: red">*</span>
         {% endif %}
-        <span onmouseover="shadowover(this)" onmouseout="shadowout(this)">{{ varName }} </span>
+        <span >{{ varName }} </span>
         <select id="{{ StructName }}{{varName }}select"  style=" width: auto" >
             {% set enumFieldsVar = StructInfo[varType].Fields %}
             {% for enumVarName in enumFieldsVar %}
