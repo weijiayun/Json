@@ -1,11 +1,9 @@
 <tr>
     <td class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">
-        <button onclick="collapsewin('{{ StructName }}{{ varName }}')">^</button> <span >{{ varName }} </span>
-        <button id="{{ StructName }}{{ varName }}JsonButton" onclick="csvTreeToJsonTree('{{ StructName }}','{{ varName }}')" style="width: 60px;">Json</button>
-        <button id="{{ StructName }}{{ varName }}CsvButton" onclick="jsonTreeToCodeTree('{{ StructName }}','{{ varName }}')" style="width: 60px;">Csv</button>
+        <button onclick="collapsewin('{{ StructName }}{{ varName }}')">^</button>{{ varName }}
+        <button id="{{ StructName }}{{ varName }}GoJsonButton" onclick="csvTreeToJsonTree('{{ StructName }}','{{ varName }}')" style="width: 60px;">Json</button>
     </td>
-    <td  style="display: none">{{ varName }}</td>
-
+    <td style="display: none">{{ varName }}</td>
 </tr>
 <tr id="{{ StructName }}{{ varName }}" style="display: block">
     <td id="{{ StructName }}{{ varName }}showCsv">

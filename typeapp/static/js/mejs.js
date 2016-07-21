@@ -10,6 +10,28 @@ function JsonFormatConvt(strNum) {
         tempvalue = strNum;
     return tempvalue;
 }
+function numberMatch(number) {
+    var doubleTest = /^-*\d+.\d+$/;
+    var intTest = /^-*\d+$/;
+    if(!(doubleTest.test(number) || intTest.test(number))){
+        
+    }
+}
+function propomtLable(popInfo) {
+    var html = "<div class='webui-popover right in' id='webuiPopover89' style='display: none; width: 224px;position: relative'>";
+    html += "<div class='arrow'></div>";
+    html += "<div class='webui-popover-inner'>";
+    html += "<div class='webui-popover-content'>{0}</div></div></div>".format(popInfo);
+    return html;
+}
+function randomColor() {
+    var colorList = ['F0F8FF','FAEBD7','00FFFF','7FFFD4','F5F5DC','FFE4C4',
+        '5F9EA0','DEB887','7FFF00','FF7F50','6495ED','00FFFF','008B8B',
+        '8FBC8F','00CED1','00BFFF','1E90FF','ADD8E6','87CEFA',
+        '20B2AA','D3D3D3','FFA07A','778899'];
+    var id = Math.ceil(Math.random()*(colorList.length-1));
+    return "#"+colorList[id];
+}
 String.prototype.format=function()
 {
     if(arguments.length==0) return this;
@@ -228,21 +250,18 @@ function addrow(tableId,collength,rowIndex,listName) {
     if(rowIndex=="-1")
         rowIndex=tb.rows.length-1;
     var row = tb.insertRow(rowIndex);
+    var bkgcolor = randomColor();
     for(var i=0;i<collength;i++){
         var col=row.insertCell(i);
-        col.style.height="30px";
-        //col.contentEditable="true";
+        col.className="jsonlist";
         col.innerHTML=document.getElementById(tableId+i).value;
         col.style.textAlign="center";
-        col.style.backgroundColor="#0095dd";
-        col.style.borderRadius="5px";
+        col.style.backgroundColor=bkgcolor;
         col.setAttribute("contenteditable","true");
         col.setAttribute("spellcheck","false");
     }
     var collast=row.insertCell(collength);
-    // collast.onmouseover=overbutton(this);
-    // collast.onmouseout=outbutton(this);
-    collast.innerHTML='<button onclick="delrow(this)" style="width: 93px" >Delete</button>';
+    collast.innerHTML='<button onclick="delrow(this)" style="width: 75px" >Delete</button>';
 }
 function treeToCode(SelectElemId) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
@@ -323,6 +342,7 @@ function treeToCode(SelectElemId) {
     alert(JSON.stringify(Jsoncode));
 }
 function csvTreeToJsonTree(StructName,varName) {
+
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
     var jsonDict = JSON.parse(JSONDICT);
     var listTbl = document.getElementById(StructName+varName+"csv");
@@ -338,20 +358,24 @@ function csvTreeToJsonTree(StructName,varName) {
         listDict[colName] = listArray;
         colindex += 1;
     }
-    var html = "<table style='margin-left: 40px' id='{0}'>".format(StructName+varName+"jsontree");
+    var html = "<div><table style='margin-left: 40px' id='\{0\}'>".format(StructName+varName+"jsontree");
     for(var i=0;i<listTbl.rows.length-3;i++) {
+        var bkgcolor = randomColor();
         for (var e in listDict) {
             html += "<tr>";
             html += "<td class='jsoneditor-readonly'>" + e + ": " + "</td>";
-            html += '<td class="jsonlist" contenteditable="true" spellcheck="false" style="width: 80px">'+listDict[e][i]+'</td>';
+            html += "<td class='jsonlist' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
+            html += listDict[e][i]+'</td>';
             html += "</tr>";
         }
     }
     html +="<tr><td><button onclick='jsonAdd(\"{0}\",\"{1}\")'>+</button>".format(StructName,varName);
     html +="<button onclick='jsondel(\"{0}\",\"{1}\")'>-</button></td></tr>".format(StructName,varName);
-    html += "</table>";
+    html += "</table></div>";
     document.getElementById(StructName+varName+"showJson").innerHTML = html;
     document.getElementById(StructName+varName+"showCsv").style.display = "none";
+    $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).innerHTML="Csv";
+    $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).setAttribute("onclick","jsonTreeToCsvTree(\"\{0\}\",\"\{1\}\")".format(StructName,varName))
 }
 function getPropertyCount(o){  
     var n, count = 0;  
@@ -362,8 +386,7 @@ function getPropertyCount(o){
     }  
     return count;  
 }  
-function jsonTreeToCodeTree(StructName,varName) {
-
+function jsonTreeToCsvTree(StructName,varName) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
     var jsonDict = JSON.parse(JSONDICT);
     var listTbl = document.getElementById(StructName+varName+"csv");
@@ -386,18 +409,25 @@ function jsonTreeToCodeTree(StructName,varName) {
         tb2 = document.getElementById(StructName+varName+"csv");
         var rowIndex = tb2.rows.length-1;
         var row = tb2.insertRow(rowIndex);
+        var bkgcolor = randomColor();
         for(var j2=0;j2<colLen;j2++){
             var col=row.insertCell(j2);
             col.style.height="30px";
             col.innerHTML=listArray[j2+i2*colLen];
+            col.className="jsonlist";
+            col.style.textAlign="center";
+            col.setAttribute("contenteditable","true");
+            col.setAttribute("spellcheck","false");
+            col.style.backgroundColor= bkgcolor;
         }
         var collast=row.insertCell(colLen);
-        // collast.onmouseover=overbutton(this);
-        // collast.onmouseout=outbutton(this);
-        collast.innerHTML='<button onclick="delrow(this)" style="width:auto" >Delete</button>';
+        collast.innerHTML='<button onclick="delrow(this)" style="width: 75px;" >Delete</button>';
     }
     document.getElementById(StructName+varName+"showCsv").style.display = "block";
     document.getElementById(StructName+varName+"jsontree").style.display = "none";
+    $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).innerHTML="Json";
+    $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).setAttribute("onclick","csvTreeToJsonTree(\"\{0\}\",\"\{1\}\")".format(StructName,varName))
+
 }
 
 function jsonAdd(StructName,varName) {
@@ -407,7 +437,7 @@ function jsonAdd(StructName,varName) {
     var varType = jsonDict[StructName][StructName]["Fields"][varName]["Type"];
     var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
     tb=document.getElementById(StructName+varName+"jsontree");
-    var backgroundColor = randomColor();
+    var bkgcolor = randomColor();
     for(var colelem in cols){
         rowIndex=tb.rows.length-1;
         var row = tb.insertRow(rowIndex);
@@ -415,12 +445,10 @@ function jsonAdd(StructName,varName) {
         col1.innerHTML = colelem+": ";
         var col2=row.insertCell(1);
         col2.className="jsonlist";
-        col2.style.width="80px";
         col2.style.textAlign="center";
-        row.style.borderRadius="5px";
         col2.setAttribute("contenteditable","true");
         col2.setAttribute("spellcheck","false");
-        row.style.backgroundColor= backgroundColor;
+        col2.style.backgroundColor= bkgcolor;
     }
 }
 function jsondel(StructName,varName) {
@@ -429,15 +457,7 @@ function jsondel(StructName,varName) {
     tb.deleteRow(rowIndex-2);
     tb.deleteRow(rowIndex-3);
 }
-function randomColor() {
-    var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'];
-     var res = "";
-     for(var i = 0; i < 6 ; i ++) {
-         var id = Math.ceil(Math.random()*16);
-         res += chars[id];
-     }
-     return "#"+res;
-}
+
 function ajaxLog(s) {
     alert(s)
 }
@@ -492,3 +512,21 @@ function showValues() {
     var valuestr = $("#sela").multiselect("MyValues");
     alert(valuestr);
 }
+
+$(document).ready(function() {
+	$('.toolTip').hover(
+		function() {
+		$(this).append(
+			'<div class="webui-popover right in" id="webuiPopover89" style="display: block; width: 224px;">'
+			+'<div class="arrow"></div>'
+			+'<div class="webui-popover-inner">'
+			+'<div class="webui-popover-content">Please enter valid number!</div>'
+			+'</div>'
+			+'</div>'
+		);
+	},
+	function() {
+		$(this).children().remove();
+		}
+	);
+});

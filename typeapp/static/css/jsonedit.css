@@ -1,16 +1,23 @@
+.toolTip { /* This is the hook that the jQuery script will use */
+	padding-right: 20px; /* This is need to make sure that the help icon is always visible */
+	/*background: transparent url(images/help.gif) no-repeat right;*/
+	color: #3366FF;
+	cursor: help;
+	position: relative; /* This contains the .toolTipWrapper div that is absolutely positioned  */
+}
 div.jsoneditor,div.jsoneditor-outer{
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box
 }
 .jsonlist{
 	min-height:16px;
-	min-width:32px;
+	min-width:80px;
 	padding:2px;
 	margin:1px;
 	word-wrap:break-word;
 	border-radius:5px
-
 }
+
 
 td.jsoneditor input{
 	height:auto;
