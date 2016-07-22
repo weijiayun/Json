@@ -12,7 +12,6 @@ $(document).ready(function (){
             message = "It's empty!";
             check = true;
             backgroundColor="#00A1CB"
-
         }
         else if(!(doubleTest.test(number) || intTest.test(number))){
             message = 'Error:STRING!!! Please input number';
@@ -37,7 +36,7 @@ function JsonFormatConvt(strNum) {
     var intTest = /^-*\d+$/i;
     var falseTest = /^False$/i;
     var trueTest = /^True$/i;
-    
+    strNum = strNum.replace(new RegExp("\\<br\\>","g"),"");
     var tempvalue;
     if(doubleTest.test(strNum))
         tempvalue = parseFloat(strNum);
@@ -107,28 +106,6 @@ function requiredInput(x) {
         return false;
     }
 }
-function get_table_values(tableId,listName) {
-    var t = document.getElementById(tableId);
-    var header= new Array();
-    for(var k=0;k<t.rows[0].cells.length;k++){
-        header[k]=t.rows[0].cells[k].innerHTML;
-    }
-    var valueList = new Array();
-    var tempDict = new Object();
-    for(var i=2;i< t.rows.length-1;i++)
-    {
-        for(var j=0;j<t.rows[i].cells.length-1;j++)
-        {
-            tempDict[header[j]]=JsonFormatConvt(t.rows[i].cells[j].innerHTML)
-        }
-        valueList[i-2]=tempDict;
-        tempDict=null;
-        tempDict = new Object();
-    }
-    var tempObj=new Object();
-    tempObj[listName]=valueList;
-
-}
 
 function get0bj(cnt) {
     var selectValue = document.getElementById(cnt+"typeselect").value;
@@ -147,19 +124,7 @@ function get0bj(cnt) {
     }
     return [newjsoncode,JSON.stringify(newjsoncode)];
 }
-function clearObj(cnt) {
-    var selectValue = document.getElementById(cnt+"typeselect").value;
-    var structvalue = document.getElementById(selectValue+"jsoncodeid").innerHTML;
-    var jsonobj = JSON.parse(structvalue);
-    var structname = jsonobj[0];
-    var memberlist = jsonobj[1];
-    for(var i=0;i<memberlist.length;i++){
-        if(memberlist[i]=="Type")
-            document.getElementById(cnt+structname+memberlist[i]).innerHTML=structname;
-        else
-            document.getElementById(cnt+structname+memberlist[i]).innerHTML=null;
-    }
-}
+
 
 function showJson(cnt,showjsonid){
     var DictAndJson = get0bj(cnt);
@@ -171,18 +136,6 @@ function showJson(cnt,showjsonid){
     html += '</table>';
     html += '<p class="jsoneditor-readonly" style="width: 460px">'+DictAndJson[1]+'</p>';
     document.getElementById(showjsonid).innerHTML = html;
-}
-function ButtonShowJson(cnt,showjsonid) {
-    collapsewin(showjsonid + "ShowJsonWin");
-    var DictAndJson = get0bj(cnt);
-    var result = DictAndJson[0];
-    var html = '<table class="jsoneditor-value">';
-    for (var x in result) {
-        html += '<tr class="jsoneditor-tree"><td class="jsoneditor-tree"><div class="jsoneditor-readonly" style="margin-left: 24px">' + x + ' = ' + '<span style="color: coral">' + result[x] + '</span>' + '</div></td></tr>';
-    }
-    html += '</table>';
-    html += '<p class="jsoneditor-readonly" style="width: 460px">' + DictAndJson[1] + '</p>';
-    document.getElementById(showjsonid + "showjsondiv").innerHTML = html;
 }
 function selectshow(SelectElemId){
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
@@ -274,19 +227,20 @@ function delrow(obj) {
     tb.deleteRow(rowIndex);
 }
 
-function addrow(tableId,collength,rowIndex,listName) {
+function addrow(structName,varName,idSufix) {
+    var tableId = structName+varName+idSufix;
     var tb = document.getElementById(tableId);
-    if(rowIndex=="-1")
-        rowIndex=tb.rows.length-1;
+    var colLen = tb.rows[0].cells.length;
+    rowIndex=tb.rows.length-1;
     var row = tb.insertRow(rowIndex);
     var bkgcolor = randomColor();
-    for(var i=0;i<collength;i++){
+    for(var i=0;i<colLen;i++){
         var col=row.insertCell(i);
-        col.className="jsonlist numberCheck";
+        col.setAttribute("class","jsoneditor-value jsoneditor-number'");
+        col.setAttribute("contenteditable","true");
         col.innerHTML=document.getElementById(tableId+i).value;
         col.style.textAlign="center";
         col.style.backgroundColor=bkgcolor;
-        col.setAttribute("contenteditable","true");
         col.setAttribute("spellcheck","false");
     }
     var collast=row.insertCell(collength);
@@ -393,7 +347,7 @@ function csvTreeToJsonTree(StructName,varName) {
         for (var e in listDict) {
             html += "<tr>";
             html += "<td class='jsoneditor-readonly'>" + e + ": " + "</td>";
-            html += "<td class='numberCheck jsoneditor-value jsoneditor-number' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
+            html += "<td class='jsoneditor-value jsoneditor-number' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
             html += listDict[e][i]+'</td>';
             html += "</tr>";
         }
@@ -443,8 +397,9 @@ function jsonTreeToCsvTree(StructName,varName) {
             var col=row.insertCell(j2);
             col.style.height="30px";
             col.innerHTML=listArray[j2+i2*colLen];
-            col.className="jsonlist numberCheck";
-            col.style.textAlign="center";
+            //col.className="jsonlist numberCheck";
+            col.setAttribute("className","jsoneditor-value jsoneditor-number");
+            col.setAttribute("class","jsoneditor-value jsoneditor-number");
             col.setAttribute("contenteditable","true");
             col.setAttribute("spellcheck","false");
             col.style.backgroundColor= bkgcolor;
@@ -473,8 +428,8 @@ function jsonAdd(StructName,varName) {
         var col1=row.insertCell(0);
         col1.innerHTML = colelem+": ";
         var col2=row.insertCell(1);
-        col2.className="jsonlist numberCheck";
-        col2.style.textAlign="center";
+        col2.setAttribute("className","jsoneditor-value jsoneditor-number");
+        col2.setAttribute("class","jsoneditor-value jsoneditor-number");
         col2.setAttribute("contenteditable","true");
         col2.setAttribute("spellcheck","false");
         col2.style.backgroundColor= bkgcolor;
@@ -518,22 +473,39 @@ function get_Multi_Reference_List(structName,varName) {
     var refFeedback = $.ajax("/reference/market", {
         dataType: 'json'
     }).done(function (data) {
-        document.getElementById(structName+varName+"REFDATA").innerHTML=JSON.stringify(data);
-        var html = "<select id='{0}' multiple='multiple' size='5'>".format(structName+varName+"refSelect");
-        var refdata = JSON.parse(document.getElementById(structName+varName+"REFDATA").innerHTML); 
-        for(var e in refdata){
-            html += "<option value='{0}'>{1}</option>".format(refdata[e],refdata[e]);
+        var html = "<select id='{0}' class='selectresult' multiple='multiple' size='5'>".format(structName+varName+"refSelect");
+        for(var e in data){
+            html += "<option value='{0}'>{0}</option>".format(data[e]);
         }
         html +="</select>";
-    document.getElementById(structName+varName+"tdSelect").innerHTML = html;
-          $("#{0}".format(structName+varName+"refSelect")).multiselect({
-              noneSelectedText: "==请选择==",
-              checkAllText: "全选",
-              uncheckAllText: '全不选',
-              selectedList:4
-          });
+        document.getElementById(structName+varName+"tdSelect").innerHTML = html;
+        $("#{0}".format(structName+varName+"refSelect")).multiselect({
+            noneSelectedText: varName,
+            checkAllText: "全选",
+            uncheckAllText: '全不选',
+            selectedList:3
+        });
     }).fail(function (xhr,status) {
         ajaxLog("失败: "+xhr.status+'\n原因: '+status);
     });
 }
+$(document).ready(function (){
+    $('.selectwww').change(function(){
+        alert("sdf");
+        var a=this.childNodes(0).multiselect("MyValues").split(",");
+        if(1){
+            $(this).tips({
+            side:2,  //1,2,3,4 分别代表 上右下左
+            msg:"sdfsdf",//tips的文本内容
+            color:'',//文字颜色，默认为白色
+            bg:'#00A1CB',//背景色，默认为红色
+            time:2,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
+            x:0,// 默认为0 横向偏移 正数向右偏移 负数向左偏移
+            y:0 // 默认为0 纵向偏移 正数向下偏移 负数向上偏移
+        });
+        }
+    });
+});
+
+
 

@@ -54,10 +54,12 @@ td.jsoneditor-field,td.jsoneditor-readonly{
 td.jsoneditor-value{
 	border:1px solid transparent;
 	min-height:16px;
-	min-width:32px;
+	min-width:85px;
 	padding:2px;
 	margin:1px;
 	word-wrap:break-word;
+	height: 25px;
+	border-radius:5px
 }
 
 td.jsoneditor-field p,td.jsoneditor-value p{
@@ -65,9 +67,7 @@ td.jsoneditor-field p,td.jsoneditor-value p{
 }
 
 td.jsoneditor-value{
-	word-wrap: break-word;
-	height: 25px;
-	border-radius:5px
+
 }
 
 td.jsoneditor-readonly{

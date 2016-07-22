@@ -195,6 +195,22 @@ INPUTOBJECT = {
                 "IsFixed": False,
                 "Default": None,
                 "Reference": None
+            },
+            "Feedbeed": {
+                "Type": "string",
+                "Requiredness": "required",
+                "IsAuto": False,
+                "IsFixed": False,
+                "Default": None,
+                "Reference": None
+            },
+            "Feedmarket": {
+                "Type": "string",
+                "Requiredness": "required",
+                "IsAuto": False,
+                "IsFixed": False,
+                "Default": None,
+                "Reference": None
             }
         }
     },

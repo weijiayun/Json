@@ -3,24 +3,36 @@
     <head>
         <title>demo</title>
         <meta charset="UTF-8">
-        <script type="text/javascript" src="../static/js/jquery.min.js"></script>
-        <script type="text/javascript" src="../static/js/jquery.tips.js"></script>
+        <link href="../static/css/jsonedit.css" rel="stylesheet">
+      <link rel="stylesheet" type="text/css" href="../static/css/jquery.multiselect.css" />
+      <link rel="stylesheet" type="text/css" href="../static/css/style.css" />
+      <link rel="stylesheet" type="text/css" href="../static/css/prettify.css" />
+      <link rel="stylesheet" type="text/css" href="../static/css/jquery-ui.css" />
+      <link type="text/css" rel="stylesheet" href="../static/css/bootstrap.min.css" >
+      <link href="../static/css/jquery.webui-popover.min.css" rel="stylesheet">
+      <script type="text/javascript" src="../static/js/jquery.min.js"></script>
+      <script type="text/javascript" src="../static/js/bootstrap.min.js"></script>
+      <script type="text/javascript" src="../static/js/jquery-ui.js"></script>
+      <script type="text/javascript" src="../static/js/jquery.ui.core.js"></script>
+      <script type="text/javascript" src="../static/js/jquery.ui.widget.js"></script>
+      <script type="text/javascript" src="../static/js/prettify.js"></script>
+      <script type="text/javascript" src="../static/js/jquery.multiselect.js"></script>
+      <script type="text/javascript" src="../static/js/jquery.tips.js"></script>
         <style>
-        .myinput{  position: relative;top:200px;left:200px;}
+        .toolTip{  position: relative;top:200px;left:200px;}
         </style>
         <script type="text/javascript">
             $(function (){
-                $('.toolTip').blur(function(){
-                    var number = this.innerHTML;
-                    var doubleTest = /^-*\d+.\d+$/i;
-                    var intTest = /^-*\d+$/i;
-                    if(!(doubleTest.test(number) || intTest.test(number))){
+                $('.toolTip').change(function(){
+                    a=["a","f","c"];
+                    alert(JSON.stringify(a));
+                    if(1){
                         $(this).tips({
                         side:2,  //1,2,3,4 分别代表 上右下左
-                        msg:'Error:STRING!!! Please input number',//tips的文本内容
-                        color:'#FFF',//文字颜色，默认为白色
+                        msg:"sdfsdf",//tips的文本内容
+                        color:'#00A1CB',//文字颜色，默认为白色
                         //bg:'',//背景色，默认为红色
-                        time:0.5,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
+                        time:2,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
                         x:0,// 默认为0 横向偏移 正数向右偏移 负数向左偏移
                         y:0 // 默认为0 纵向偏移 正数向下偏移 负数向上偏移
                     });
@@ -30,6 +42,9 @@
         </script>
     </head>
     <body>
-        <span class="toolTip" contenteditable="true" >sfsdff</span>
-        <span class="toolTip" contenteditable="true" >0</span>
+    <select class="toolTip" id="refSelect" multiple="multiple" size='5'>
+        <option value="a">1</option>
+        <option value="b">2</option>
+        <option value="c">3</option>
+    </select>
 </html>
