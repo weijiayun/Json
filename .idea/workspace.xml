@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="44d24bc1-5784-4c69-bc23-ad2bb25f0dba" name="Default" comment="dropdown is done and prenty fine&#10;">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/typeapp/static/js/tooltip.js" />
+    <list default="true" id="44d24bc1-5784-4c69-bc23-ad2bb25f0dba" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeapp/static/css/jsonedit.css" afterPath="$PROJECT_DIR$/typeapp/static/css/jsonedit.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeapp/static/css/style.css" afterPath="$PROJECT_DIR$/typeapp/static/css/style.css" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeapp/static/js/mejs.js" afterPath="$PROJECT_DIR$/typeapp/static/js/mejs.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeapp/templates/index.html" afterPath="$PROJECT_DIR$/typeapp/templates/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeapp/templates/matrix.html" afterPath="$PROJECT_DIR$/typeapp/templates/matrix.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeapp/templates/tip.html" afterPath="$PROJECT_DIR$/typeapp/templates/tip.html" />
     </list>
     <ignored path="Json.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -33,11 +29,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="jsonedit.css" pinned="false" current-in-tab="true">
+      <file leaf-file-name="jsonedit.css" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/typeapp/static/css/jsonedit.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="347">
-              <caret line="149" column="0" selection-start-line="149" selection-start-column="0" selection-end-line="149" selection-end-column="0" />
+            <state relative-caret-position="276">
+              <caret line="12" column="1" selection-start-line="12" selection-start-column="1" selection-end-line="12" selection-end-column="1" />
               <folding />
             </state>
           </provider>
@@ -65,25 +61,35 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mejs.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="mejs.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/typeapp/static/js/mejs.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="46">
-              <caret line="2" column="25" selection-start-line="2" selection-start-column="25" selection-end-line="2" selection-end-column="25" />
+            <state relative-caret-position="391">
+              <caret line="107" column="5" selection-start-line="107" selection-start-column="5" selection-end-line="107" selection-end-column="5" />
               <folding>
-                <marker date="1469160148029" expanded="true" signature="5052:5069" placeholder="..." />
-                <marker date="1469160148029" expanded="true" signature="5097:5109" placeholder="..." />
-                <marker date="1469160148029" expanded="true" signature="5235:5247" placeholder="..." />
-                <marker date="1469160148029" expanded="true" signature="5681:5698" placeholder="..." />
-                <marker date="1469160148029" expanded="true" signature="5730:5742" placeholder="..." />
-                <marker date="1469160148029" expanded="true" signature="5873:5885" placeholder="..." />
-                <marker date="1469160148029" expanded="true" signature="10219:10230" placeholder="..." />
-                <marker date="1469160148029" expanded="true" signature="14586:14603" placeholder="..." />
-                <marker date="1469160148029" expanded="true" signature="15010:15028" placeholder="..." />
-                <marker date="1469160148029" expanded="true" signature="15214:15225" placeholder="..." />
-                <marker date="1469160148029" expanded="true" signature="15329:15340" placeholder="..." />
-                <marker date="1469160148029" expanded="true" signature="17624:17636" placeholder="..." />
+                <marker date="1469165855077" expanded="true" signature="5411:5428" placeholder="..." />
+                <marker date="1469165855077" expanded="true" signature="5456:5468" placeholder="..." />
+                <marker date="1469165855077" expanded="true" signature="5594:5606" placeholder="..." />
+                <marker date="1469165855077" expanded="true" signature="6040:6057" placeholder="..." />
+                <marker date="1469165855077" expanded="true" signature="6089:6101" placeholder="..." />
+                <marker date="1469165855077" expanded="true" signature="6232:6244" placeholder="..." />
+                <marker date="1469165855077" expanded="true" signature="10578:10589" placeholder="..." />
+                <marker date="1469165855077" expanded="true" signature="14945:14962" placeholder="..." />
+                <marker date="1469165855077" expanded="true" signature="15369:15387" placeholder="..." />
+                <marker date="1469165855077" expanded="true" signature="15573:15584" placeholder="..." />
+                <marker date="1469165855077" expanded="true" signature="15688:15699" placeholder="..." />
+                <marker date="1469165855077" expanded="true" signature="17983:17995" placeholder="..." />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="style.css" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/typeapp/static/css/style.css">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="368">
+              <caret line="16" column="12" selection-start-line="16" selection-start-column="12" selection-end-line="16" selection-end-column="12" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -144,18 +150,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/typeapp/templates/index.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="238">
-              <caret line="32" column="18" selection-start-line="32" selection-start-column="18" selection-end-line="32" selection-end-column="18" />
-              <folding>
-                <element signature="n#style#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
@@ -194,9 +188,10 @@
         <option value="$PROJECT_DIR$/typeapp/templates/string.html" />
         <option value="$PROJECT_DIR$/typeapp/templates/tip.html" />
         <option value="$PROJECT_DIR$/typeapp/test.py" />
-        <option value="$PROJECT_DIR$/typeapp/static/js/mejs.js" />
         <option value="$PROJECT_DIR$/typeapp/templates/matrix.html" />
         <option value="$PROJECT_DIR$/typeapp/static/css/jsonedit.css" />
+        <option value="$PROJECT_DIR$/typeapp/static/css/style.css" />
+        <option value="$PROJECT_DIR$/typeapp/static/js/mejs.js" />
       </list>
     </option>
   </component>
@@ -667,7 +662,14 @@
       <option name="project" value="LOCAL" />
       <updated>1469116552443</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="check to be done  and prenty fine&#10;">
+      <created>1469160572481</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1469160572481</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -708,7 +710,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="dropdown is done&#10;" />
     <MESSAGE value="dropdown is done and prenty fine&#10;" />
-    <option name="LAST_COMMIT_MESSAGE" value="dropdown is done and prenty fine&#10;" />
+    <MESSAGE value="check to be done  and prenty fine&#10;" />
+    <option name="LAST_COMMIT_MESSAGE" value="check to be done  and prenty fine&#10;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -722,18 +725,18 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1469160148029" expanded="true" signature="5052:5069" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="5097:5109" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="5235:5247" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="5681:5698" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="5730:5742" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="5873:5885" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="10219:10230" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="14586:14603" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="15010:15028" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="15214:15225" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="15329:15340" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="17624:17636" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="5411:5428" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="5456:5468" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="5594:5606" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="6040:6057" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="6089:6101" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="6232:6244" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="10578:10589" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="14945:14962" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="15369:15387" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="15573:15584" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="15688:15699" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="17983:17995" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -896,14 +899,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/typeapp/static/css/style.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/typeapp/static/js/jquery.min.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="400">
@@ -1012,63 +1007,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/typeapp/templates/tesy.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="353">
-          <caret line="16" column="33" selection-start-line="16" selection-start-column="33" selection-end-line="16" selection-end-column="33" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/typeapp/static/js/tooltip.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="184">
-          <caret line="8" column="4" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/typeapp/static/js/mejs.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="46">
-          <caret line="2" column="25" selection-start-line="2" selection-start-column="25" selection-end-line="2" selection-end-column="25" />
-          <folding>
-            <marker date="1469160148029" expanded="true" signature="5052:5069" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="5097:5109" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="5235:5247" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="5681:5698" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="5730:5742" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="5873:5885" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="10219:10230" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="14586:14603" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="15010:15028" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="15214:15225" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="15329:15340" placeholder="..." />
-            <marker date="1469160148029" expanded="true" signature="17624:17636" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/typeapp/static/js/jquery.multiselect.min.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/typeapp/static/js/jquery.multiselect.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/typeapp/static/js/jquery.multiselect.filter.min.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -1089,11 +1027,76 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/typeapp/static/js/tooltip.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="184">
+          <caret line="8" column="4" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/typeapp/static/js/jquery.multiselect.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/typeapp/static/js/jquery.multiselect.min.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/typeapp/templates/tesy.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="353">
+          <caret line="16" column="33" selection-start-line="16" selection-start-column="33" selection-end-line="16" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/typeapp/static/css/jsonedit.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="347">
-          <caret line="149" column="0" selection-start-line="149" selection-start-column="0" selection-end-line="149" selection-end-column="0" />
+        <state relative-caret-position="276">
+          <caret line="12" column="1" selection-start-line="12" selection-start-column="1" selection-end-line="12" selection-end-column="1" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/typeapp/static/css/style.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="368">
+          <caret line="16" column="12" selection-start-line="16" selection-start-column="12" selection-end-line="16" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/typeapp/static/js/mejs.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="107" column="5" selection-start-line="107" selection-start-column="5" selection-end-line="107" selection-end-column="5" />
+          <folding>
+            <marker date="1469165855077" expanded="true" signature="5411:5428" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="5456:5468" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="5594:5606" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="6040:6057" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="6089:6101" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="6232:6244" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="10578:10589" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="14945:14962" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="15369:15387" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="15573:15584" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="15688:15699" placeholder="..." />
+            <marker date="1469165855077" expanded="true" signature="17983:17995" placeholder="..." />
+          </folding>
         </state>
       </provider>
     </entry>

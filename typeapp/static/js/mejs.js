@@ -5,12 +5,26 @@ $(document).ready(function (){
         number = number.replace(new RegExp("\\<br\\>","g"),"");
         var doubleTest = /^-*\d+.\d+$/i;
         var intTest = /^-*\d+$/i;
-        if(!(doubleTest.test(number) || intTest.test(number))){
+        var message = "";
+        var check = false;
+        var backgroundColor="";
+        if(number.length == 0){
+            message = "It's empty!";
+            check = true;
+            backgroundColor="#00A1CB"
+
+        }
+        else if(!(doubleTest.test(number) || intTest.test(number))){
+            message = 'Error:STRING!!! Please input number';
+            check = true;
+            backgroundColor="#FF0000";
+        }
+        if(check){
             $(this).tips({
             side:2,  //1,2,3,4 分别代表 上右下左
-            msg:'Error:STRING!!! Please input number',//tips的文本内容
+            msg:message,
             color:'#FFF',//文字颜色，默认为白色
-            //bg:'',//背景色，默认为红色
+            bg:backgroundColor,//背景色，默认为红色
             time:1,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
             x:0,// 默认为0 横向偏移 正数向右偏移 负数向左偏移
             y:0 // 默认为0 纵向偏移 正数向下偏移 负数向上偏移
