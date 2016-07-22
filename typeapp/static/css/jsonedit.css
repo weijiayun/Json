@@ -1,6 +1,4 @@
-.toolTip {
-	width: auto;
-}
+
 div.jsoneditor,div.jsoneditor-outer{
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box
@@ -13,7 +11,6 @@ div.jsoneditor,div.jsoneditor-outer{
 	word-wrap:break-word;
 	border-radius:5px
 }
-
 
 td.jsoneditor input{
 	height:auto;
@@ -146,6 +143,7 @@ td.jsoneditor-value.jsoneditor-array,td.jsoneditor-value.jsoneditor-object{
 }
 
 td.jsoneditor-value.jsoneditor-number{
+	text-align: center;
 	color:purple;
 
 }

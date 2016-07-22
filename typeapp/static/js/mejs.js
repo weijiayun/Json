@@ -1,3 +1,23 @@
+
+$(document).ready(function (){
+    $('.jsoneditor-number').blur(function(){
+        var number = this.innerHTML;
+        number = number.replace(new RegExp("\\<br\\>","g"),"");
+        var doubleTest = /^-*\d+.\d+$/i;
+        var intTest = /^-*\d+$/i;
+        if(!(doubleTest.test(number) || intTest.test(number))){
+            $(this).tips({
+            side:2,  //1,2,3,4 分别代表 上右下左
+            msg:'Error:STRING!!! Please input number',//tips的文本内容
+            color:'#FFF',//文字颜色，默认为白色
+            //bg:'',//背景色，默认为红色
+            time:1,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
+            x:0,// 默认为0 横向偏移 正数向右偏移 负数向左偏移
+            y:0 // 默认为0 纵向偏移 正数向下偏移 负数向上偏移
+        });
+        }
+    });
+});
 function JsonFormatConvt(strNum) {
     var doubleTest = /^-*\d+.\d+$/i;
     var intTest = /^-*\d+$/i;
@@ -17,32 +37,8 @@ function JsonFormatConvt(strNum) {
         tempvalue = strNum;
     return tempvalue;
 }
-$(function (){
-    $('.numberCheck').blur(function(){
-        var number = this.innerHTML;
-        number = number.replace(new RegExp("\\<br\\>","g"),"");
-        var doubleTest = /^-*\d+.\d+$/i;
-        var intTest = /^-*\d+$/i;
-        if(!(doubleTest.test(number) || intTest.test(number))){
-            $(this).tips({
-            side:2,  //1,2,3,4 分别代表 上右下左
-            msg:'Error:STRING!!! Please input number',//tips的文本内容
-            color:'#FFF',//文字颜色，默认为白色
-            //bg:'',//背景色，默认为红色
-            time:1,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
-            x:0,// 默认为0 横向偏移 正数向右偏移 负数向左偏移
-            y:0 // 默认为0 纵向偏移 正数向下偏移 负数向上偏移
-        });
-        }
-    });
-});
-function propomtLable(popInfo) {
-    var html = "<div class='webui-popover right in' id='webuiPopover89' style='display: none; width: 224px;position: relative'>";
-    html += "<div class='arrow'></div>";
-    html += "<div class='webui-popover-inner'>";
-    html += "<div class='webui-popover-content'>{0}</div></div></div>".format(popInfo);
-    return html;
-}
+
+
 function randomColor() {
     var colorList = ['F0F8FF','FAEBD7','00FFFF','7FFFD4','F5F5DC','FFE4C4',
         '5F9EA0','DEB887','7FFF00','FF7F50','6495ED','00FFFF','008B8B',
@@ -383,13 +379,13 @@ function csvTreeToJsonTree(StructName,varName) {
         for (var e in listDict) {
             html += "<tr>";
             html += "<td class='jsoneditor-readonly'>" + e + ": " + "</td>";
-            html += "<td class='jsonlist numberCheck' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
+            html += "<td class='numberCheck jsoneditor-value jsoneditor-number' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
             html += listDict[e][i]+'</td>';
             html += "</tr>";
         }
     }
     html +="<tr><td><button onclick='jsonAdd(\"{0}\",\"{1}\")' style='width: 30px'>+</button>".format(StructName,varName);
-    html +="<button onclick='jsondel(\"{0}\",\"{1}\")'style='width: 30px'>-</button></td></tr>".format(StructName,varName);
+    html +="<button onclick='jsondel(\"{0}\",\"{1}\")' style='width: 30px'>-</button></td></tr>".format(StructName,varName);
     html += "</table></div>";
     document.getElementById(StructName+varName+"showJson").innerHTML = html;
     document.getElementById(StructName+varName+"showCsv").style.display = "none";
