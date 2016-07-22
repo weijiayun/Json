@@ -28,7 +28,7 @@
     </tr>
     <tr>
         {% for i in range(listFieldsVar|length) %}
-            <td><input type="text" id="{{ StructName }}{{ varName }}csv{{ i }}" style="width: auto;height: 30px"/></td>
+            <td id="{{ StructName }}{{ varName }}csv{{ i }}" class="jsoneditor-value jsoneditor-number jsoneditor-listinput" contenteditable="true" spellcheck="false"></td>
         {% endfor %}
         <td>
             <button style="width: 75px;" onclick="addrow('{{ StructName }}','{{ varName }}','csv')" >Add</button>

@@ -227,6 +227,13 @@ function delrow(obj) {
     tb.deleteRow(rowIndex);
 }
 
+
+function showbuttonover(id) {
+    document.getElementById(id).style.display="block";
+}
+function showbuttonout(id) {
+    document.getElementById(id).style.display="none";
+}
 function addrow(structName,varName,idSufix) {
     var tableId = structName+varName+idSufix;
     var tb = document.getElementById(tableId);
@@ -234,17 +241,21 @@ function addrow(structName,varName,idSufix) {
     rowIndex=tb.rows.length-1;
     var row = tb.insertRow(rowIndex);
     var bkgcolor = randomColor();
+    row.setAttribute("mouseover","showbuttonover(\"{0}\")".format(structName+varName+String(rowIndex)));
+    row.setAttribute("onmouseover","showbuttonover(\"{0}\")".format(structName+varName+String(rowIndex)));
+    row.setAttribute("mouseout","showbuttonout(\"{0}\")".format(structName+varName+String(rowIndex)));
+    row.setAttribute("onmouseout","showbuttonout(\"{0}\")".format(structName+varName+String(rowIndex)));
     for(var i=0;i<colLen;i++){
         var col=row.insertCell(i);
         col.setAttribute("class","jsoneditor-value jsoneditor-number'");
         col.setAttribute("contenteditable","true");
-        col.innerHTML=document.getElementById(tableId+i).value;
+        col.innerHTML=document.getElementById(tableId+i).innerHTML;
         col.style.textAlign="center";
         col.style.backgroundColor=bkgcolor;
         col.setAttribute("spellcheck","false");
     }
-    var collast=row.insertCell(collength);
-    collast.innerHTML='<button onclick="delrow(this)" style="width: 75px" >Delete</button>';
+    var collast=row.insertCell(colLen);
+    collast.innerHTML='<button onclick="delrow(this)" style="width: 75px;display: none" id="{0}">Delete</button>'.format(structName+varName+String(rowIndex));
 }
 function treeToCode(SelectElemId) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
@@ -436,10 +447,19 @@ function jsonAdd(StructName,varName) {
     }
 }
 function jsondel(StructName,varName) {
+    var JSONDICT = document.getElementById("JsonDict").innerHTML;
+    var jsonDict = JSON.parse(JSONDICT);
+    var varType = jsonDict[StructName][StructName]["Fields"][varName]["Type"];
+    var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
     var tb = document.getElementById(StructName+varName+"jsontree");
     var rowIndex = tb.rows.length;
-    tb.deleteRow(rowIndex-2);
-    tb.deleteRow(rowIndex-3);
+    var colLen = getPropertyCount(cols);
+    if(rowIndex>1) {
+        for (var i = 0; i < colLen; i++) {
+            tb.deleteRow(rowIndex - 2 - i);
+        }
+    }
+
 }
 
 function ajaxLog(s) {
@@ -461,7 +481,7 @@ function get_Reference_List(structName,varName) {
         html +="<ul class='dropdown-menu' role='menu' aria-labelledby='dropdownMenu1'>";
         for(var e in data){
             html +="<li role='presentation'>";
-            html +="<a role='menuitem' tabindex='-1' onmouseover='shadowover(this)' onmouseout='shadowout(this)' onclick='returnval(\"{0}\",this)' name='{1}'>{2}</a></li>".format(structName+varName,data[e],data[e]);
+            html +="<a role='menuitem' tabindex='-1' onmouseover='shadowover(this)' onmouseout='shadowout(this)' onclick='returnval(\"{0}\",this)' name='{1}'>{1}</a></li>".format(structName+varName,data[e]);
         }
         html +="</ul></span>";
         document.getElementById(structName+varName+"tdSelect").innerHTML = html;
@@ -491,7 +511,6 @@ function get_Multi_Reference_List(structName,varName) {
 }
 $(document).ready(function (){
     $('.selectwww').change(function(){
-        alert("sdf");
         var a=this.childNodes(0).multiselect("MyValues").split(",");
         if(1){
             $(this).tips({
