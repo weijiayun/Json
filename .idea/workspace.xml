@@ -3,9 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="44d24bc1-5784-4c69-bc23-ad2bb25f0dba" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeapp/static/css/jsonedit.css" afterPath="$PROJECT_DIR$/typeapp/static/css/jsonedit.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeapp/static/js/mejs.js" afterPath="$PROJECT_DIR$/typeapp/static/js/mejs.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeapp/templates/listTable.html" afterPath="$PROJECT_DIR$/typeapp/templates/listTable.html" />
     </list>
     <ignored path="Json.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -675,7 +672,14 @@
       <option name="project" value="LOCAL" />
       <updated>1469176829754</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="butifyfor json csv!!!!!!!!!!!!!!!!!!&#10;">
+      <created>1469204339331</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1469204339331</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -719,7 +723,8 @@
     <MESSAGE value="check to be done  and prenty fine&#10;" />
     <MESSAGE value="check to be done for json csv&#10;" />
     <MESSAGE value="check to be done for json csv!!!!!!!!!!!!!!!!!!&#10;" />
-    <option name="LAST_COMMIT_MESSAGE" value="check to be done for json csv!!!!!!!!!!!!!!!!!!&#10;" />
+    <MESSAGE value="butifyfor json csv!!!!!!!!!!!!!!!!!!&#10;" />
+    <option name="LAST_COMMIT_MESSAGE" value="butifyfor json csv!!!!!!!!!!!!!!!!!!&#10;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
