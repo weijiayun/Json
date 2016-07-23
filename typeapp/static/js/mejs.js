@@ -228,11 +228,12 @@ function delrow(obj) {
 }
 
 
-function showbuttonover(id) {
-    document.getElementById(id).style.display="block";
+function showButtonOver(obj) {
+    obj.lastChild.firstChild.style.display="block";
 }
-function showbuttonout(id) {
-    document.getElementById(id).style.display="none";
+
+function showButtonOut(obj) {
+    obj.lastChild.firstChild.style.display="none";
 }
 function addrow(structName,varName,idSufix) {
     var tableId = structName+varName+idSufix;
@@ -241,10 +242,8 @@ function addrow(structName,varName,idSufix) {
     rowIndex=tb.rows.length-1;
     var row = tb.insertRow(rowIndex);
     var bkgcolor = randomColor();
-    row.setAttribute("mouseover","showbuttonover(\"{0}\")".format(structName+varName+String(rowIndex)));
-    row.setAttribute("onmouseover","showbuttonover(\"{0}\")".format(structName+varName+String(rowIndex)));
-    row.setAttribute("mouseout","showbuttonout(\"{0}\")".format(structName+varName+String(rowIndex)));
-    row.setAttribute("onmouseout","showbuttonout(\"{0}\")".format(structName+varName+String(rowIndex)));
+    row.setAttribute("onmouseover","showButtonOver(this)");
+    row.setAttribute("onmouseout","showButtonOut(this)");
     for(var i=0;i<colLen;i++){
         var col=row.insertCell(i);
         col.setAttribute("class","jsoneditor-value jsoneditor-number'");
@@ -255,7 +254,7 @@ function addrow(structName,varName,idSufix) {
         col.setAttribute("spellcheck","false");
     }
     var collast=row.insertCell(colLen);
-    collast.innerHTML='<button onclick="delrow(this)" style="width: 75px;display: none" id="{0}">Delete</button>'.format(structName+varName+String(rowIndex));
+    collast.innerHTML='<button onclick="delrow(this)" style="width: 75px;display: none" >Delete</button>';
 }
 function treeToCode(SelectElemId) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
@@ -489,29 +488,9 @@ function get_Reference_List(structName,varName) {
         ajaxLog("失败: "+xhr.status+'\n原因: '+status);
     });
 }
-function get_Multi_Reference_List(structName,varName) {
-    var refFeedback = $.ajax("/reference/market", {
-        dataType: 'json'
-    }).done(function (data) {
-        var html = "<select id='{0}' class='selectresult' multiple='multiple' size='5'>".format(structName+varName+"refSelect");
-        for(var e in data){
-            html += "<option value='{0}'>{0}</option>".format(data[e]);
-        }
-        html +="</select>";
-        document.getElementById(structName+varName+"tdSelect").innerHTML = html;
-        $("#{0}".format(structName+varName+"refSelect")).multiselect({
-            noneSelectedText: varName,
-            checkAllText: "全选",
-            uncheckAllText: '全不选',
-            selectedList:3
-        });
-    }).fail(function (xhr,status) {
-        ajaxLog("失败: "+xhr.status+'\n原因: '+status);
-    });
-}
-$(document).ready(function (){
-    $('.selectwww').change(function(){
-        var a=this.childNodes(0).multiselect("MyValues").split(",");
+$(function (){
+    $('.selectResult').change(function(){
+        alert("h");
         if(1){
             $(this).tips({
             side:2,  //1,2,3,4 分别代表 上右下左
@@ -525,6 +504,27 @@ $(document).ready(function (){
         }
     });
 });
+function get_Multi_Reference_List(structName,varName) {
+    var refFeedback = $.ajax("/reference/market", {
+        dataType: 'json'
+    }).done(function (data) {
+        var html = "<select id='{0}' class='selectResult' multiple='multiple' size='5'>".format(structName+varName+"refSelect");
+        for(var e in data){
+            html += "<option value='{0}'>{0}</option>".format(data[e]);
+        }
+        html +="</select>";
+        document.getElementById(structName+varName+"tdSelect").innerHTML = html;
+        $("#{0}".format(structName+varName+"refSelect")).multiselect({
+            noneSelectedText: varName,
+            checkAllText: "全选",
+            uncheckAllText: '全不选',
+            selectedList:2
+        });
+    }).fail(function (xhr,status) {
+        ajaxLog("失败: "+xhr.status+'\n原因: '+status);
+    });
+}
+
 
 
 
