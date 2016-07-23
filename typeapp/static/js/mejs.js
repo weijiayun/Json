@@ -434,13 +434,14 @@ function jsonAdd(StructName,varName) {
     tb=document.getElementById(StructName+varName+"jsontree");
     var bkgcolor = randomColor();
     for(var colelem in cols){
+
         rowIndex=tb.rows.length-1;
         var row = tb.insertRow(rowIndex);
         var col1=row.insertCell(0);
         col1.innerHTML = colelem+": ";
         var col2=row.insertCell(1);
-        col2.setAttribute("className","jsoneditor-value jsoneditor-number");
-        col2.setAttribute("class","jsoneditor-value jsoneditor-number");
+        col2.setAttribute("className","jsoneditor-number");
+        col2.setAttribute("class","jsoneditor-number");
         col2.setAttribute("contenteditable","true");
         col2.setAttribute("spellcheck","false");
         col2.style.backgroundColor= bkgcolor;
