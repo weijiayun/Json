@@ -315,7 +315,7 @@ function treeToCode(SelectElemId) {
             }
 
             else if (varType.match("::")) {
-                Jsoncode[varName] = JsonFormatConvt(document.getElementById(valoption + varName + "select").value);
+                Jsoncode[varName] = JsonFormatConvt(document.getElementById(valoption + varName + "refSelect").value);
             }
         }
         else {
@@ -335,16 +335,15 @@ function treeToCode(SelectElemId) {
     alert(JSON.stringify(Jsoncode));
 }
 function csvTreeToJsonTree(StructName,varName) {
-
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
     var jsonDict = JSON.parse(JSONDICT);
     var listTbl = document.getElementById(StructName+varName+"csv");
     var varType = jsonDict[StructName][StructName]["Fields"][varName]["Type"];
     var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
-    var listDict = new Object();
-    var listArray = new Array();
+    var listDict = Object();
     var colindex = 0;
     for(var colName in cols){
+        var listArray = new Array();
         for(var li=2;li<listTbl.rows.length-1;li++){
             listArray[li-2] = JsonFormatConvt(listTbl.rows[li].cells[colindex].innerHTML);
         }
@@ -402,6 +401,8 @@ function jsonTreeToCsvTree(StructName,varName) {
         tb2 = document.getElementById(StructName+varName+"csv");
         var rowIndex = tb2.rows.length-1;
         var row = tb2.insertRow(rowIndex);
+        row.setAttribute("onmouseover","showButtonOver(this)");
+        row.setAttribute("onmouseout","showButtonOut(this)");
         var bkgcolor = randomColor();
         for(var j2=0;j2<colLen;j2++){
             var col=row.insertCell(j2);
@@ -415,7 +416,7 @@ function jsonTreeToCsvTree(StructName,varName) {
             col.style.backgroundColor= bkgcolor;
         }
         var collast=row.insertCell(colLen);
-        collast.innerHTML='<button onclick="delrow(this)" style="width: 75px;" >Delete</button>';
+        collast.innerHTML='<button onclick="delrow(this)" style="width: 75px;display: none" >Delete</button>';
     }
     document.getElementById(StructName+varName+"showCsv").style.display = "block";
     document.getElementById(StructName+varName+"jsontree").style.display = "none";
@@ -467,7 +468,7 @@ function ajaxLog(s) {
 
 function returnval(ID,obj){
     $("#{0}refSelect".format(ID)).get(0).value=obj.name;
-    $("#{0}buttonvalue".format(ID)).get(0).innerHTML=obj.name;
+    $("#{0}buttonValue".format(ID)).get(0).innerHTML=obj.name;
 }
 function get_Reference_List(structName,varName) {
     var refFeedback = $.ajax("/reference/market", {
@@ -475,7 +476,7 @@ function get_Reference_List(structName,varName) {
     }).done(function (data) {
         var html = "<span class='dropdown'>";
         html += "<button type='button' class='btn dropdown-toggle btn-large btn-primary' id='{0}' data-toggle='dropdown'>".format(structName+varName+"refSelect");
-        html += "<span id='{0}'>{1}</span>".format(structName+varName+"buttonvalue",varName);
+        html += "<span id='{0}'>{1}</span>".format(structName+varName+"buttonValue",varName);
         html += "<span class='caret'></span></button>";
         html +="<ul class='dropdown-menu' role='menu' aria-labelledby='dropdownMenu1'>";
         for(var e in data){
