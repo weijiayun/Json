@@ -3,10 +3,13 @@
   <component name="ChangeListManager">
     <list default="true" id="44d24bc1-5784-4c69-bc23-ad2bb25f0dba" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+<<<<<<< Updated upstream
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeapp/static/js/mejs.js" afterPath="$PROJECT_DIR$/typeapp/static/js/mejs.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeapp/templates/listTable.html" afterPath="$PROJECT_DIR$/typeapp/templates/listTable.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeapp/templates/matrix.html" afterPath="$PROJECT_DIR$/typeapp/templates/matrix.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeapp/templates/tesy.html" afterPath="$PROJECT_DIR$/typeapp/templates/tesy.html" />
+=======
+>>>>>>> Stashed changes
     </list>
     <ignored path="Json.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -20,7 +23,11 @@
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
+<<<<<<< Updated upstream
     <SUITE FILE_PATH="coverage/Json$runserve.coverage" NAME="runserve Coverage Results" MODIFIED="1469340852103" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+=======
+    <SUITE FILE_PATH="coverage/Json$runserve.coverage" NAME="runserve Coverage Results" MODIFIED="1469360731156" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+>>>>>>> Stashed changes
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -34,8 +41,13 @@
       <file leaf-file-name="mejs.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/typeapp/static/js/mejs.js">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
             <state relative-caret-position="662">
               <caret line="564" column="58" selection-start-line="564" selection-start-column="58" selection-end-line="564" selection-end-column="58" />
+=======
+            <state relative-caret-position="441">
+              <caret line="528" column="0" selection-start-line="528" selection-start-column="0" selection-end-line="528" selection-end-column="0" />
+>>>>>>> Stashed changes
               <folding>
                 <marker date="1469346215983" expanded="true" signature="4977:4994" placeholder="..." />
                 <marker date="1469346215983" expanded="true" signature="5022:5034" placeholder="..." />
@@ -65,8 +77,13 @@
       <file leaf-file-name="enum.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/typeapp/templates/enum.html">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
             <state relative-caret-position="115">
               <caret line="5" column="0" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="36" />
+=======
+            <state relative-caret-position="238">
+              <caret line="38" column="31" selection-start-line="38" selection-start-column="31" selection-end-line="38" selection-end-column="31" />
+>>>>>>> Stashed changes
               <folding />
             </state>
           </provider>
@@ -75,8 +92,13 @@
       <file leaf-file-name="tesy.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/typeapp/templates/tesy.html">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
             <state relative-caret-position="1023">
               <caret line="87" column="25" selection-start-line="87" selection-start-column="25" selection-end-line="87" selection-end-column="25" />
+=======
+            <state relative-caret-position="348">
+              <caret line="33" column="36" selection-start-line="33" selection-start-column="36" selection-end-line="33" selection-end-column="36" />
+>>>>>>> Stashed changes
               <folding />
             </state>
           </provider>
@@ -85,8 +107,13 @@
       <file leaf-file-name="Converter.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/typeapp/Converter.py">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
             <state relative-caret-position="0">
               <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+=======
+            <state relative-caret-position="110">
+              <caret line="5" column="10" selection-start-line="5" selection-start-column="10" selection-end-line="5" selection-end-column="10" />
+>>>>>>> Stashed changes
               <folding />
             </state>
           </provider>
@@ -228,7 +255,6 @@
     </navigator>
     <panes>
       <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -347,6 +373,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -708,6 +735,7 @@
       <option name="project" value="LOCAL" />
       <updated>1469204345022</updated>
     </task>
+<<<<<<< Updated upstream
     <task id="LOCAL-00009" summary="convert csv to json array problem!">
       <created>1469265049273</created>
       <option name="number" value="00009" />
@@ -723,19 +751,38 @@
       <updated>1469273725561</updated>
     </task>
     <option name="localTasksCounter" value="11" />
+=======
+    <task id="LOCAL-00009" summary="delete onmouseover is done &#10;">
+      <created>1469248600368</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1469248600368</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
+>>>>>>> Stashed changes
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="-4" width="1853" height="1084" extended-state="6" />
     <editor active="true" />
     <layout>
+<<<<<<< Updated upstream
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23464306" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+=======
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2326284" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+>>>>>>> Stashed changes
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+<<<<<<< Updated upstream
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32916668" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.07395833" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+=======
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.12833333" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.255" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+>>>>>>> Stashed changes
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -767,9 +814,14 @@
     <MESSAGE value="check to be done for json csv&#10;" />
     <MESSAGE value="check to be done for json csv!!!!!!!!!!!!!!!!!!&#10;" />
     <MESSAGE value="butifyfor json csv!!!!!!!!!!!!!!!!!!&#10;" />
+<<<<<<< Updated upstream
     <MESSAGE value="convert csv to json array problem!" />
     <MESSAGE value="focus to be done&#10;" />
     <option name="LAST_COMMIT_MESSAGE" value="focus to be done&#10;" />
+=======
+    <MESSAGE value="delete onmouseover is done &#10;" />
+    <option name="LAST_COMMIT_MESSAGE" value="delete onmouseover is done &#10;" />
+>>>>>>> Stashed changes
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -940,7 +992,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="334">
           <caret line="107" column="23" selection-start-line="107" selection-start-column="23" selection-end-line="107" selection-end-column="23" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1020,6 +1071,7 @@
         </state>
       </provider>
     </entry>
+<<<<<<< Updated upstream
     <entry file="file://$PROJECT_DIR$/typeapp/static/js/jquery.min.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="81535">
@@ -1029,6 +1081,9 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/typeapp/templates/selectType.html">
+=======
+    <entry file="file://$PROJECT_DIR$/typeapp/templates/listref.html">
+>>>>>>> Stashed changes
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -1044,6 +1099,7 @@
         </state>
       </provider>
     </entry>
+<<<<<<< Updated upstream
     <entry file="file://$PROJECT_DIR$/typeapp/templates/list.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="69">
@@ -1061,6 +1117,9 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/runserve.py">
+=======
+    <entry file="file://$PROJECT_DIR$/typeapp/templates/index.html">
+>>>>>>> Stashed changes
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="207">
           <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
@@ -1084,28 +1143,62 @@
         </state>
       </provider>
     </entry>
+<<<<<<< Updated upstream
     <entry file="file://$PROJECT_DIR$/typeapp/templates/matrix.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="345">
           <caret line="15" column="188" selection-start-line="15" selection-start-column="188" selection-end-line="15" selection-end-column="188" />
+=======
+    <entry file="file://$PROJECT_DIR$/typeapp/templates/selectType.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/typeapp/templates/tesy.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="38" column="31" selection-start-line="38" selection-start-column="31" selection-end-line="38" selection-end-column="31" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/typeapp/templates/listTable.html">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="348">
+          <caret line="33" column="36" selection-start-line="33" selection-start-column="36" selection-end-line="33" selection-end-column="36" />
+>>>>>>> Stashed changes
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/typeapp/templates/listTable.html">
+      <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
         <state relative-caret-position="570">
           <caret line="33" column="54" selection-start-line="33" selection-start-column="54" selection-end-line="33" selection-end-column="54" />
           <folding>
             <element signature="n#style#0;n#button#0;n#td#1;n#tr#2;n#tbody#0;n#table#0;n#!!top" expanded="true" />
           </folding>
+=======
+        <state relative-caret-position="110">
+          <caret line="5" column="10" selection-start-line="5" selection-start-column="10" selection-end-line="5" selection-end-column="10" />
+          <folding />
+>>>>>>> Stashed changes
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/typeapp/static/js/mejs.js">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
         <state relative-caret-position="662">
           <caret line="564" column="58" selection-start-line="564" selection-start-column="58" selection-end-line="564" selection-end-column="58" />
+=======
+        <state relative-caret-position="441">
+          <caret line="528" column="0" selection-start-line="528" selection-start-column="0" selection-end-line="528" selection-end-column="0" />
+>>>>>>> Stashed changes
           <folding>
             <marker date="1469346215983" expanded="true" signature="4977:4994" placeholder="..." />
             <marker date="1469346215983" expanded="true" signature="5022:5034" placeholder="..." />

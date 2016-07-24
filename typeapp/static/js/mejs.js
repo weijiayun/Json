@@ -1,17 +1,17 @@
-$(document).ready(function () {
-    $('.handleEnter').keypress(function () {
-        var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
-        if (keyCode == 13) {
-            var colIndex = this.cellIndex;
-            var rowIndex = this.parentNode.rowIndex;
-            this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].focus();
-            var texta = this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].innerHTML;
-            this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].innerHTML = texta.replace(new RegExp("\\<br\\>", "g"), "");
-        }
-        else
-            return true;
-    });
-});
+// $(document).ready(function () {
+//     $('.handleEnter').keypress(function () {
+//         var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+//         if (keyCode == 13) {
+//             var colIndex = this.cellIndex;
+//             var rowIndex = this.parentNode.rowIndex;
+//             this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].focus();
+//             var texta = this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].innerHTML;
+//             this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].innerHTML = texta.replace(new RegExp("\\<br\\>", "g"), "");
+//         }
+//         else
+//             return true;
+//     });
+// });
 $(document).ready(function (){
     $('.jsoneditor-number').blur(function(){
         var number = this.innerHTML;
@@ -295,9 +295,9 @@ function treeToCode(SelectElemId) {
                 listTbl = document.getElementById(valoption + varName + "csv");
                 var cols = jsonDict[valoption][varType.slice(8, -4)]["Fields"];
                 listDict = new Object();
-                listArray = new Array();
                 var colindex = 0;
                 for (colName in cols) {
+                    listArray = new Array();
                     for (var li = 2; li < listTbl.rows.length - 1; li++) {
                         listArray[li - 2] = JsonFormatConvt(listTbl.rows[li].cells[colindex].innerHTML);
                     }
@@ -311,11 +311,12 @@ function treeToCode(SelectElemId) {
             }
             else if (varType.match("mat&lt;") || varType.match("vec&lt;")) {
                 i = i + 1;
-                matTbl = document.getElementById(valoption + varName + "matrix");
-                matBigArr = new Array();
-                matSmallArr = new Array();
+                var matTbl = document.getElementById(valoption + varName + "matrix");
+
                 if (matTbl.rows.length > 1) {
+                    var matBigArr = Array();
                     for (var mi = 0; mi < matTbl.rows.length; mi++) {
+                        var matSmallArr = new Array();
                         for (var mj = 0; mj < matTbl.rows[mi].cells.length; mj++) {
                             matSmallArr[mj] = JsonFormatConvt(matTbl.rows[mi].cells[mj].innerHTML)
                         }
@@ -324,6 +325,7 @@ function treeToCode(SelectElemId) {
                     Jsoncode[varName] = matBigArr;
                 }
                 else {
+                    var matSmallArr = new Array();
                     for (var mj = 0; mj < matTbl.rows[0].cells.length; mj++) {
                         matSmallArr[mj] = JsonFormatConvt(matTbl.rows[0].cells[mj].innerHTML)
                     }
@@ -458,8 +460,8 @@ function jsonAdd(StructName,varName) {
         var col1=row.insertCell(0);
         col1.innerHTML = colelem+": ";
         var col2=row.insertCell(1);
-        col2.setAttribute("className","jsoneditor-number");
-        col2.setAttribute("class","jsoneditor-number");
+        col2.setAttribute("className","jsoneditor-number jsoneditor-value");
+        col2.setAttribute("class","jsoneditor-number jsoneditor-value");
         col2.setAttribute("contenteditable","true");
         col2.setAttribute("spellcheck","false");
         col2.setAttribute("onkeypress","handleEnter(this,event,\"list\")");
@@ -559,10 +561,10 @@ function handleEnter(field,event,item) {
             if(rowIndex<rowLength-2)
                 rowIndex +=1;
 
-        field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
+
         var texta = field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
         field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML=texta.replace(new RegExp("\\<br\\>","g"),"");
-        alert(texta.replace(new RegExp("\\<br\\>","g"),""));
+        field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
         return false;
         }
     else

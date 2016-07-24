@@ -5,106 +5,49 @@
    <title>Bootstrap Dropdowns</title>
    <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
     <link href="../static/css/jquery.webui-popover.min.css" rel="stylesheet">
-   <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+   <script src="../static/js/jquery.min.js"></script>
    <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+
+    <style>
+        .noenther{
+            width: 50px;
+            height: 40px;
+            background-color: #00a1cb;
+            word-break: keep-all;
+        }
+    </style>
 </head>
 <body>
-<h3 id="headid"></h3>
-<div class="dropdown">
-   <button type="button" class="btn dropdown-toggle btn-primary" id="dropdownMenu1"
-      data-toggle="dropdown">
-      theme
-      <span class="caret"></span>
-   </button>
-   <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1" >
-      <li role="presentation">
-         <a role="menuitem" href="#" onclick="returnval(this)" name="Java">Java</a>
-      </li>
-      <li role="presentation">
-         <a role="menuitem" tabindex="-1" href="#" onclick="returnval(this)" name="data mining">data mining</a>
-      </li>
-      <li role="presentation">
-         <a role="menuitem" tabindex="-1" href="#" onclick="returnval(this)" name="data transp">
-             data transportation
-         </a>
-      </li>
-      <li role="presentation" class="divider"></li>
-      <li role="presentation">
-          <a role="menuitem" tabindex="-1" href="#" name="sepatated link" onclick="returnval(this)">
-              <div class="webui-popover right in" id="webuiPopover89" style="display: block; width: 224px;position: relative">
-                  <div class="arrow"></div>
-                  <div class="webui-popover-inner">
-                      <div class="webui-popover-content">
-                          <ul>
-                          </ul>
-                      </div>
-                  </div>
-              </div>
-          </a>
-      </li>
-   </ul>
-</div>
-<script type="text/javascript">
-    function getRowObj(obj)
-    {   var i = 0;   
-        while(obj.tagName.toLowerCase() != "tr")
-        {    obj = obj.parentNode;    
-            if(obj.tagName.toLowerCase() == "table")
-                return null;   
-        }   
-        return obj;
-    }
-function handleEnter (field, event) {
-    var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
-    if (keyCode == 13) {
-        var colIndex=field.cellIndex;
-        var rowIndex=field.parentNode.rowIndex;
-        var rowLength = field.parentNode.parentNode.children.length;
-        if(rowIndex<rowLength-1)
-            rowIndex +=1;
-        field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
-        var texta = field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
-        field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML=texta.replace(new RegExp("\\<br\\>","g"),"").replace(/[\n\r]/,"");
-    }
-
-}function handleEnter7 (field, event) {
-    var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
-    if (keyCode == 13) {
-        var colIndex=field.cellIndex;
-        var rowIndex=field.parentNode.rowIndex;
-        var rowLength = field.parentNode.parentNode.children.length;
-        var texta = field.parentNode.parentNode.parentNode.rows[rowIndex+1].cells[colIndex].innerHTML;
-        field.parentNode.parentNode.parentNode.rows[rowIndex+1].cells[colIndex].innerHTML=texta.replace(new RegExp("\\<br\\>","g"),"").replace(/[\n\r]/,"");
-        return false;
-    }
-    else
-        return true;
-}
-</script>
-<style>
-    .noenther{
-        width: 50px;
-        height: 40px;
-        background-color: #00a1cb;
-        word-break: keep-all;
-    }
-</style>
+  <script>
+     $('.noenther').blur(function () {
+         var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+         if (keyCode == 13) {
+             var colIndex = this.cellIndex;
+             var rowIndex = this.parentNode.rowIndex;
+             this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].focus();
+             var texta = this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].innerHTML;
+             this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].innerHTML = texta.replace(new RegExp("\\<br\\>", "g"), "");
+         }
+         else
+             return true;
+     });
+    </script>
 <table border="2px">
     <tbody>
     <tr>
-        <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)" class="noenther"></td>
-        <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)"class="noenther"></td>
-        <td contenteditable="true" onkeydown="handleEnter(this,event)"onkeyup="handleEnter7(this,event)" class="noenther"></td>
+        <td contenteditable="true" class="noenther handleEnter"></td>
+        <td contenteditable="true" class="noenther handleEnter"></td>
+        <td contenteditable="true" class="noenther handleEnter"></td>
     </tr>
         <tr>
-            <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)"class="noenther"></td>
-                <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)"class="noenther"></td>
-                <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)"class="noenther"></td>
+            <td contenteditable="true" class="noenther handleEnter"></td>
+            <td contenteditable="true" class="noenther handleEnter"></td>
+            <td contenteditable="true" class="noenther handleEnter"></td>
     </tr>
         <tr>
-            <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)"class="noenther"></td>
-            <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)"class="noenther"></td>
-            <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)"class="noenther"></td>
+            <td contenteditable="true" class="noenther handleEnter"></td>
+            <td contenteditable="true" class="noenther handleEnter"></td>
+            <td contenteditable="true" class="noenther handleEnter"></td>
         </tr>
     </tbody>
 </table>
