@@ -1,4 +1,17 @@
-
+$(document).ready(function () {
+    $('.handleEnter').keypress(function () {
+        var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+        if (keyCode == 13) {
+            var colIndex = this.cellIndex;
+            var rowIndex = this.parentNode.rowIndex;
+            this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].focus();
+            var texta = this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].innerHTML;
+            this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].innerHTML = texta.replace(new RegExp("\\<br\\>", "g"), "");
+        }
+        else
+            return true;
+    });
+});
 $(document).ready(function (){
     $('.jsoneditor-number').blur(function(){
         var number = this.innerHTML;
@@ -19,6 +32,7 @@ $(document).ready(function (){
             backgroundColor="#FF0000";
         }
         if(check){
+
             $(this).tips({
             side:2,  //1,2,3,4 分别代表 上右下左
             msg:message,
@@ -30,7 +44,9 @@ $(document).ready(function (){
         });
         }
     });
+  
 });
+
 function JsonFormatConvt(strNum) {
     var doubleTest = /^-*\d+.\d+$/i;
     var intTest = /^-*\d+$/i;
@@ -235,7 +251,7 @@ function showButtonOver(obj) {
 function showButtonOut(obj) {
     obj.lastChild.firstChild.style.display="none";
 }
-function addrow(structName,varName,idSufix) {
+function csvAddrow(structName,varName,idSufix) {
     var tableId = structName+varName+idSufix;
     var tb = document.getElementById(tableId);
     var colLen = tb.rows[0].cells.length;
@@ -248,6 +264,7 @@ function addrow(structName,varName,idSufix) {
         var col=row.insertCell(i);
         col.setAttribute("class","jsoneditor-value jsoneditor-number'");
         col.setAttribute("contenteditable","true");
+        col.setAttribute("onkeypress","handleEnter(this,event,\"list\")");
         col.innerHTML=document.getElementById(tableId+i).innerHTML;
         col.style.textAlign="center";
         col.style.backgroundColor=bkgcolor;
@@ -356,7 +373,7 @@ function csvTreeToJsonTree(StructName,varName) {
         for (var e in listDict) {
             html += "<tr>";
             html += "<td class='jsoneditor-readonly'>" + e + ": " + "</td>";
-            html += "<td class='jsoneditor-value jsoneditor-number' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
+            html += "<td class='jsoneditor-value jsoneditor-number' onkeypress='handleEnter(this,event,\"list\")' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
             html += listDict[e][i]+'</td>';
             html += "</tr>";
         }
@@ -413,6 +430,7 @@ function jsonTreeToCsvTree(StructName,varName) {
             col.setAttribute("class","jsoneditor-value jsoneditor-number");
             col.setAttribute("contenteditable","true");
             col.setAttribute("spellcheck","false");
+            col.setAttribute("onkeypress","handleEnter(this,event,\"list\")");
             col.style.backgroundColor= bkgcolor;
         }
         var collast=row.insertCell(colLen);
@@ -444,6 +462,7 @@ function jsonAdd(StructName,varName) {
         col2.setAttribute("class","jsoneditor-number");
         col2.setAttribute("contenteditable","true");
         col2.setAttribute("spellcheck","false");
+        col2.setAttribute("onkeypress","handleEnter(this,event,\"list\")");
         col2.style.backgroundColor= bkgcolor;
     }
 }
@@ -526,7 +545,29 @@ function get_Multi_Reference_List(structName,varName) {
         ajaxLog("失败: "+xhr.status+'\n原因: '+status);
     });
 }
+function handleEnter(field,event,item) {
+    var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+    if (keyCode == 13) {
+        var colIndex=field.cellIndex;
+        var rowIndex=field.parentNode.rowIndex;
+        var rowLength = field.parentNode.parentNode.children.length;
+        if(item == 'matrix'){
+            if(rowIndex<rowLength-1)
+                    rowIndex +=1; 
+            }
+        else if(item=='list')
+            if(rowIndex<rowLength-2)
+                rowIndex +=1;
 
+        field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
+        var texta = field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
+        field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML=texta.replace(new RegExp("\\<br\\>","g"),"");
+        alert(texta.replace(new RegExp("\\<br\\>","g"),""));
+        return false;
+        }
+    else
+        return true;
+    }
 
 
 

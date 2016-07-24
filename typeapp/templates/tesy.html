@@ -57,43 +57,55 @@
 function handleEnter (field, event) {
     var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
     if (keyCode == 13) {
-        var colIndex;
-        var rowIndex;
-        var tb = field.parentNode.parentNode.parentNode;
+        var colIndex=field.cellIndex;
+        var rowIndex=field.parentNode.rowIndex;
+        var rowLength = field.parentNode.parentNode.children.length;
+        if(rowIndex<rowLength-1)
+            rowIndex +=1;
+        field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
+        var texta = field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
+        field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML=texta.replace(new RegExp("\\<br\\>","g"),"").replace(/[\n\r]/,"");
+    }
 
-        tb.rows[1].cells[1].focus();
+}function handleEnter7 (field, event) {
+    var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+    if (keyCode == 13) {
+        var colIndex=field.cellIndex;
+        var rowIndex=field.parentNode.rowIndex;
+        var rowLength = field.parentNode.parentNode.children.length;
+        var texta = field.parentNode.parentNode.parentNode.rows[rowIndex+1].cells[colIndex].innerHTML;
+        field.parentNode.parentNode.parentNode.rows[rowIndex+1].cells[colIndex].innerHTML=texta.replace(new RegExp("\\<br\\>","g"),"").replace(/[\n\r]/,"");
         return false;
     }
     else
         return true;
 }
 </script>
+<style>
+    .noenther{
+        width: 50px;
+        height: 40px;
+        background-color: #00a1cb;
+        word-break: keep-all;
+    }
+</style>
 <table border="2px">
     <tbody>
     <tr>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
+        <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)" class="noenther"></td>
+        <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)"class="noenther"></td>
+        <td contenteditable="true" onkeydown="handleEnter(this,event)"onkeyup="handleEnter7(this,event)" class="noenther"></td>
     </tr>
         <tr>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
+            <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)"class="noenther"></td>
+                <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)"class="noenther"></td>
+                <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)"class="noenther"></td>
     </tr>
         <tr>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
-    </tr>
-        <tr>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
-        <td contenteditable="true" onkeypress="handleEnter(this,event)" style="width: 50px;height: 40px;background-color: #00a1cb"></td>
-    </tr>
+            <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)"class="noenther"></td>
+            <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)"class="noenther"></td>
+            <td contenteditable="true" onkeydown="handleEnter(this,event)" onkeyup="handleEnter7(this,event)"class="noenther"></td>
+        </tr>
     </tbody>
 </table>
 <form>
