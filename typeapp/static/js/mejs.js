@@ -564,9 +564,6 @@ function handleEnter(field,event,item) {
         var rowLength = field.parentNode.parentNode.children.length;
         if(rowIndex<rowLength-2)
             rowIndex +=1;
-
-
-
         var texta = field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
         field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML=texta.replace(new RegExp("\\<br\\>","g"),"");
         field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
