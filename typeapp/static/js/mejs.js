@@ -1,18 +1,28 @@
-// $(document).ready(function () {
-//     $('.handleEnter').keypress(function () {
-//         var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
-//         if (keyCode == 13) {
-//             var colIndex = this.cellIndex;
-//             var rowIndex = this.parentNode.rowIndex;
-//             this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].focus();
-//             var texta = this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].innerHTML;
-//             this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].innerHTML = texta.replace(new RegExp("\\<br\\>", "g"), "");
-//         }
-//         else
-//             return true;
-//     });
-// });
+
 $(document).ready(function (){
+     $('.handleEnter').keypress(function (event) {
+         var val=event||window.event;
+         var keyCode = val.keyCode;
+         var colIndex=this.cellIndex;
+         var rowIndex=this.parentNode.rowIndex;
+         var rowLength = this.parentNode.parentNode.children.length;
+        if (keyCode == 13 || keyCode == 40) {
+            if(rowIndex<rowLength-2)
+                rowIndex +=1;
+            var texta = this.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
+            this.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML=texta.replace(new RegExp("\\<br\\>","g"),"");
+            this.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
+        }
+        else if(keyCode == 38){
+            if(rowIndex>0 && this.parentNode.parentNode.children[rowIndex-1].tagName!="TH")
+                rowIndex -=1;
+            var texta = this.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
+            this.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML=texta.replace(new RegExp("\\<br\\>","g"),"");
+            this.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
+        }
+        else
+            return true;
+    });
     $('.jsoneditor-number').blur(function(){
         var number = this.innerHTML;
         number = number.replace(new RegExp("\\<br\\>","g"),"");
@@ -32,7 +42,6 @@ $(document).ready(function (){
             backgroundColor="#FF0000";
         }
         if(check){
-
             $(this).tips({
             side:2,  //1,2,3,4 分别代表 上右下左
             msg:message,
@@ -464,7 +473,7 @@ function jsonAdd(StructName,varName) {
         col2.setAttribute("class","jsoneditor-number jsoneditor-value");
         col2.setAttribute("contenteditable","true");
         col2.setAttribute("spellcheck","false");
-        col2.setAttribute("onkeypress","handleEnter(this,event,\"list\")");
+        col.setAttribute("onkeypress","handleEnter(this,event,\"list\")");
         col2.style.backgroundColor= bkgcolor;
     }
 }
@@ -553,13 +562,9 @@ function handleEnter(field,event,item) {
         var colIndex=field.cellIndex;
         var rowIndex=field.parentNode.rowIndex;
         var rowLength = field.parentNode.parentNode.children.length;
-        if(item == 'matrix'){
-            if(rowIndex<rowLength-1)
-                    rowIndex +=1; 
-            }
-        else if(item=='list')
-            if(rowIndex<rowLength-2)
-                rowIndex +=1;
+        if(rowIndex<rowLength-2)
+            rowIndex +=1;
+
 
 
         var texta = field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;

@@ -13,10 +13,11 @@
             {% for matrow in range(matDim[0]) %}
                 <tr style="height: 30px;">
                 {% for matCol in range(matDim[1])%}
-                    <td contenteditable="true" onkeypress="handleEnter(this,event,'matrix')" spellcheck="false" class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter" ></td>
+                    <td contenteditable="true"  spellcheck="false" class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter" ></td>
                 {% endfor %}
                 </tr>
             {% endfor %}
+            <tr style="display: none"></tr>
             </tbody>
         </table>
     </td>
