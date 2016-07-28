@@ -1,3 +1,5 @@
-# Created by .ignore support plugin (hsz.mobi)
-.idea
+config.txt
 *.pyc
+*log.txt
+.idea
+*.pem

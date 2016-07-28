@@ -11,7 +11,9 @@ div.jsoneditor,div.jsoneditor-outer{
 	word-wrap:break-word;
 	border-radius:5px
 }
-
+.rowsgroup{
+	border-radius:5px;
+}
 td.jsoneditor input{
 	height:auto;
 	border:inherit
@@ -37,6 +39,7 @@ td.jsoneditor td,td.jsoneditor th{
 	text-align:left;
 	vertical-align:inherit;
 	border-radius:inherit
+
 }
 
 #footer,#indentation,#splitter{
@@ -288,8 +291,7 @@ td.jsoneditor td,td.jsoneditor td.jsoneditor-tree{
 }
 td.jsoneditor-listinput{
 	white-space: nowrap;
-	background-color: #66afe9;
-
+	background-color: darkgray;
 }
 .jsoneditor-schema-error{
 	cursor:default;

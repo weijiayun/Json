@@ -1,61 +1,17 @@
 
 $(document).ready(function (){
-     $('.handleEnter').keypress(function (event) {
-         var val=event||window.event;
-         var keyCode = val.keyCode;
-         var colIndex=this.cellIndex;
-         var rowIndex=this.parentNode.rowIndex;
-         var rowLength = this.parentNode.parentNode.children.length;
-        if (keyCode == 13 || keyCode == 40) {
-            if(rowIndex<rowLength-2)
-                rowIndex +=1;
-            var texta = this.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
-            this.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML=texta.replace(new RegExp("\\<br\\>","g"),"");
-            this.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
-        }
-        else if(keyCode == 38){
-            if(rowIndex>0 && this.parentNode.parentNode.children[rowIndex-1].tagName!="TH")
-                rowIndex -=1;
-            var texta = this.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
-            this.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML=texta.replace(new RegExp("\\<br\\>","g"),"");
-            this.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
-        }
-        else
-            return true;
-    });
-    $('.jsoneditor-number').blur(function(){
-        var number = this.innerHTML;
-        number = number.replace(new RegExp("\\<br\\>","g"),"");
-        var doubleTest = /^-*\d+.\d+$/i;
-        var intTest = /^-*\d+$/i;
-        var message = "";
-        var check = false;
-        var backgroundColor="";
-        if(number.length == 0){
-            message = "It's empty!";
-            check = true;
-            backgroundColor="#00A1CB"
-        }
-        else if(!(doubleTest.test(number) || intTest.test(number))){
-            message = 'Error:STRING!!! Please input number';
-            check = true;
-            backgroundColor="#FF0000";
-        }
-        if(check){
-            $(this).tips({
-            side:2,  //1,2,3,4 分别代表 上右下左
-            msg:message,
-            color:'#FFF',//文字颜色，默认为白色
-            bg:backgroundColor,//背景色，默认为红色
-            time:1,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
-            x:0,// 默认为0 横向偏移 正数向右偏移 负数向左偏移
-            y:0 // 默认为0 纵向偏移 正数向下偏移 负数向上偏移
-        });
-        }
-    });
-  
+    $('.handleEnter').keypress(function (event) {handleEnter(this,event)});
+    $('.jsoneditor-number').blur(function(){NumberChecktips(this)});
 });
-
+function getPropertyCount(o){
+    var n, count = 0;
+    for(n in o){
+        if(o.hasOwnProperty(n)){
+            count++;
+        }
+    }
+    return count;
+}
 function JsonFormatConvt(strNum) {
     var doubleTest = /^-*\d+.\d+$/i;
     var intTest = /^-*\d+$/i;
@@ -76,14 +32,17 @@ function JsonFormatConvt(strNum) {
     return tempvalue;
 }
 
-
+var ColorCount=1;
+var colorBoard = ['grey','darkgray'];
 function randomColor() {
-    var colorList = ['F0F8FF','FAEBD7','00FFFF','7FFFD4','F5F5DC','FFE4C4',
+    var colorList1 = ['F0F8FF','FAEBD7','00FFFF','7FFFD4','F5F5DC','FFE4C4',
         '5F9EA0','DEB887','7FFF00','FF7F50','6495ED','00FFFF','008B8B',
         '8FBC8F','00CED1','00BFFF','1E90FF','ADD8E6','87CEFA',
         '20B2AA','D3D3D3','FFA07A','778899'];
-    var id = Math.ceil(Math.random()*(colorList.length-1));
-    return "#"+colorList[id];
+
+    var id = ColorCount==0?1:0;
+    ColorCount=id;
+    return colorBoard[id];
 }
 String.prototype.format=function()
 {
@@ -121,15 +80,8 @@ function collapsewin(parentid) {
     var disp = document.getElementById(parentid).style;
     if (disp.display == "none")
         disp.display = "block";
-    else 
+    else
         disp.display = "none";
-}
-function requiredInput(x) {
-    var a = x.innerHTML;
-    if (a == null || a == ""){
-        alert("This is required!");
-        return false;
-    }
 }
 
 function get0bj(cnt) {
@@ -252,7 +204,6 @@ function delrow(obj) {
     tb.deleteRow(rowIndex);
 }
 
-
 function showButtonOver(obj) {
     obj.lastChild.firstChild.style.display="block";
 }
@@ -264,17 +215,21 @@ function csvAddrow(structName,varName,idSufix) {
     var tableId = structName+varName+idSufix;
     var tb = document.getElementById(tableId);
     var colLen = tb.rows[0].cells.length;
-    rowIndex=tb.rows.length-1;
+    var rowIndex=tb.rows.length-1;
     var row = tb.insertRow(rowIndex);
     var bkgcolor = randomColor();
     row.setAttribute("onmouseover","showButtonOver(this)");
     row.setAttribute("onmouseout","showButtonOut(this)");
     for(var i=0;i<colLen;i++){
         var col=row.insertCell(i);
-        col.setAttribute("class","jsoneditor-value jsoneditor-number'");
+        col.setAttribute("spellcheck","false");
+        col.setAttribute("onkeyup","onlyNumberAfterPress(this)");
+        col.setAttribute("onbeforepaste","onlyNumberBeforePaste(this)");
+        col.setAttribute("onblur",'NumberChecktips(this)');
+        col.setAttribute("class","jsoneditor-value jsoneditor-number MouseSelectCopy");
         col.setAttribute("contenteditable","true");
-        col.setAttribute("onkeypress","handleEnter(this,event,\"list\")");
-        col.innerHTML=document.getElementById(tableId+i).innerHTML;
+        col.setAttribute("onkeypress","handleEnter(this,event)");
+        //col.innerHTML=document.getElementById(tableId+i).innerHTML;
         col.style.textAlign="center";
         col.style.backgroundColor=bkgcolor;
         col.setAttribute("spellcheck","false");
@@ -321,9 +276,8 @@ function treeToCode(SelectElemId) {
             else if (varType.match("mat&lt;") || varType.match("vec&lt;")) {
                 i = i + 1;
                 var matTbl = document.getElementById(valoption + varName + "matrix");
-
+                var matBigArr = Array();
                 if (matTbl.rows.length > 1) {
-                    var matBigArr = Array();
                     for (var mi = 0; mi < matTbl.rows.length; mi++) {
                         var matSmallArr = new Array();
                         for (var mj = 0; mj < matTbl.rows[mi].cells.length; mj++) {
@@ -370,8 +324,9 @@ function csvTreeToJsonTree(StructName,varName) {
     var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
     var listDict = Object();
     var colindex = 0;
+    var listArray = [];
     for(var colName in cols){
-        var listArray = new Array();
+        listArray = [];
         for(var li=2;li<listTbl.rows.length-1;li++){
             listArray[li-2] = JsonFormatConvt(listTbl.rows[li].cells[colindex].innerHTML);
         }
@@ -381,31 +336,30 @@ function csvTreeToJsonTree(StructName,varName) {
     var html = "<div><table style='margin-left: 40px' id='\{0\}'>".format(StructName+varName+"jsontree");
     for(var i=0;i<listTbl.rows.length-3;i++) {
         var bkgcolor = randomColor();
+        var spanFlag = true;
         for (var e in listDict) {
-            html += "<tr>";
-            html += "<td class='jsoneditor-readonly'>" + e + ": " + "</td>";
-            html += "<td class='jsoneditor-value jsoneditor-number' onkeypress='handleEnter(this,event,\"list\")' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
+            html += "<tr style='border-radius: 2px;background-color: \{0\}'>".format(bkgcolor);
+            if(spanFlag){
+                html += "<td class='jsoneditor-value jsoneditor-number' rowspan='\{0\}'><button onclick='jsondel(\"{1}\",\"{2}\",this)' style='width: 30px'>-</button></td>".format(getPropertyCount(listDict),StructName,varName);
+                spanFlag=false
+            }
+            if(cols[e]["Requiredness"] == "required")
+                html += "<td class='jsoneditor-readonly'><span style='color: red'>*</span>" + e + ": " + "</td>";
+            else
+                html += "<td class='jsoneditor-readonly'>" + e + ": " + "</td>";
+            html += "<td class='jsoneditor-value jsoneditor-number MouseSelectCopy' onkeyup='onlyNumberAfterPress(this)' onbeforepaste='onlyNumberBeforePaste(this)' onblur='NumberChecktips(this)'  onkeypress='handleEnter(this,event)' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
             html += listDict[e][i]+'</td>';
             html += "</tr>";
         }
     }
-    html +="<tr><td><button onclick='jsonAdd(\"{0}\",\"{1}\")' style='width: 30px'>+</button>".format(StructName,varName);
-    html +="<button onclick='jsondel(\"{0}\",\"{1}\")' style='width: 30px'>-</button></td></tr>".format(StructName,varName);
+    html +="<tr><td class='jsoneditor-value jsoneditor-number MouseSelectCopy'><button onclick='jsonAdd(\"{0}\",\"{1}\")' style='width: 30px'>+</button>".format(StructName,varName);
     html += "</table></div>";
     document.getElementById(StructName+varName+"showJson").innerHTML = html;
     document.getElementById(StructName+varName+"showCsv").style.display = "none";
     $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).innerHTML="Csv";
     $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).setAttribute("onclick","jsonTreeToCsvTree(\"\{0\}\",\"\{1\}\")".format(StructName,varName))
 }
-function getPropertyCount(o){  
-    var n, count = 0;  
-    for(n in o){  
-        if(o.hasOwnProperty(n)){  
-            count++;  
-        }  
-    }  
-    return count;  
-}  
+
 function jsonTreeToCsvTree(StructName,varName) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
     var jsonDict = JSON.parse(JSONDICT);
@@ -414,11 +368,15 @@ function jsonTreeToCsvTree(StructName,varName) {
     var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
     var tb1 = document.getElementById(StructName+varName+"jsontree");
     var listArray = new Array();
+    var colLen = getPropertyCount(cols);
     for(var i1=0;i1<tb1.rows.length-1;i1++){
+        if(i1%colLen == 0)
+            listArray.push(tb1.rows[i1].cells[2].innerHTML);
+        else
             listArray.push(tb1.rows[i1].cells[1].innerHTML);
     }
     var tb2 = document.getElementById(StructName+varName+"csv");
-    var colLen = getPropertyCount(cols);
+
     var rowLen = listArray.length/colLen;
     var p=tb2.rows.length;
     while(tb2.rows.length>3){
@@ -436,16 +394,20 @@ function jsonTreeToCsvTree(StructName,varName) {
             var col=row.insertCell(j2);
             col.style.height="30px";
             col.innerHTML=listArray[j2+i2*colLen];
-            //col.className="jsonlist numberCheck";
-            col.setAttribute("className","jsoneditor-value jsoneditor-number");
-            col.setAttribute("class","jsoneditor-value jsoneditor-number");
+            col.setAttribute("class","jsoneditor-value jsoneditor-number MouseSelectCopy");
             col.setAttribute("contenteditable","true");
             col.setAttribute("spellcheck","false");
-            col.setAttribute("onkeypress","handleEnter(this,event,\"list\")");
+            col.setAttribute("onkeypress","handleEnter(this,event)");
+            col.setAttribute("onkeyup","onlyNumberAfterPress(this)");
+            col.setAttribute("onbeforepaste","onlyNumberBeforePaste(this)");
+            col.setAttribute("onblur",'NumberChecktips(this)');
             col.style.backgroundColor= bkgcolor;
+            col.mousedown(OnMouseDown);
+
         }
         var collast=row.insertCell(colLen);
         collast.innerHTML='<button onclick="delrow(this)" style="width: 75px;display: none" >Delete</button>';
+
     }
     document.getElementById(StructName+varName+"showCsv").style.display = "block";
     document.getElementById(StructName+varName+"jsontree").style.display = "none";
@@ -460,37 +422,58 @@ function jsonAdd(StructName,varName) {
     var listTbl = document.getElementById(StructName+varName+"csv");
     var varType = jsonDict[StructName][StructName]["Fields"][varName]["Type"];
     var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
-    tb=document.getElementById(StructName+varName+"jsontree");
+    var tb = document.getElementById(StructName+varName+"jsontree");
     var bkgcolor = randomColor();
+    var spanFlag = true;
     for(var colelem in cols){
-
         rowIndex=tb.rows.length-1;
         var row = tb.insertRow(rowIndex);
-        var col1=row.insertCell(0);
-        col1.innerHTML = colelem+": ";
-        var col2=row.insertCell(1);
-        col2.setAttribute("className","jsoneditor-number jsoneditor-value");
-        col2.setAttribute("class","jsoneditor-number jsoneditor-value");
+        row.style.backgroundColor= bkgcolor;
+        row.style.borderRadius="5px";
+        if(spanFlag){
+            var col=row.insertCell(0);
+            col.setAttribute("rowspan","\{0\}".format(getPropertyCount(cols)));
+            col.innerHTML = "<button onclick='jsondel(\"{0}\",\"{1}\",this)' style='width: 30px'>-</button></td>".format(StructName,varName);
+            spanFlag=false;
+            col.setAttribute("class","jsoneditor-value jsoneditor-number MouseSelectCopy");
+            var col1=row.insertCell(1);
+            if(cols[colelem]["Requiredness"] == "required")
+                col1.innerHTML = "<span style='color: red'>*</span>"+colelem+": ";
+            else
+                col1.innerHTML = colelem+": ";
+            var col2=row.insertCell(2);
+        }
+        else {
+            col1=row.insertCell(0);
+            if(cols[colelem]["Requiredness"] == "required")
+                col1.innerHTML = "<span style='color: red'>*</span>"+colelem+": ";
+            else
+                col1.innerHTML = colelem+": ";
+
+            col2=row.insertCell(1);
+        }
+        col2.setAttribute("className","jsoneditor-number jsoneditor-value MouseSelectCopy");
+        col2.setAttribute("class","jsoneditor-number jsoneditor-value MouseSelectCopy");
         col2.setAttribute("contenteditable","true");
         col2.setAttribute("spellcheck","false");
-        col.setAttribute("onkeypress","handleEnter(this,event,\"list\")");
+        col2.setAttribute("onkeypress","handleEnter(this,event)");
+        col2.setAttribute("onkeyup","onlyNumberAfterPress(this)");
+        col2.setAttribute("onbeforepaste","onlyNumberBeforePaste(this)");
+        col2.setAttribute("onblur",'NumberChecktips(this)')
         col2.style.backgroundColor= bkgcolor;
     }
 }
-function jsondel(StructName,varName) {
+function jsondel(StructName,varName,field) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
     var jsonDict = JSON.parse(JSONDICT);
     var varType = jsonDict[StructName][StructName]["Fields"][varName]["Type"];
     var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
     var tb = document.getElementById(StructName+varName+"jsontree");
-    var rowIndex = tb.rows.length;
     var colLen = getPropertyCount(cols);
-    if(rowIndex>1) {
-        for (var i = 0; i < colLen; i++) {
-            tb.deleteRow(rowIndex - 2 - i);
-        }
+    var rowIndex = field.parentNode.parentNode.rowIndex;
+    for (var i = 0; i < colLen; i++) {
+        tb.deleteRow(rowIndex);
     }
-
 }
 
 function ajaxLog(s) {
@@ -520,22 +503,18 @@ function get_Reference_List(structName,varName) {
         ajaxLog("失败: "+xhr.status+'\n原因: '+status);
     });
 }
-$(function (){
-    $('.selectResult').change(function(){
-        alert("h");
-        if(1){
-            $(this).tips({
+function SelectItemsShow(field){
+        $(field).tips({
             side:2,  //1,2,3,4 分别代表 上右下左
             msg:"sdfsdf",//tips的文本内容
             color:'',//文字颜色，默认为白色
             bg:'#00A1CB',//背景色，默认为红色
-            time:2,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
+            time:0,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
             x:0,// 默认为0 横向偏移 正数向右偏移 负数向左偏移
             y:0 // 默认为0 纵向偏移 正数向下偏移 负数向上偏移
         });
-        }
-    });
-});
+}
+
 function get_Multi_Reference_List(structName,varName) {
     var refFeedback = $.ajax("/reference/market", {
         dataType: 'json'
@@ -556,22 +535,88 @@ function get_Multi_Reference_List(structName,varName) {
         ajaxLog("失败: "+xhr.status+'\n原因: '+status);
     });
 }
-function handleEnter(field,event,item) {
-    var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
-    if (keyCode == 13) {
-        var colIndex=field.cellIndex;
-        var rowIndex=field.parentNode.rowIndex;
-        var rowLength = field.parentNode.parentNode.children.length;
-        if(rowIndex<rowLength-2)
-            rowIndex +=1;
-        var texta = field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
-        field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML=texta.replace(new RegExp("\\<br\\>","g"),"");
-        field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
-        return false;
-        }
-    else
-        return true;
+function onlyNumberBeforePaste(field) {
+    var clipboard = window.clipboardData.getData("Text");
+    var message = "there are some non-number characters in clipboard";
+    if (/[^0-9\.]/.test(clipboard)){
+        field.innerHTML="";
+        $(field).tips({
+            side:1,  //1,2,3,4 分别代表 上右下左
+            msg:message,
+            color:'#FFF',//文字颜色，默认为白色
+            bg:'',//背景色，默认为红色
+            time:0.3,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
+            x:0,// 默认为0 横向偏移 正数向右偏移 负数向左偏移
+            y:0 // 默认为0 纵向偏移 正数向下偏移 负数向上偏移
+        });
+
     }
 
+}
+function onlyNumberAfterPress(field) {
+    if (/[^0-9\.]/.test(field.innerHTML)){
+        field.innerHTML=field.innerHTML.replace(/[^0-9\.]/g,'');
+        var message = "Character is forbiden!!!";
+        $(field).tips({
+            side:1,  //1,2,3,4 分别代表 上右下左
+            msg:message,
+            color:'#FFF',//文字颜色，默认为白色
+            bg:'red',//背景色，默认为红色
+            time:0.3,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
+            x:0,// 默认为0 横向偏移 正数向右偏移 负数向左偏移
+            y:0 // 默认为0 纵向偏移 正数向下偏移 负数向上偏移
+        });
+    }
+}
+function handleEnter(field,event) {
+    var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+    var colIndex = field.cellIndex;
+    var rowIndex = field.parentNode.rowIndex;
+    var rowLength = field.parentNode.parentNode.children.length;
+    var texta = "";
+    if (keyCode == 13 || keyCode == 40) {
+        if (rowIndex < rowLength - 1)
+            rowIndex += 1;
+        texta = field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
+        field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML = texta.replace(new RegExp("\\<br\\>", "g"), "");
+        field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
+    }
+    else if (keyCode == 38) {
+        if (rowIndex > 0 && field.parentNode.parentNode.children[rowIndex - 1].tagName != "TH")
+            rowIndex -= 1;
+        texta = field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
+        field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML = texta.replace(new RegExp("\\<br\\>", "g"), "");
+        field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
+    }
 
-
+}
+function NumberChecktips(field){
+    var number = field.innerHTML;
+    number = number.replace(new RegExp("\\<br\\>","g"),"");
+    var doubleTest = /^-*\d+.\d+$/i;
+    var intTest = /^-*\d+$/i;
+    var message = "";
+    var check = false;
+    var backgroundColor="";
+    if(number.length == 0){
+        message = "It's empty!";
+        check = true;
+        backgroundColor="#00A1CB"
+    }
+    else if(!(doubleTest.test(number) || intTest.test(number))){
+        message = 'Error:STRING!!! Please input number';
+        check = true;
+        backgroundColor="#FF0000";
+    }
+    if(check){
+        $(field).tips({
+        side:2,  //1,2,3,4 分别代表 上右下左
+        msg:message,
+        color:'#FFF',//文字颜色，默认为白色
+        bg:backgroundColor,//背景色，默认为红色
+        time:0.3,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
+        x:0,// 默认为0 横向偏移 正数向右偏移 负数向左偏移
+        y:0 // 默认为0 纵向偏移 正数向下偏移 负数向上偏移
+    });
+    }
+}

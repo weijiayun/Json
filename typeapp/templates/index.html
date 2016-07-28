@@ -23,6 +23,7 @@
       <script type="text/javascript" src="../static/js/jquery.tips.js"></script>
       <script type="text/javascript" src="../static/js/mejs.js"></script>
 
+
   </head>
   <body onload="prettyPrint()">
     <div class="container">
@@ -37,10 +38,12 @@
                     {% endfor %}
                 {% endwith %}
             </select>
-            <div class="col-sm-12">
+            <div class="col-sm-12" onload="">
                 {% include 'editJson.html' %}
             </div>
         </div>
     </div>
+    <script type="text/javascript" src="../static/js/MouseSelectCopyandPaste.js"></script>
   </body>
+
 </html>

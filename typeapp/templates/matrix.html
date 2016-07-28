@@ -13,11 +13,11 @@
             {% for matrow in range(matDim[0]) %}
                 <tr style="height: 30px;">
                 {% for matCol in range(matDim[1])%}
-                    <td contenteditable="true"  spellcheck="false" class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter" ></td>
+                    <td contenteditable="true" onkeyup="onlyNumberAfterPress(this)"   onbeforepaste="onlyNumberBeforePaste(this)"  spellcheck="false" class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter MouseSelectCopy" ></td>
                 {% endfor %}
                 </tr>
             {% endfor %}
-            <tr style="display: none"></tr>
+            <tr style="display: none"><td></td></tr>
             </tbody>
         </table>
     </td>
