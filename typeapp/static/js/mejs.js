@@ -252,7 +252,7 @@ function treeToCode(SelectElemId) {
         var varReference = jsonDict[valoption][valoption]["Fields"][varName]["Reference"];
         if (varReference == null) {
             if (varType == "string" || varType == "double") {
-                Jsoncode[varName] = JsonFormatConvt(r.cells[3].innerHTML);
+                Jsoncode[varName] = JsonFormatConvt(r.cells[2].innerHTML);
             }
             else if (varType.match("list&lt;")) {
                 i = i + 1;
@@ -297,7 +297,7 @@ function treeToCode(SelectElemId) {
             }
 
             else if (varType.match("::")) {
-                Jsoncode[varName] = JsonFormatConvt(document.getElementById(valoption + varName + "refSelect").value);
+                Jsoncode[varName] = JsonFormatConvt(document.getElementById(valoption + varName + "enumSelect").value);
             }
         }
         else {

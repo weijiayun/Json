@@ -12,12 +12,13 @@
      <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
          {% set enumFieldsVar = StructInfo[varType].Fields %}
          {% for enumVarName in enumFieldsVar %}
-         <li role="presentation">
+             <li role="presentation">
              <a role="menuitem" tabindex="-1" onmouseover="shadowover(this)" onmouseout="shadowout(this)" onclick="returnval('{{ StructName }}{{ varName }}',this)" name="{{ enumVarName }}">{{ enumVarName }}</a>
          </li>
          {% endfor %}
      </ul>
- </span>
+    </span>
+    </td>
     <td id="m{{ StructName }}{{varName }}" style="display: none">{{ varName }}</td>
 </tr>
 
