@@ -10,11 +10,11 @@ var MouseSelect = {
     "stposX":0,
     "stposY":0
 };
-//$(".MouseSelectCopy").mousedown(OnMouseDown);
-function OnMouseDown() {
+$(".MouseSelectCopy").mousedown(OnMouseDown);
+function OnMouseDown(field) {
     MouseSelect.log = [];
-    var tr = this.parentNode;
-    var tb = this.parentNode.parentNode.parentNode;
+    var tr = field.parentNode;
+    var tb = field.parentNode.parentNode.parentNode;
     if(MouseSelect.this)
         if(MouseSelect.this.parentNode.parentNode.parentNode != tb) {
             if(Object.getOwnPropertyNames(MouseSelect.SelectedPointRecord).length != 0)
@@ -31,13 +31,13 @@ function OnMouseDown() {
                     tb.rows[MouseSelect.SelectedPointRecord[e][0]].cells[MouseSelect.SelectedPointRecord[e][1]].style.backgroundColor=MouseSelect.SelectedPointRecord[e][2];
         }
     else {
-        for(var i=0;i<tb.rows.length-1;i++)
-            for (var j = 0; j < tr.cells.length; j++)
+        for(var i=2;i<tb.rows.length-1;i++)
+            for (var j = 0; j < tr.cells.length-1; j++)
                 MouseSelect.SelectedPointRecord["r" + i + "c" + j] = [i, j, tb.rows[i].cells[j].style.backgroundColor];
         }
-    this.style.backgroundColor = MouseSelect.backColor;
-    MouseSelect.stposX=this.cellIndex;
-    MouseSelect.stposY=this.parentNode.rowIndex;
+    field.style.backgroundColor = MouseSelect.backColor;
+    MouseSelect.stposX=field.cellIndex;
+    MouseSelect.stposY=field.parentNode.rowIndex;
     $(".MouseSelectCopy").mouseup(onMouseUp);
     $(".MouseSelectCopy").mouseover(onMouseOver);
 }

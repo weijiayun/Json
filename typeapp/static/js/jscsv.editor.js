@@ -1,16 +1,8 @@
-$(document).ready(function (){
-    $('.handleEnter').keypress(function (event) {handleEnter(this,event)});
-    $('.jsoneditor-number').blur(function(){NumberChecktips(this)});
-});
-function getPropertyCount(o){
-    var n, count = 0;
-    for(n in o){
-        if(o.hasOwnProperty(n)){
-            count++;
-        }
-    }
-    return count;
-}
+// $(document).ready(function (){
+//     $('.handleEnter').keypress(function (event) {handleEnter(this,event)});
+//     $('.jsoneditor-number').blur(function(){NumberChecktips(this)});
+// });
+
 function JsonFormatConvt(strNum) {
     var doubleTest = /^-*\d+.\d+$/i;
     var intTest = /^-*\d+$/i;
@@ -34,22 +26,10 @@ function JsonFormatConvt(strNum) {
 var ColorCount=1;
 var colorBoard = ['grey','darkgray'];
 function randomColor() {
-    var colorList1 = ['F0F8FF','FAEBD7','00FFFF','7FFFD4','F5F5DC','FFE4C4',
-        '5F9EA0','DEB887','7FFF00','FF7F50','6495ED','00FFFF','008B8B',
-        '8FBC8F','00CED1','00BFFF','1E90FF','ADD8E6','87CEFA',
-        '20B2AA','D3D3D3','FFA07A','778899'];
-
     var id = ColorCount==0?1:0;
     ColorCount=id;
     return colorBoard[id];
 }
-String.prototype.format=function()
-{
-    if(arguments.length==0) return this;
-    for(var s=this, i=0; i<arguments.length; i++)
-        s=s.replace(new RegExp("\\{"+i+"\\}","g"), arguments[i]);
-    return s;
-};
 
 function get_chekbox_value(checkboxid,showcheckid) {
     if(document.getElementById(checkboxid).checked){
@@ -222,6 +202,7 @@ function csvAddrow(structName,varName,idSufix) {
     for(var i=0;i<colLen;i++){
         var col=row.insertCell(i);
         col.setAttribute("spellcheck","false");
+        col.setAttribute("onmousedown","OnMouseDown(this)");
         //col.setAttribute("onkeyup","onlyNumberAfterPress(this)");
         //col.setAttribute("onbeforepaste","onlyNumberBeforePaste(this)");
         col.setAttribute("onblur",'NumberChecktips(this)');
@@ -366,7 +347,7 @@ function jsonTreeToCsvTree(StructName,varName) {
     var varType = jsonDict[StructName][StructName]["Fields"][varName]["Type"];
     var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
     var tb1 = document.getElementById(StructName+varName+"jsontree");
-    var listArray = new Array();
+    var listArray = [];
     var colLen = getPropertyCount(cols);
     for(var i1=0;i1<tb1.rows.length-1;i1++){
         if(i1%colLen == 0)

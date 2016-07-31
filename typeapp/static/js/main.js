@@ -46,7 +46,7 @@ function TypeUnitTemplate(structname){
     for(var varName in FieldsVar){
         FieldsVarAttrs = FieldsVar[varName];
         FieldsVarAttrs["Name"] = varName;
-        
+
         if(!FieldsVarAttrs.Reference){
             if(FieldsVarAttrs.Type == "sint32" || FieldsVarAttrs.Type == "uint32"||FieldsVarAttrs.Type == "string")
                typehtml += NumberandStringTemplate(structname);
@@ -61,12 +61,12 @@ function TypeUnitTemplate(structname){
             else if(FieldsVarAttrs.Type.match("list&lt;"))
                 typehtml += listTamplate(structname,StrategyDict[structname][FieldsVarAttrs.Type.split(/&lt;|&gt;/g)[1]].Fields);
         }
-        // else {
-        //     if(FieldsVarAttrs.Type.match("list<"))
-        //      typehtml += listTamplate();
-        //     else if(FieldsVarAttrs.Type == "sint32" || FieldsVarAttrs.Type == "uint32")
-        //         typehtml += singleRefTemplate();
-        // }
+        else {
+            if(FieldsVarAttrs.Type.match("list&lt;"))
+             typehtml += listRefTemplate(structname);
+            else if(FieldsVarAttrs.Type == "sint32" || FieldsVarAttrs.Type == "uint32")
+                typehtml += singleRefTemplate(structname);
+         }
     }
     typehtml += "</tbody></table>";
     return typehtml;
@@ -154,11 +154,27 @@ function listTamplate(structname,listTypeFieldsDict) {
     listhtml += '</tr>';
     return listhtml;
 }
-function listRefTemplate() {
-    
+function listRefTemplate(structname) {
+    var listrefhtml ="<tr>";
+    listrefhtml += '<td onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
+    if(FieldsVarAttrs.Requiredness == "required")
+        listrefhtml += '<span style="color: red">*</span> <button onclick="get_Multi_Reference_List(\'{0}\',\'{1}\')" style="width: auto">{1}</button><span  id="{0}{1}tdSelect"></span>'.format(structname,FieldsVarAttrs.Name);
+    listrefhtml +='</td>';
+    listrefhtml +='<td  style="display: none" id="m{0}{1}">{1}</td>'.format(structname,FieldsVarAttrs.Name);
+    listrefhtml +='<td id="{0}{1}REFDATA" style="display: none"></td>'.format(structname,FieldsVarAttrs.Name);
+    listrefhtml +='</tr>';
+    return listrefhtml;
 }
-function singleRefTemplate() {
-    
+function singleRefTemplate(structname) {
+    var srefhtml ='<tr>';
+    srefhtml += '<td onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
+    if(FieldsVarAttrs.Requiredness == 'required')
+            srefhtml +='<span style="color: red">*</span><button onclick="get_Reference_List(\'{0}\',\'{1}\')" style="width: auto">{1}</button><span id="{0}{1}tdSelect"></span>'.format(structname,FieldsVarAttrs.Name);
+    srefhtml += '</td>';
+    srefhtml += '<td style="display: none"  id="m{0}{1}">{1}</td>'.format(structname,FieldsVarAttrs.Name);
+    srefhtml += '<td id="{0}{1}REFDATA" style="display: none"></td>'.format(structname,FieldsVarAttrs.Name);
+    srefhtml += '</tr>';
+    return srefhtml;
 }
 function getDimention(vartype) {
     var typeSplit=FieldsVarAttrs.Type.split(/&lt;|&gt;|,/);
@@ -193,5 +209,5 @@ function matrixTemplate(structname) {
     return mathtml;
 }
 function selectTemplate() {
-    
+
 }
