@@ -10,7 +10,7 @@ var MouseSelect = {
     "stposX":0,
     "stposY":0
 };
-$(".MouseSelectCopy").mousedown(OnMouseDown);
+//$(".MouseSelectCopy").mousedown(OnMouseDown);
 function OnMouseDown() {
     MouseSelect.log = [];
     var tr = this.parentNode;
@@ -132,9 +132,8 @@ function CopyAndPaste() {
                 return s.split(/\s+|,|\t/)
             });
             if (rowlist[rowlist.length - 1][0] == "")rowlist.pop();
-            var setrowslen = Set(rowlist.map(function (s) {
-                return s.length;
-            })).size;
+            var setrowslen = new Set(rowlist.map(function (s) {return s.length;})).size;
+            rowlist=rowlist.map(function (s) {return s.map(function (e) { return e.replace(new RegExp("\\<br\\>","g"),"");})});
             if (setrowslen == 1) {
                 if (rowlist.length == 1 && rowlist[0].length == 1) {
                     tb.rows[trIndex].cells[tdIndex].innerHTML = rowlist[0][0];
@@ -154,4 +153,4 @@ function CopyAndPaste() {
         }
     });
 }
-$(document).ready(CopyAndPaste);
+//$(document).ready(CopyAndPaste);

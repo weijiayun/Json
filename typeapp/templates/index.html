@@ -21,11 +21,13 @@
       <script type="text/javascript" src="../static/js/prettify.js"></script>
       <script type="text/javascript" src="../static/js/jquery.multiselect.js"></script>
       <script type="text/javascript" src="../static/js/jquery.tips.js"></script>
+      <script type="text/javascript" src="../static/js/MouseSelectCopyandPaste.js"></script>
       <script type="text/javascript" src="../static/js/mejs.js"></script>
       <script type="text/javascript" src="../static/js/main.js"></script>
 
+
   </head>
-  <body onload="TypesTemplate()">
+  <body onload="app.load();prettyPrint()" >
     <div class="container">
         <h1 class="demo-logo">DFC tech.</h1>
           <div id="JsonDict" style="display: none">{{ JsonDict }}</div>
@@ -38,10 +40,10 @@
                     {% endfor %}
                 {% endwith %}
             </select>
-            <div class="col-sm-12" id="loadlog"></div>
+            <div class="col-sm-12" id="loadlog" ></div>
         </div>
     </div>
-    <script type="text/javascript" src="../static/js/MouseSelectCopyandPaste.js"></script>
+
   </body>
 
 </html>

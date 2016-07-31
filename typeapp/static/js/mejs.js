@@ -1,4 +1,3 @@
-
 $(document).ready(function (){
     $('.handleEnter').keypress(function (event) {handleEnter(this,event)});
     $('.jsoneditor-number').blur(function(){NumberChecktips(this)});
@@ -223,8 +222,8 @@ function csvAddrow(structName,varName,idSufix) {
     for(var i=0;i<colLen;i++){
         var col=row.insertCell(i);
         col.setAttribute("spellcheck","false");
-        col.setAttribute("onkeyup","onlyNumberAfterPress(this)");
-        col.setAttribute("onbeforepaste","onlyNumberBeforePaste(this)");
+        //col.setAttribute("onkeyup","onlyNumberAfterPress(this)");
+        //col.setAttribute("onbeforepaste","onlyNumberBeforePaste(this)");
         col.setAttribute("onblur",'NumberChecktips(this)');
         col.setAttribute("class","jsoneditor-value jsoneditor-number MouseSelectCopy");
         col.setAttribute("contenteditable","true");
@@ -333,27 +332,27 @@ function csvTreeToJsonTree(StructName,varName) {
         listDict[colName] = listArray;
         colindex += 1;
     }
-    var html = "<div><table style='margin-left: 40px' id='\{0\}'>".format(StructName+varName+"jsontree");
+    var html = "<table style='margin-left: 30px' id='\{0\}'>".format(StructName+varName+"jsontree");
     for(var i=0;i<listTbl.rows.length-3;i++) {
         var bkgcolor = randomColor();
         var spanFlag = true;
         for (var e in listDict) {
             html += "<tr style='border-radius: 2px;background-color: \{0\}'>".format(bkgcolor);
             if(spanFlag){
-                html += "<td class='jsoneditor-value jsoneditor-number' rowspan='\{0\}'><button onclick='jsondel(\"{1}\",\"{2}\",this)' style='width: 30px'>-</button></td>".format(getPropertyCount(listDict),StructName,varName);
+                html += "<td rowspan='\{0\}\'><button onclick='jsondel(\"{1}\",\"{2}\",this)' style='width: 30px'>-</button></td>".format(getPropertyCount(listDict),StructName,varName);
                 spanFlag=false
             }
             if(cols[e]["Requiredness"] == "required")
                 html += "<td class='jsoneditor-readonly'><span style='color: red'>*</span>" + e + ": " + "</td>";
             else
                 html += "<td class='jsoneditor-readonly'>" + e + ": " + "</td>";
-            html += "<td class='jsoneditor-value jsoneditor-number MouseSelectCopy' onkeyup='onlyNumberAfterPress(this)' onbeforepaste='onlyNumberBeforePaste(this)' onblur='NumberChecktips(this)'  onkeypress='handleEnter(this,event)' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
+            html += "<td class='jsoneditor-value jsoneditor-number MouseSelectCopy' onmousedown='OnMouseDown()' onblur='NumberChecktips(this)' onkeypress='handleEnter(this,event)' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
             html += listDict[e][i]+'</td>';
             html += "</tr>";
         }
     }
-    html +="<tr><td class='jsoneditor-value jsoneditor-number MouseSelectCopy'><button onclick='jsonAdd(\"{0}\",\"{1}\")' style='width: 30px'>+</button>".format(StructName,varName);
-    html += "</table></div>";
+    html +="<tr><td style='width: 60px'><button onclick='jsonAdd(\"{0}\",\"{1}\")' style='width: 30px'>+</button></tr></td>".format(StructName,varName);
+    html += "</table>";
     document.getElementById(StructName+varName+"showJson").innerHTML = html;
     document.getElementById(StructName+varName+"showCsv").style.display = "none";
     $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).innerHTML="Csv";
@@ -398,22 +397,20 @@ function jsonTreeToCsvTree(StructName,varName) {
             col.setAttribute("contenteditable","true");
             col.setAttribute("spellcheck","false");
             col.setAttribute("onkeypress","handleEnter(this,event)");
-            col.setAttribute("onkeyup","onlyNumberAfterPress(this)");
-            col.setAttribute("onbeforepaste","onlyNumberBeforePaste(this)");
+            //col.setAttribute("onkeyup","onlyNumberAfterPress(this)");
+            //col.setAttribute("onbeforepaste","onlyNumberBeforePaste(this)");
             col.setAttribute("onblur",'NumberChecktips(this)');
             col.style.backgroundColor= bkgcolor;
-            col.mousedown(OnMouseDown);
-
+            col.setAttribute("onmousedown","OnMouseDown()")
         }
         var collast=row.insertCell(colLen);
-        collast.innerHTML='<button onclick="delrow(this)" style="width: 75px;display: none" >Delete</button>';
+        collast.innerHTML='<button  onclick="delrow(this)" style="width: 75px;display: none" >Delete</button>';
 
     }
     document.getElementById(StructName+varName+"showCsv").style.display = "block";
     document.getElementById(StructName+varName+"jsontree").style.display = "none";
     $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).innerHTML="Json";
     $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).setAttribute("onclick","csvTreeToJsonTree(\"\{0\}\",\"\{1\}\")".format(StructName,varName))
-
 }
 
 function jsonAdd(StructName,varName) {
@@ -428,14 +425,12 @@ function jsonAdd(StructName,varName) {
     for(var colelem in cols){
         rowIndex=tb.rows.length-1;
         var row = tb.insertRow(rowIndex);
-        row.style.backgroundColor= bkgcolor;
-        row.style.borderRadius="5px";
+
         if(spanFlag){
             var col=row.insertCell(0);
             col.setAttribute("rowspan","\{0\}".format(getPropertyCount(cols)));
             col.innerHTML = "<button onclick='jsondel(\"{0}\",\"{1}\",this)' style='width: 30px'>-</button></td>".format(StructName,varName);
             spanFlag=false;
-            col.setAttribute("class","jsoneditor-value jsoneditor-number MouseSelectCopy");
             var col1=row.insertCell(1);
             if(cols[colelem]["Requiredness"] == "required")
                 col1.innerHTML = "<span style='color: red'>*</span>"+colelem+": ";
@@ -457,10 +452,11 @@ function jsonAdd(StructName,varName) {
         col2.setAttribute("contenteditable","true");
         col2.setAttribute("spellcheck","false");
         col2.setAttribute("onkeypress","handleEnter(this,event)");
-        col2.setAttribute("onkeyup","onlyNumberAfterPress(this)");
-        col2.setAttribute("onbeforepaste","onlyNumberBeforePaste(this)");
-        col2.setAttribute("onblur",'NumberChecktips(this)')
-        col2.style.backgroundColor= bkgcolor;
+        //col2.setAttribute("onkeyup","onlyNumberAfterPress(this)");
+        //col2.setAttribute("onbeforepaste","onlyNumberBeforePaste(this)");
+        col2.setAttribute("onblur",'NumberChecktips(this)');
+        row.style.backgroundColor= bkgcolor;
+        row.style.borderRadius="5px";
     }
 }
 function jsondel(StructName,varName,field) {
@@ -573,10 +569,16 @@ function handleEnter(field,event) {
     var colIndex = field.cellIndex;
     var rowIndex = field.parentNode.rowIndex;
     var rowLength = field.parentNode.parentNode.children.length;
+    var tb = field.parentNode.parentNode.parentNode;
     var texta = "";
     if (keyCode == 13 || keyCode == 40) {
-        if (rowIndex < rowLength - 1)
+        if (rowIndex < rowLength - 2){
+            var pre =tb.rows[rowIndex].cells.length;
+            var next = tb.rows[rowIndex+1].cells.length;
+            if(pre>next)
+                colIndex -=1;
             rowIndex += 1;
+        }
         texta = field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
         field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML = texta.replace(new RegExp("\\<br\\>", "g"), "");
         field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
