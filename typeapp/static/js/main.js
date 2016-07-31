@@ -28,6 +28,7 @@ function TypesTemplate() {
     html += '<table id="oTable" width="100%"><tbody>';
     var StrategyDict = JSON.parse($("#JsonDict").html());
     var StructName="";
+    html += "<tr><td>{0}</td></tr>".format(SelectTypeTemplate(Object.getOwnPropertyNames(StrategyDict)));
     for(StructName in StrategyDict){
         html +="<tr><td id='{0}Parent'>{1}</td></tr>".format(StructName,TypeUnitTemplate(StructName)) 
     }
@@ -41,7 +42,7 @@ var FieldsVarAttrs = {};
 function TypeUnitTemplate(structname){
     var typehtml="";
     var StrategyDict = JSON.parse($("#JsonDict").html());
-    typehtml += "<table id={0} style=\"display: block;margin-left: 40px\"><tbody>".format(structname); 
+    typehtml += "<table id=\"{0}\" style=\"display: none;margin-left: 40px\"><tbody>".format(structname);
     var FieldsVar = StrategyDict[structname][structname].Fields;
     for(var varName in FieldsVar){
         FieldsVarAttrs = FieldsVar[varName];
@@ -101,6 +102,33 @@ function enumTemplate(structname,enumlist) {
     }
     enumhtml += "</ul></span></td><td id=\"m{0}{1}\" style=\"display: none\">{1}</td></tr>".format(structname,FieldsVarAttrs.Name);
     return enumhtml;
+}
+function get_TypesSelect_Result(id,obj) {
+    $("#{0}".format(id)).get(0).innerHTML=obj.name;
+    var Typelist = Object.getOwnPropertyNames(JSON.parse($("#JsonDict").html()));
+    for(var e in Typelist){
+        var tempdisp = document.getElementById(Typelist[e]).style;
+        if(Typelist[e] == obj.name){
+            tempdisp.display = "block";
+        }
+        else
+            tempdisp.display = "none";
+    }
+}
+function SelectTypeTemplate(typeslist) {
+    var typeshtml = "<div>";
+    typeshtml +="<span class='dropdown'>";
+    typeshtml +="<button type='button' class='btn dropdown-toggle btn-large btn-primary' id='StrategyTypesSelect' data-toggle='dropdown'>";
+    typeshtml +="<span id=\"StrategyTypesButtonValue\">Types</span><span class='caret'></span></button>";
+    typeshtml +="<ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">";
+    //var jsontypelist = JSON.stringify(typeslist);
+    for(var i in typeslist){
+        typeshtml += "<li role=\"presentation\">";
+        typeshtml += '<a role="menuitem" tabindex="-1" onmouseover="shadowover(this)" onmouseout="shadowout(this)" onclick="get_TypesSelect_Result(\'{0}\',this)" name="{1}">{1}</a>'.format("StrategyTypesButtonValue",typeslist[i]);
+        typeshtml += "</li>"
+    }
+    typeshtml += "</ul></span></div>";
+    return typeshtml;
 }
 
 function NumberandStringTemplate(structname) {

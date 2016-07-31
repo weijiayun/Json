@@ -28,5 +28,5 @@ def index(StructName=""):
 @app.route("/reference/<type>",methods=["GET","POST"])
 def ref(type):
     if type == "market":
-        refdata = ["feedcode","goodmarket","bigmarket","getmarket"]
+        refdata = {"feedcode","goodmarket","bigmarket","getmarket"}
         return json.dumps(refdata)
