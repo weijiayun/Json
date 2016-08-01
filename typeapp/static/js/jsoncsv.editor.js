@@ -2,12 +2,7 @@
 //     $('.handleEnter').keypress(function (event) {handleEnter(this,event)});
 //     $('.jsoneditor-number').blur(function(){NumberChecktips(this)});
 // });
-function returnval(ID,obj){
-    var id1 = "{0}refSelect".format(ID);
-    var id2 = "{0}buttonValue".format(ID);
-    document.getElementById(id1).value = obj.name;
-    document.getElementById(id2).innerHTML = obj.name;
-}
+
 function JsonFormatConvt(strNum) {
     var doubleTest = /^-*\d+.\d+$/i;
     var intTest = /^-*\d+$/i;
@@ -61,13 +56,13 @@ function collapsewin(parentid) {
 
 function selectshow(SelectElemId){
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
-    var jsonDict = JSON.parse(JSONDICT);
+    var jsonDict = JSON.parse(JSONDICT)["REFLIST"];
     var obj = document.getElementById(SelectElemId);
     var index = obj.selectedIndex;
     var valoption = obj.options[index].value;
     var disp1 = document.getElementById(valoption).style;
     for(var e in jsonDict){
-        var tempdisp = document.getElementById(e).style;
+        var tempdisp = document.getElementById(jsonDict[e]).style;
         if(e == valoption){
             tempdisp.display = "block";
         }
@@ -149,6 +144,12 @@ function delrow(obj) {
     tb.deleteRow(rowIndex);
 }
 
+function  showButtonOver(obj) {
+        obj.lastChild.firstChild.style.display="block";
+}
+function  showButtonOut(obj) {
+    obj.lastChild.firstChild.style.display="none";
+}
 function csvAddrow(structName,varName,idSufix) {
     var tableId = structName+varName+idSufix;
     var tb = document.getElementById(tableId);
@@ -178,7 +179,7 @@ function csvAddrow(structName,varName,idSufix) {
 }
 function treeToCode(SelectElemId) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
-    var jsonDict = JSON.parse(JSONDICT);
+    var jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
     var obj = document.getElementById(SelectElemId);
     var index = obj.selectedIndex;
     var valoption = obj.options[index].value;
@@ -187,8 +188,8 @@ function treeToCode(SelectElemId) {
     for (var i = 0; i < tbl.rows.length; i++) {
         var r = tbl.rows[i];
         var varName = r.cells[1].innerHTML;
-        var varType = jsonDict[valoption][valoption]["Fields"][varName]["Type"];
-        var varReference = jsonDict[valoption][valoption]["Fields"][varName]["Reference"];
+        var varType = jsonDict[valoption]["Fields"][varName]["Type"];
+        var varReference = jsonDict[valoption]["Fields"][varName]["Reference"];
         if (varReference == null) {
             if (varType == "string" || varType == "double") {
                 Jsoncode[varName] = JsonFormatConvt(r.cells[2].innerHTML);
@@ -196,7 +197,7 @@ function treeToCode(SelectElemId) {
             else if (varType.match("list&lt;")) {
                 i = i + 1;
                 listTbl = document.getElementById(valoption + varName + "csv");
-                var cols = jsonDict[valoption][varType.slice(8, -4)]["Fields"];
+                var cols = jsonDict[varType.slice(8, -4)]["Fields"];
                 listDict = new Object();
                 var colindex = 0;
                 for (colName in cols) {
@@ -257,11 +258,16 @@ function treeToCode(SelectElemId) {
 }
 function csvTreeToJsonTree(StructName,varName) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
-    var jsonDict = JSON.parse(JSONDICT);
+    var jsonDict = {};
+    if(CombineReferenceData.hasOwnProperty(StructName+varName))
+        jsonDict =  CombineReferenceData[StructName+varName];
+    else{
+        jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
+        var varType = jsonDict[StructName]["Fields"][varName]["Type"];
+        var cols = jsonDict[varType.slice(8,-4)]["Fields"];
+    }
     var listTbl = document.getElementById(StructName+varName+"csv");
-    var varType = jsonDict[StructName][StructName]["Fields"][varName]["Type"];
-    var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
-    var listDict = Object();
+    var listDict = {};
     var colindex = 0;
     var listArray = [];
     for(var colName in cols){
@@ -301,10 +307,10 @@ function csvTreeToJsonTree(StructName,varName) {
 
 function jsonTreeToCsvTree(StructName,varName) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
-    var jsonDict = JSON.parse(JSONDICT);
+    var jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
     var listTbl = document.getElementById(StructName+varName+"csv");
-    var varType = jsonDict[StructName][StructName]["Fields"][varName]["Type"];
-    var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
+    var varType = jsonDict[StructName]["Fields"][varName]["Type"];
+    var cols = jsonDict[varType.slice(8,-4)]["Fields"];
     var tb1 = document.getElementById(StructName+varName+"jsontree");
     var listArray = [];
     var colLen = getPropertyCount(cols);
@@ -355,17 +361,16 @@ function jsonTreeToCsvTree(StructName,varName) {
 
 function jsonAdd(StructName,varName) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
-    var jsonDict = JSON.parse(JSONDICT);
+    var jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
     var listTbl = document.getElementById(StructName+varName+"csv");
-    var varType = jsonDict[StructName][StructName]["Fields"][varName]["Type"];
-    var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
+    var varType = jsonDict[StructName]["Fields"][varName]["Type"];
+    var cols = jsonDict[varType.slice(8,-4)]["Fields"];
     var tb = document.getElementById(StructName+varName+"jsontree");
     var bkgcolor = randomColor();
     var spanFlag = true;
     for(var colelem in cols){
         rowIndex=tb.rows.length-1;
         var row = tb.insertRow(rowIndex);
-
         if(spanFlag){
             var col=row.insertCell(0);
             col.setAttribute("rowspan","\{0\}".format(getPropertyCount(cols)));
@@ -401,9 +406,9 @@ function jsonAdd(StructName,varName) {
 }
 function jsondel(StructName,varName,field) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
-    var jsonDict = JSON.parse(JSONDICT);
-    var varType = jsonDict[StructName][StructName]["Fields"][varName]["Type"];
-    var cols = jsonDict[StructName][varType.slice(8,-4)]["Fields"];
+    var jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
+    var varType = jsonDict[StructName]["Fields"][varName]["Type"];
+    var cols = jsonDict[varType.slice(8,-4)]["Fields"];
     var tb = document.getElementById(StructName+varName+"jsontree");
     var colLen = getPropertyCount(cols);
     var rowIndex = field.parentNode.parentNode.rowIndex;
@@ -415,26 +420,38 @@ function jsondel(StructName,varName,field) {
 function ajaxLog(s) {
     alert(s)
 }
-
+var CombineReferenceData = {};
 function get_Reference_List(structName,varName) {
     var refFeedback = $.ajax("/reference/market", {
         dataType: 'json'
     }).done(function (data) {
-        alert(JSON.stringify(data))
+        CombineReferenceData["BASEREFERENCE"]=JSON.parse($("#JsonDict").html());
+        CombineReferenceData[structName+varName]=$.extend({},data,CombineReferenceData.BASEREFERENCE["REFERENCES"]);
         var html = "<span class='dropdown'>";
         html += "<button type='button' class='btn dropdown-toggle btn-large btn-primary' id='{0}' data-toggle='dropdown'>".format(structName+varName+"refSelect");
         html += "<span id='{0}'>{1}</span>".format(structName+varName+"buttonValue",varName);
         html += "<span class='caret'></span></button>";
         html +="<ul class='dropdown-menu' role='menu' aria-labelledby='dropdownMenu1'>";
-        for(var e in data){
+        for(var e in CombineReferenceData[structName+varName]){
             html +="<li role='presentation'>";
-            html +="<a role='menuitem' tabindex='-1' onmouseover='shadowover(this)' onmouseout='shadowout(this)' onclick='returnval(\"{0}\",this)' name='{1}'>{1}</a></li>".format(structName+varName,e);
+            html +="<a role='menuitem' tabindex='-1' onmouseover='shadowover(this)' onmouseout='shadowout(this)' onclick='expandSelectRefernce(\"{0}\",\"{1}\",this)' name='{2}'>{2}</a></li>".format(structName,varName,e);
         }
         html +="</ul></span>";
         document.getElementById(structName+varName+"tdSelect").innerHTML = html;
     }).fail(function (xhr,status) {
         ajaxLog("失败: "+xhr.status+'\n原因: '+status);
     });
+}
+function expandSelectRefernce(structName,varName,obj) {
+    var id1 = "{0}{1}refSelect".format(structName,varName);
+    var id2 = "{0}{1}buttonValue".format(structName,varName);
+    document.getElementById(id1).value = obj.name;
+    document.getElementById(id2).innerHTML = obj.name;
+    var SelectedRefDict = CombineReferenceData[structName+varName][obj.name]["Fields"];
+    var localli = $("#{0}".format(structName+varName+"REFDATA")).parent();
+    var VarAttrs = JSON.parse( $("#{0}singleRefVarAttrs".format(structName+varName)).get(0).innerHTML);
+    var afterli = localli.after(listTamplate(obj.name,SelectedRefDict,VarAttrs));
+    afterli.attr("class","jsoneditor-ref")
 }
 function get_Multi_Reference_List(structName,varName) {
     var refFeedback = $.ajax("/reference/market", {

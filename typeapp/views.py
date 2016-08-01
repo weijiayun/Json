@@ -6,7 +6,7 @@ from typeapp import app
 from typeapp.typeconfig import INPUTOBJECT,INPUTOBJECT1
 
 import json
-JsonDict=json.dumps({"Automaton":INPUTOBJECT,"Automatontest":INPUTOBJECT1})
+JsonDict=json.dumps({"REFLIST":["Automaton","Automatontest"],"REFERENCES":INPUTOBJECT})
 @app.route('/',methods=["GET","POST"])
 @app.route('/<StructName>',methods=["GET","POST"])
 def index(StructName=""):
@@ -28,5 +28,5 @@ def index(StructName=""):
 @app.route("/reference/<type>",methods=["GET","POST"])
 def ref(type):
     if type == "market":
-        refdata = INPUTOBJECT
+        refdata = INPUTOBJECT1
         return json.dumps(refdata)

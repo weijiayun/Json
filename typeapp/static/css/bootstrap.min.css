@@ -113,6 +113,7 @@ button,select {
 button,html input[type="button"],input[type="reset"],input[type="submit"] {
 	cursor:pointer;
 	-webkit-appearance:button
+
 }
 button[disabled],html input[disabled] {
 	cursor:default

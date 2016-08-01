@@ -25,51 +25,50 @@ function TypesTemplate() {
     var html = "";
     html += '<div class="jsoneditor jsoneditor-mode-tree">';
     html +='<div class="jsoneditor-tree">';
-    html += '<table id="oTable" width="100%"><tbody>';
-    var StrategyDict = JSON.parse($("#JsonDict").html());
-    var StructName="";
-    html += "<tr><td>{0}</td></tr>".format(SelectTypeTemplate(Object.getOwnPropertyNames(StrategyDict)));
-    for(StructName in StrategyDict){
-        html +="<tr><td id='{0}Parent'>{1}</td></tr>".format(StructName,TypeUnitTemplate(StructName)) 
+    html += '<ul id="oTable" width="100%">';
+    var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
+    html += "<li><span>{0}</span></li>".format(SelectTypeTemplate(StrategyList));
+    for(var i in StrategyList){
+        html +="<li><span id='{0}Parent'>{1}</span></li>".format(StrategyList[i],TypeUnitTemplate(StrategyList[i]));
     }
-    html +="</tbody></table></div></div>";
+    html +="</ul></div></div>";
     $("#loadlog").html(html);
     PreloadFuncDict.MouseSelectCopyorPaste();
     PreloadFuncDict.HandleEnter();
     PreloadFuncDict.InputCheck();
 }
-var FieldsVarAttrs = {};
+
 function TypeUnitTemplate(structname){
     var typehtml="";
-    var StrategyDict = JSON.parse($("#JsonDict").html());
-    typehtml += "<table id=\"{0}\" style=\"display: none;margin-left: 40px\"><tbody>".format(structname);
-    var FieldsVar = StrategyDict[structname][structname].Fields;
+    var StrategyDict = JSON.parse($("#JsonDict").html())["REFERENCES"];
+    typehtml += "<ul id=\"{0}\" style=\"display: none;\">".format(structname);
+    var FieldsVar = StrategyDict[structname].Fields;
+    var FieldsVarAttrs = {};
     for(var varName in FieldsVar){
         FieldsVarAttrs = FieldsVar[varName];
         FieldsVarAttrs["Name"] = varName;
-
         if(!FieldsVarAttrs.Reference){
             if(FieldsVarAttrs.Type == "sint32" || FieldsVarAttrs.Type == "uint32"||FieldsVarAttrs.Type == "string")
-               typehtml += NumberandStringTemplate(structname);
+               typehtml += NumberandStringTemplate(structname,FieldsVarAttrs);
             else if(FieldsVarAttrs.Type.match("::")){
-                var enumList = Object.getOwnPropertyNames(StrategyDict[structname][FieldsVarAttrs.Type]);
-                typehtml += enumTemplate(structname,enumList)
+                var enumList = Object.getOwnPropertyNames(StrategyDict[FieldsVarAttrs.Type]);
+                typehtml += enumTemplate(structname,enumList,FieldsVarAttrs)
             }
             else if(FieldsVarAttrs.Type.match("mat&lt;") ||FieldsVarAttrs.Type.match("vec&lt;"))
-                typehtml += matrixTemplate(structname);
+                typehtml += matrixTemplate(structname,FieldsVarAttrs);
             else if(FieldsVarAttrs.Type == "bool")
-                typehtml += boolTemplate(structname);
+                typehtml += boolTemplate(structname,FieldsVarAttrs);
             else if(FieldsVarAttrs.Type.match("list&lt;"))
-                typehtml += listTamplate(structname,StrategyDict[structname][FieldsVarAttrs.Type.split(/&lt;|&gt;/g)[1]].Fields);
+                typehtml += listTamplate(structname,StrategyDict[FieldsVarAttrs.Type.split(/&lt;|&gt;/g)[1]].Fields,FieldsVarAttrs);
         }
         else {
             if(FieldsVarAttrs.Type.match("list&lt;"))
-             typehtml += listRefTemplate(structname);
+             typehtml += listRefTemplate(structname,FieldsVarAttrs);
             else if(FieldsVarAttrs.Type == "sint32" || FieldsVarAttrs.Type == "uint32")
-                typehtml += singleRefTemplate(structname);
+                typehtml += singleRefTemplate(structname,FieldsVarAttrs);
          }
     }
-    typehtml += "</tbody></table>";
+    typehtml += "</ul>";
     return typehtml;
 }
 function get_chekbox_value(checkboxid,showcheckid) {
@@ -82,39 +81,39 @@ function get_chekbox_value(checkboxid,showcheckid) {
         document.getElementById(showcheckid+"boolval").innerHTML= 'false';
     }
 }
-function boolTemplate(structname) {
+function boolTemplate(structname,VarAttrs) {
     var boolhtml = "";
-    boolhtml += "<tr id=\"{0}{1}bool\" style=\"display: block\"><td>".format(structname,FieldsVarAttrs.Name);
-    if(FieldsVarAttrs.Requiredness == "bool")
-            boolhtml +='<span style="color: red">*</span></td>';
-    boolhtml +='<td class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{0}</td>'.format(FieldsVarAttrs.Name);
-    boolhtml +='<td class="jsoneditor-tree">';
-    boolhtml +='<input type="checkbox" value="0" id="m{0}{1}" onclick="get_chekbox_value(\'m{0}{1}\',\'{0}{1}\')\"/>'.format(structname,FieldsVarAttrs.Name);
-    boolhtml +='<span style="color: deepskyblue" id="{0}{1}">{2}</span></td>'.format(structname,FieldsVarAttrs.Name,FieldsVarAttrs.Default);
-    boolhtml +='<td style="display: none" id="{0}{1}boolval">{2}</td></tr>'.format(structname,FieldsVarAttrs.name,FieldsVarAttrs.Default);
+    boolhtml += "<li id=\"{0}{1}bool\" style=\"display: block\"><span>".format(structname,VarAttrs.Name);
+    if(VarAttrs.Requiredness == "bool")
+        boolhtml +='<span style="color: red">*</span></span>';
+    boolhtml +='<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{0}</span>'.format(VarAttrs.Name);
+    boolhtml +='<span class="jsoneditor-tree">';
+    boolhtml +='<input type="checkbox" value="0" id="m{0}{1}" onclick="get_chekbox_value(\'m{0}{1}\',\'{0}{1}\')\"/>'.format(structname,VarAttrs.Name);
+    boolhtml +='<span style="color: deepskyblue" id="{0}{1}">{2}</span></span>'.format(structname,VarAttrs.Name,VarAttrs.Default);
+    boolhtml +='<span style="display: none" id="{0}{1}boolval">{2}</span></li>'.format(structname,VarAttrs.name,VarAttrs.Default);
     return boolhtml;
 }
 
-function enumTemplate(structname,enumlist) {
+function enumTemplate(structname,enumlist,VarAttrs) {
     var enumhtml = "";
-    enumhtml = '<tr id="{0}">'.format(structname+FieldsVarAttrs.Name);
-    enumhtml += '<td class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)" >';
-    if(FieldsVarAttrs.Requiredness == "required")
+    enumhtml = '<li id="{0}">'.format(structname+VarAttrs.Name);
+    enumhtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)" >';
+    if(VarAttrs.Requiredness == "required")
         enumhtml += '<span style="color: red">*</span>'; 
-    enumhtml +='<span >{0} </span>'.format(FieldsVarAttrs.Name);
+    enumhtml +='<span >{0} </span>'.format(VarAttrs.Name);
     enumhtml +="<span class='dropdown'>";
-    enumhtml +="<button type='button' class='btn dropdown-toggle btn-large btn-primary' id='{0}enumSelect' data-toggle='dropdown'>".format(structname+FieldsVarAttrs.Name);
-    enumhtml +="<span id=\"{0}{1}buttonValue\">{1}</span><span class='caret'></span></button>".format(structname,FieldsVarAttrs.Name);
+    enumhtml +="<button type='button' class='btn dropdown-toggle btn-large btn-primary' id='{0}enumSelect' data-toggle='dropdown'>".format(structname+VarAttrs.Name);
+    enumhtml +="<span id=\"{0}{1}buttonValue\">{1}</span><span class='caret'></span></button>".format(structname,VarAttrs.Name);
     enumhtml +="<ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">";
     for(var i in enumlist){
         enumhtml += "<li role=\"presentation\">";
-        enumhtml += '<a role="menuitem" tabindex="-1" onmouseover="shadowover(this)" onmouseout="shadowout(this)" onclick="get_select_value(\'{0}\',this)" name="{1}">{1}</a>'.format(structname+FieldsVarAttrs.Name,enumlist[i]);
+        enumhtml += '<a role="menuitem" tabindex="-1" onmouseover="shadowover(this)" onmouseout="shadowout(this)" onclick="get_Drop_Select_value(\'{0}\',this)" name="{1}">{1}</a>'.format(structname+VarAttrs.Name,enumlist[i]);
         enumhtml += "</li>"
     }
-    enumhtml += "</ul></span></td><td id=\"m{0}{1}\" style=\"display: none\">{1}</td></tr>".format(structname,FieldsVarAttrs.Name);
+    enumhtml += "</ul></span></span><span id=\"m{0}{1}\" style=\"display: none\">{1}</span></li>".format(structname,VarAttrs.Name);
     return enumhtml;
 }
-function get_select_value(ID,obj){
+function get_Drop_Select_value(ID,obj){
     var id1 = "{0}enumSelect".format(ID);
     var id2 = "{0}buttonValue".format(ID);
     document.getElementById(id1).value = obj.name;
@@ -122,7 +121,7 @@ function get_select_value(ID,obj){
 }
 function get_TypesSelect_Result(id,obj) {
     $("#{0}".format(id)).get(0).innerHTML=obj.name;
-    var Typelist = Object.getOwnPropertyNames(JSON.parse($("#JsonDict").html()));
+    var Typelist = JSON.parse($("#JsonDict").html())["REFLIST"];
     for(var e in Typelist){
         var tempdisp = document.getElementById(Typelist[e]).style;
         if(Typelist[e] == obj.name){
@@ -138,7 +137,6 @@ function SelectTypeTemplate(typeslist) {
     typeshtml +="<button type='button' class='btn dropdown-toggle btn-large btn-primary' id='StrategyTypesSelect' data-toggle='dropdown'>";
     typeshtml +="<span id=\"StrategyTypesButtonValue\">Types</span><span class='caret'></span></button>";
     typeshtml +="<ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">";
-    //var jsontypelist = JSON.stringify(typeslist);
     for(var i in typeslist){
         typeshtml += "<li role=\"presentation\">";
         typeshtml += '<a role="menuitem" tabindex="-1" onmouseover="shadowover(this)" onmouseout="shadowout(this)" onclick="get_TypesSelect_Result(\'{0}\',this)" name="{1}">{1}</a>'.format("StrategyTypesButtonValue",typeslist[i]);
@@ -148,28 +146,27 @@ function SelectTypeTemplate(typeslist) {
     return typeshtml;
 }
 
-function NumberandStringTemplate(structname) {
+function NumberandStringTemplate(structname,VarAttrs) {
     var NumStrhtml = "";
-    NumStrhtml += '<tr style="display: block" onmouseover="shadowover(this)" onmouseout="shadowout(this)"><td>'; 
-    if(FieldsVarAttrs.Requiredness == "required")
+    NumStrhtml += '<li style="display: block" onmouseover="shadowover(this)" onmouseout="shadowout(this)"><span>'; 
+    if(VarAttrs.Requiredness == "required")
         NumStrhtml +='<span style="color: red">*</span>'; 
-    NumStrhtml +="</td><td class=\"jsoneditor-readonly jsoneditor-value\"  id=\"m{0}{1}\">{1}: </td>".format(structname,FieldsVarAttrs.Name);
-    NumStrhtml +='<td contenteditable="true" spellcheck="false" class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter" onkeypress="handleEnter(this,event)" id="{0}{1}">{2}</td></tr>'.format(structname,FieldsVarAttrs.Name,FieldsVarAttrs.Default);
+    NumStrhtml +="</span><span class=\"jsoneditor-readonly jsoneditor-value\"  id=\"m{0}{1}\">{1}: </span>".format(structname,VarAttrs.Name);
+    NumStrhtml +='<span contenteditable="true" spellcheck="false" class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter" onkeypress="handleEnter(this,event)" id="{0}{1}">{2}</span></li>'.format(structname,VarAttrs.Name,VarAttrs.Default);
     return NumStrhtml;
 }
-function listTamplate(structname,listTypeFieldsDict) {
-    var listhtml = "<tr>";
-    listhtml += '<td class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
-    listhtml += '<button onclick="collapsewin(\'{0}{1}\')">^</button>{1}'.format(structname,FieldsVarAttrs.Name);
-    listhtml += '<button id="{0}{1}GoJsonButton" onclick="csvTreeToJsonTree(\'{0}\',\'{1}\')" style="width: 60px;">Json</button>'.format(structname,FieldsVarAttrs.Name);
-    listhtml += "</td>";
-    listhtml += '<td style="display: none">{0}</td>'.format(FieldsVarAttrs.Name);
-    listhtml += '</tr>';
-    listhtml += '<tr id="{0}{1}" style="display: block">'.format(structname,FieldsVarAttrs.Name);
-    listhtml += '<td id="{0}{1}showCsv">'.format(structname,FieldsVarAttrs.Name);
-
+function listTamplate(structname,listTypeFieldsDict,VarAttrs) {
+    var listhtml = "<li>";
+    listhtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
+    listhtml += '<button onclick="collapsewin(\'{0}{1}\')">^</button>{1}'.format(structname,VarAttrs.Name);
+    listhtml += '<button id="{0}{1}GoJsonButton" onclick="csvTreeToJsonTree(\'{0}\',\'{1}\')" style="width: 60px;">Json</button>'.format(structname,VarAttrs.Name);
+    listhtml += "</span>";
+    listhtml += '<span style="display: none">{0}</span>'.format(VarAttrs.Name);
+    listhtml += '</li>';
+    listhtml += '<li id="{0}{1}" style="display: block">'.format(structname,VarAttrs.Name);
+    listhtml += '<span id="{0}{1}showCsv">'.format(structname,VarAttrs.Name);
     //listtable
-    listhtml += '<table style="margin-left: 30px" id="{0}{1}csv">'.format(structname,FieldsVarAttrs.Name);
+    listhtml += '<table style="margin-left: 30px" id="{0}{1}csv">'.format(structname,VarAttrs.Name);
     listhtml += '<tbody>';
     listhtml += '<tr style="display: none">';
     var listheadername = "";
@@ -192,57 +189,58 @@ function listTamplate(structname,listTypeFieldsDict) {
         listhtml += '<td class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter MouseSelectCopy" contenteditable="true" onkeypress="handleEnter(this,event)" spellcheck="false" ></td>'
     listhtml += '</tr>';
     listhtml += '<tr>';
-    listhtml += '<td><button style="width: 75px;" onclick="csvAddrow(\'{0}\',\'{1}\',\'csv\')" >Add</button></td>'.format(structname,FieldsVarAttrs.Name);
+    listhtml += '<td><button style="width: 75px;" onclick="csvAddrow(\'{0}\',\'{1}\',\'csv\')" >Add</button></td>'.format(structname,VarAttrs.Name);
     listhtml += '</tr></tbody></table>';
-    listhtml += "</td>";
-    listhtml += '<td id="{0}{1}showJson"></td>'.format(structname,FieldsVarAttrs.Name);
-    listhtml += '</tr>';
+    listhtml += "</span>";
+    listhtml += '<span id="{0}{1}showJson"></span>'.format(structname,VarAttrs.Name);
+    listhtml += '</li>';
     return listhtml;
 }
-function listRefTemplate(structname) {
-    var listrefhtml ="<tr>";
-    listrefhtml += '<td onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
-    if(FieldsVarAttrs.Requiredness == "required")
-        listrefhtml += '<span style="color: red">*</span> <button onclick="get_Multi_Reference_List(\'{0}\',\'{1}\')" style="width: auto">{1}</button><span  id="{0}{1}tdSelect"></span>'.format(structname,FieldsVarAttrs.Name);
-    listrefhtml +='</td>';
-    listrefhtml +='<td  style="display: none" id="m{0}{1}">{1}</td>'.format(structname,FieldsVarAttrs.Name);
-    listrefhtml +='<td id="{0}{1}REFDATA" style="display: none"></td>'.format(structname,FieldsVarAttrs.Name);
-    listrefhtml +='</tr>';
+function listRefTemplate(structname,VarAttrs) {
+    var listrefhtml ="<li>";
+    listrefhtml += '<span onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
+    if(VarAttrs.Requiredness == "required")
+        listrefhtml += '<span style="color: red">*</span> <button onclick="get_Multi_Reference_List(\'{0}\',\'{1}\')" style="width: auto">{1}</button><span  id="{0}{1}tdSelect"></span>'.format(structname,VarAttrs.Name);
+    listrefhtml +='</span>';
+    listrefhtml +='<span  style="display: none" id="m{0}{1}">{1}</span>'.format(structname,VarAttrs.Name);
+    listrefhtml +='<span id="{0}{1}REFDATA" style="display: none"></span>'.format(structname,VarAttrs.Name);
+    listrefhtml +='</li>';
     return listrefhtml;
 }
 
-function singleRefTemplate(structname) {
-    var srefhtml ='<tr>';
-    srefhtml += '<td onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
-    if(FieldsVarAttrs.Requiredness == 'required')
-            srefhtml +='<span style="color: red">*</span><button onclick="get_Reference_List(\'{0}\',\'{1}\')" style="width: auto">{1}</button><span id="{0}{1}tdSelect"></span>'.format(structname,FieldsVarAttrs.Name);
-    srefhtml += '</td>';
-    srefhtml += '<td style="display: none"  id="m{0}{1}">{1}</td>'.format(structname,FieldsVarAttrs.Name);
-    srefhtml += '<td id="{0}{1}REFDATA" style="display: none"></td>'.format(structname,FieldsVarAttrs.Name);
-    srefhtml += '</tr>';
-    
+function singleRefTemplate(structname,VarAttrs) {
+    var srefhtml ='<li>';
+    srefhtml += '<span onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
+    var jsonVarAttrs = JSON.stringify(VarAttrs);
+    if(VarAttrs.Requiredness == 'required')
+        srefhtml +='<span style="color: red">*</span><span id="{0}singleRefVarAttrs" style="display: none">{1}</span>'.format(structname+VarAttrs.Name,jsonVarAttrs);
+    srefhtml += '<button onclick="get_Reference_List(\'{0}\',\'{1}\')" style="width: auto">{1}</button><span id="{0}{1}tdSelect"></span>'.format(structname,VarAttrs.Name);
+    srefhtml += '</span>';
+    srefhtml += '<span style="display: none"  id="m{0}{1}">{1}</span>'.format(structname,VarAttrs.Name);
+    srefhtml += '<span id="{0}{1}REFDATA" style="display: none"></span>'.format(structname,VarAttrs.Name);
+    srefhtml += '</li>';
     return srefhtml;
 }
 function getDimention(vartype) {
-    var typeSplit=FieldsVarAttrs.Type.split(/&lt;|&gt;|,/);
+    var typeSplit=vartype.split(/&lt;|&gt;|,/);
     if(typeSplit.length == 3)
         return [1,parseInt(typeSplit[1])];
     else
         return [parseInt(typeSplit[1]),parseInt(typeSplit[2])];
 }
-function matrixTemplate(structname) {
+function matrixTemplate(structname,VarAttrs) {
     var mathtml = "";
-    mathtml +="<tr>";
-    var matDim = getDimention(FieldsVarAttrs.Type);
-    if(FieldsVarAttrs.Requiredness == "required")
-        mathtml += '<td class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)"><span style="color: red">*</span>{0} [{1}x{2}]</td>'.format(FieldsVarAttrs.Name,matDim[0],matDim[1]);
+    mathtml +="<li>";
+    var matDim = getDimention(VarAttrs.Type);
+    if(VarAttrs.Requiredness == "required")
+        mathtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)"><span style="color: red">*</span>{0} [{1}x{2}]</span>'.format(VarAttrs.Name,matDim[0],matDim[1]);
     else
-        mathtml += '<td class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{0} [{1}x{2} }}]</td>'.format(FieldsVarAttrs.Name,matDim[0],matDim[1]);
-    mathtml +='<td style="display: none">{0}</td>'.format(FieldsVarAttrs.Name);
-    mathtml +='</tr>';
-    mathtml +='<tr>';
-    mathtml +='<td>';
-    mathtml += '<table border="1" id="{0}{1}matrix" style="margin-left: 30px">'.format(structname,FieldsVarAttrs.Name);
+        mathtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{0} [{1}x{2} }}]</span>'.format(VarAttrs.Name,matDim[0],matDim[1]);
+    mathtml +='<span style="display: none">{0}</span>'.format(VarAttrs.Name);
+    mathtml +='</li>';
+    mathtml +='<li>';
+    mathtml +='<span>';
+    mathtml += '<table border="1" id="{0}{1}matrix" style="margin-left: 30px">'.format(structname,VarAttrs.Name);
     mathtml += '<tbody>';
     for(var i=0;i<matDim[0];i++){
         mathtml += '<tr style="height: 30px;">';
@@ -252,7 +250,7 @@ function matrixTemplate(structname) {
         mathtml += '</tr>';
     }
     mathtml +='<tr style="display: none"><td></td></tr>';
-    mathtml +='</tbody></table></td></tr>';
+    mathtml +='</tbody></table></span></li>';
     return mathtml;
 }
 
