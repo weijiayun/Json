@@ -6,7 +6,7 @@ var app = {
 };
 var PreloadFuncDict = {
     "MouseSelectCopyorPaste":function () {
-        $(".MouseSelectCopy").mousedown(OnMouseDown);
+        $(".MouseSelectCopy").mousedown(OnMouseDown(this));
         CopyAndPaste();
     },
     "InputCheck":function () {
@@ -72,6 +72,16 @@ function TypeUnitTemplate(structname){
     typehtml += "</tbody></table>";
     return typehtml;
 }
+function get_chekbox_value(checkboxid,showcheckid) {
+    if(document.getElementById(checkboxid).checked){
+        document.getElementById(showcheckid).innerHTML= 'true';
+        document.getElementById(showcheckid+"boolval").innerHTML= 'true';
+    }
+    else {
+        document.getElementById(showcheckid).innerHTML= 'false';
+        document.getElementById(showcheckid+"boolval").innerHTML= 'false';
+    }
+}
 function boolTemplate(structname) {
     var boolhtml = "";
     boolhtml += "<tr id=\"{0}{1}bool\" style=\"display: block\"><td>".format(structname,FieldsVarAttrs.Name);
@@ -79,11 +89,12 @@ function boolTemplate(structname) {
             boolhtml +='<span style="color: red">*</span></td>';
     boolhtml +='<td class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{0}</td>'.format(FieldsVarAttrs.Name);
     boolhtml +='<td class="jsoneditor-tree">';
-    boolhtml +='<input type="checkbox" value="0" id="m{0}{1}" onclick="get_chekbox_value(\'m{0}{1}\',\'{0}{1}\')\"/> ';
+    boolhtml +='<input type="checkbox" value="0" id="m{0}{1}" onclick="get_chekbox_value(\'m{0}{1}\',\'{0}{1}\')\"/>'.format(structname,FieldsVarAttrs.Name);
     boolhtml +='<span style="color: deepskyblue" id="{0}{1}">{2}</span></td>'.format(structname,FieldsVarAttrs.Name,FieldsVarAttrs.Default);
     boolhtml +='<td style="display: none" id="{0}{1}boolval">{2}</td></tr>'.format(structname,FieldsVarAttrs.name,FieldsVarAttrs.Default);
     return boolhtml;
 }
+
 function enumTemplate(structname,enumlist) {
     var enumhtml = "";
     enumhtml = '<tr id="{0}">'.format(structname+FieldsVarAttrs.Name);
@@ -97,11 +108,17 @@ function enumTemplate(structname,enumlist) {
     enumhtml +="<ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">";
     for(var i in enumlist){
         enumhtml += "<li role=\"presentation\">";
-        enumhtml += '<a role="menuitem" tabindex="-1" onmouseover="shadowover(this)" onmouseout="shadowout(this)" onclick="returnval(\'{0}{1}\',this)" name="{2}">{2}</a>'.format(structname,FieldsVarAttrs.Name,enumlist[i]);
+        enumhtml += '<a role="menuitem" tabindex="-1" onmouseover="shadowover(this)" onmouseout="shadowout(this)" onclick="get_select_value(\'{0}\',this)" name="{1}">{1}</a>'.format(structname+FieldsVarAttrs.Name,enumlist[i]);
         enumhtml += "</li>"
     }
     enumhtml += "</ul></span></td><td id=\"m{0}{1}\" style=\"display: none\">{1}</td></tr>".format(structname,FieldsVarAttrs.Name);
     return enumhtml;
+}
+function get_select_value(ID,obj){
+    var id1 = "{0}enumSelect".format(ID);
+    var id2 = "{0}buttonValue".format(ID);
+    document.getElementById(id1).value = obj.name;
+    document.getElementById(id2).innerHTML = obj.name;
 }
 function get_TypesSelect_Result(id,obj) {
     $("#{0}".format(id)).get(0).innerHTML=obj.name;
@@ -193,6 +210,7 @@ function listRefTemplate(structname) {
     listrefhtml +='</tr>';
     return listrefhtml;
 }
+
 function singleRefTemplate(structname) {
     var srefhtml ='<tr>';
     srefhtml += '<td onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
@@ -202,6 +220,7 @@ function singleRefTemplate(structname) {
     srefhtml += '<td style="display: none"  id="m{0}{1}">{1}</td>'.format(structname,FieldsVarAttrs.Name);
     srefhtml += '<td id="{0}{1}REFDATA" style="display: none"></td>'.format(structname,FieldsVarAttrs.Name);
     srefhtml += '</tr>';
+    
     return srefhtml;
 }
 function getDimention(vartype) {
@@ -228,7 +247,7 @@ function matrixTemplate(structname) {
     for(var i=0;i<matDim[0];i++){
         mathtml += '<tr style="height: 30px;">';
         for(var j=0;j<matDim[1];j++){
-            mathtml += '<td class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter MouseSelectCopy" onkeypress="handleEnter(this,event)"  contenteditable="true" spellcheck="false" ></td>'
+            mathtml += '<td class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter" onkeypress="handleEnter(this,event)"  contenteditable="true" spellcheck="false" ></td>'
         }
         mathtml += '</tr>';
     }
@@ -236,6 +255,4 @@ function matrixTemplate(structname) {
     mathtml +='</tbody></table></td></tr>';
     return mathtml;
 }
-function selectTemplate() {
 
-}

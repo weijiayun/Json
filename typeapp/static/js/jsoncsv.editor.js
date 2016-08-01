@@ -2,7 +2,12 @@
 //     $('.handleEnter').keypress(function (event) {handleEnter(this,event)});
 //     $('.jsoneditor-number').blur(function(){NumberChecktips(this)});
 // });
-
+function returnval(ID,obj){
+    var id1 = "{0}refSelect".format(ID);
+    var id2 = "{0}buttonValue".format(ID);
+    document.getElementById(id1).value = obj.name;
+    document.getElementById(id2).innerHTML = obj.name;
+}
 function JsonFormatConvt(strNum) {
     var doubleTest = /^-*\d+.\d+$/i;
     var intTest = /^-*\d+$/i;
@@ -31,16 +36,6 @@ function randomColor() {
     return colorBoard[id];
 }
 
-function get_chekbox_value(checkboxid,showcheckid) {
-    if(document.getElementById(checkboxid).checked){
-        document.getElementById(showcheckid).innerHTML= 'true';
-        document.getElementById(showcheckid+"boolval").innerHTML= 'true';
-    }
-    else {
-        document.getElementById(showcheckid).innerHTML= 'false';
-        document.getElementById(showcheckid+"boolval").innerHTML= 'false';
-    }
-}
 
 function shadowover(x) {
     x.style.backgroundColor = "gray";
@@ -63,36 +58,7 @@ function collapsewin(parentid) {
         disp.display = "none";
 }
 
-function get0bj(cnt) {
-    var selectValue = document.getElementById(cnt+"typeselect").value;
-    var structvalue = document.getElementById(selectValue+"jsoncodeid").innerHTML;
-    var jsonobj = JSON.parse(structvalue);
-    var structname = jsonobj[0];
-    var memberlist = jsonobj[1];
-    newjsoncode=Object();
-    for(var i=0;i<memberlist.length;i++) {
-        if (memberlist[i] == "Type")
-            newjsoncode[memberlist[i]] = structname;
-        else {
-            var tempvalue = document.getElementById(cnt + structname + memberlist[i]).innerHTML;
-            newjsoncode[memberlist[i]] = JsonFormatConvt(tempvalue);
-        }
-    }
-    return [newjsoncode,JSON.stringify(newjsoncode)];
-}
 
-
-function showJson(cnt,showjsonid){
-    var DictAndJson = get0bj(cnt);
-    var result =DictAndJson[0];
-    var html = '<table class="jsoneditor-value">';
-    for(var x in result){
-        html += '<tr class="jsoneditor-tree"><td class="jsoneditor-tree"><div class="jsoneditor-readonly" style="margin-left: 24px">' + x+' = '+'<span style="color: coral">'+result[x]+'</span>'+ '</div></td></tr>';
-    }
-    html += '</table>';
-    html += '<p class="jsoneditor-readonly" style="width: 460px">'+DictAndJson[1]+'</p>';
-    document.getElementById(showjsonid).innerHTML = html;
-}
 function selectshow(SelectElemId){
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
     var jsonDict = JSON.parse(JSONDICT);
@@ -183,13 +149,6 @@ function delrow(obj) {
     tb.deleteRow(rowIndex);
 }
 
-function showButtonOver(obj) {
-    obj.lastChild.firstChild.style.display="block";
-}
-
-function showButtonOut(obj) {
-    obj.lastChild.firstChild.style.display="none";
-}
 function csvAddrow(structName,varName,idSufix) {
     var tableId = structName+varName+idSufix;
     var tb = document.getElementById(tableId);
@@ -457,14 +416,11 @@ function ajaxLog(s) {
     alert(s)
 }
 
-function returnval(ID,obj){
-    $("#{0}refSelect".format(ID)).get(0).value=obj.name;
-    $("#{0}buttonValue".format(ID)).get(0).innerHTML=obj.name;
-}
 function get_Reference_List(structName,varName) {
     var refFeedback = $.ajax("/reference/market", {
         dataType: 'json'
     }).done(function (data) {
+        alert(JSON.stringify(data))
         var html = "<span class='dropdown'>";
         html += "<button type='button' class='btn dropdown-toggle btn-large btn-primary' id='{0}' data-toggle='dropdown'>".format(structName+varName+"refSelect");
         html += "<span id='{0}'>{1}</span>".format(structName+varName+"buttonValue",varName);
@@ -472,7 +428,7 @@ function get_Reference_List(structName,varName) {
         html +="<ul class='dropdown-menu' role='menu' aria-labelledby='dropdownMenu1'>";
         for(var e in data){
             html +="<li role='presentation'>";
-            html +="<a role='menuitem' tabindex='-1' onmouseover='shadowover(this)' onmouseout='shadowout(this)' onclick='returnval(\"{0}\",this)' name='{1}'>{1}</a></li>".format(structName+varName,data[e]);
+            html +="<a role='menuitem' tabindex='-1' onmouseover='shadowover(this)' onmouseout='shadowout(this)' onclick='returnval(\"{0}\",this)' name='{1}'>{1}</a></li>".format(structName+varName,e);
         }
         html +="</ul></span>";
         document.getElementById(structName+varName+"tdSelect").innerHTML = html;
@@ -480,25 +436,13 @@ function get_Reference_List(structName,varName) {
         ajaxLog("失败: "+xhr.status+'\n原因: '+status);
     });
 }
-function SelectItemsShow(field){
-        $(field).tips({
-            side:2,  //1,2,3,4 分别代表 上右下左
-            msg:"sdfsdf",//tips的文本内容
-            color:'',//文字颜色，默认为白色
-            bg:'#00A1CB',//背景色，默认为红色
-            time:0,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
-            x:0,// 默认为0 横向偏移 正数向右偏移 负数向左偏移
-            y:0 // 默认为0 纵向偏移 正数向下偏移 负数向上偏移
-        });
-}
-
 function get_Multi_Reference_List(structName,varName) {
     var refFeedback = $.ajax("/reference/market", {
         dataType: 'json'
     }).done(function (data) {
         var html = "<select id='{0}' class='selectResult' multiple='multiple' size='5'>".format(structName+varName+"refSelect");
         for(var e in data){
-            html += "<option value='{0}'>{0}</option>".format(data[e]);
+            html += "<option value='{0}'>{0}</option>".format(e);
         }
         html +="</select>";
         document.getElementById(structName+varName+"tdSelect").innerHTML = html;
@@ -552,11 +496,12 @@ function handleEnter(field,event) {
     var rowLength = field.parentNode.parentNode.children.length;
     var tb = field.parentNode.parentNode.parentNode;
     var texta = "";
+
     if (keyCode == 13 || keyCode == 40) {
         if (rowIndex < rowLength - 2){
-            var pre =tb.rows[rowIndex].cells.length;
-            var next = tb.rows[rowIndex+1].cells.length;
-            if(pre>next)
+            var downpre =tb.rows[rowIndex].cells.length;
+            var downnext = tb.rows[rowIndex+1].cells.length;
+            if(downpre>downnext)
                 colIndex -=1;
             rowIndex += 1;
         }
@@ -565,8 +510,15 @@ function handleEnter(field,event) {
         field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
     }
     else if (keyCode == 38) {
-        if (rowIndex > 0 && field.parentNode.parentNode.children[rowIndex - 1].tagName != "TH")
+        if (rowIndex > 0 && field.parentNode.parentNode.children[rowIndex - 1].tagName != "TH"){
+            var uppre =tb.rows[rowIndex].cells.length;
+            var upnext = tb.rows[rowIndex-1].cells.length;
+            if(upnext>uppre)
+                colIndex +=1;
             rowIndex -= 1;
+
+        }
+
         texta = field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
         field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML = texta.replace(new RegExp("\\<br\\>", "g"), "");
         field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();

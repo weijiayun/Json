@@ -1,60 +1,20 @@
-
-<!DOCTYPE html>
 <html>
 <head>
-   <title>Bootstrap Dropdowns</title>
-   <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../static/css/jquery.webui-popover.min.css" rel="stylesheet">
-   <script src="../static/js/jquery.min.js"></script>
-   <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<title>我的测试文件</title>
 
-    <style>
-        .noenther{
-            width: 50px;
-            height: 40px;
-            background-color: #00a1cb;
-            word-break: keep-all;
-        }
-    </style>
+<meta http-equiv="content-Type" content="text/html;charset=UTF-8"/>
+
+<script type="text/javascript">
+
+var x=document.getElementById("myHeader");
+
+alert(x.innerHTML);
+
+</script>
 </head>
 <body>
-  <script>
-     $('.noenther').ke(function () {
-         var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
-         if (keyCode == 13) {
-             var colIndex = this.cellIndex;
-             var rowIndex = this.parentNode.rowIndex;
-             this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].focus();
-             var texta = this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].innerHTML;
-             this.parentNode.parentNode.parentNode.rows[rowIndex + 1].cells[colIndex].innerHTML = texta.replace(new RegExp("\\<br\\>", "g"), "");
-         }
-         else
-             return true;
-     });
-    </script>
-<table border="2px">
-    <tbody>
-    <tr>
-        <td contenteditable="true" class="noenther handleEnter"></td>
-        <td contenteditable="true" class="noenther handleEnter"></td>
-        <td contenteditable="true" class="noenther handleEnter"></td>
-    </tr>
-        <tr>
-            <td contenteditable="true" class="noenther handleEnter"></td>
-            <td contenteditable="true" class="noenther handleEnter"></td>
-            <td contenteditable="true" class="noenther handleEnter"></td>
-    </tr>
-        <tr>
-            <td contenteditable="true" class="noenther handleEnter"></td>
-            <td contenteditable="true" class="noenther handleEnter"></td>
-            <td contenteditable="true" class="noenther handleEnter"></td>
-        </tr>
-    </tbody>
-</table>
-<form>
-
-
-
-
+<h1 id="myHeader" onclick="getValue()">这是标题</h1>
+<p>点击标题，会提示出它的值。</p>
 </body>
+
 </html>

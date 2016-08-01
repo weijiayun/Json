@@ -10,7 +10,7 @@ var MouseSelect = {
     "stposX":0,
     "stposY":0
 };
-$(".MouseSelectCopy").mousedown(OnMouseDown);
+//$(".MouseSelectCopy").mousedown(OnMouseDown);
 function OnMouseDown(field) {
     MouseSelect.log = [];
     var tr = field.parentNode;
