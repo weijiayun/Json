@@ -59,7 +59,7 @@ function TypeUnitTemplate(structname){
             else if(FieldsVarAttrs.Type == "bool")
                 typehtml += boolTemplate(structname,FieldsVarAttrs);
             else if(FieldsVarAttrs.Type.match("list&lt;"))
-                typehtml += listTamplate(structname,StrategyDict[FieldsVarAttrs.Type.split(/&lt;|&gt;/g)[1]].Fields,FieldsVarAttrs);
+                typehtml += listTamplate(structname,StrategyDict[FieldsVarAttrs.Type.split(/&lt;|&gt;/g)[1]].Fields,FieldsVarAttrs,false,structname);
         }
         else {
             if(FieldsVarAttrs.Type.match("list&lt;"))
@@ -155,11 +155,11 @@ function NumberandStringTemplate(structname,VarAttrs) {
     NumStrhtml +='<span contenteditable="true" spellcheck="false" class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter" onkeypress="handleEnter(this,event)" id="{0}{1}">{2}</span></li>'.format(structname,VarAttrs.Name,VarAttrs.Default);
     return NumStrhtml;
 }
-function listTamplate(structname,listTypeFieldsDict,VarAttrs) {
+function listTamplate(structname,listTypeFieldsDict,VarAttrs,IsReference,preStructName) {
     var listhtml = "<li>";
     listhtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
     listhtml += '<button onclick="collapsewin(\'{0}{1}\')">^</button>{1}'.format(structname,VarAttrs.Name);
-    listhtml += '<button id="{0}{1}GoJsonButton" onclick="csvTreeToJsonTree(\'{0}\',\'{1}\')" style="width: 60px;">Json</button>'.format(structname,VarAttrs.Name);
+    listhtml += '<button id="{0}{1}GoJsonButton" onclick="csvTreeToJsonTree(\'{0}\',\'{1}\',\{2\},\'{3}\')" style="width: 60px;">Json</button>'.format(structname,VarAttrs.Name,IsReference,preStructName);
     listhtml += "</span>";
     listhtml += '<span style="display: none">{0}</span>'.format(VarAttrs.Name);
     listhtml += '</li>';

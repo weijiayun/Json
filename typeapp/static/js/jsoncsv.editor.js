@@ -256,15 +256,18 @@ function treeToCode(SelectElemId) {
     }
     alert(JSON.stringify(Jsoncode));
 }
-function csvTreeToJsonTree(StructName,varName) {
+function csvTreeToJsonTree(StructName,varName,IsReference,preStructName) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
     var jsonDict = {};
-    if(CombineReferenceData.hasOwnProperty(StructName+varName))
-        jsonDict =  CombineReferenceData[StructName+varName];
+    var cols = {};
+    if(IsReference){
+        jsonDict =  CombineReferenceData[preStructName+varName];
+        cols = jsonDict[StructName]["Fields"];
+    }
     else{
         jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
         var varType = jsonDict[StructName]["Fields"][varName]["Type"];
-        var cols = jsonDict[varType.slice(8,-4)]["Fields"];
+        cols = jsonDict[varType.slice(8,-4)]["Fields"];
     }
     var listTbl = document.getElementById(StructName+varName+"csv");
     var listDict = {};
@@ -297,20 +300,27 @@ function csvTreeToJsonTree(StructName,varName) {
             html += "</tr>";
         }
     }
-    html +="<tr><td style='width: 60px'><button onclick='jsonAdd(\"{0}\",\"{1}\")' style='width: 30px'>+</button></tr></td>".format(StructName,varName);
+    html +="<tr><td style='width: 60px'><button onclick='jsonAdd(\"{0}\",\"{1}\",\{2\},\"{3}\")' style='width: 30px'>+</button></tr></td>".format(StructName,varName,IsReference,preStructName);
     html += "</table>";
     document.getElementById(StructName+varName+"showJson").innerHTML = html;
     document.getElementById(StructName+varName+"showCsv").style.display = "none";
     $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).innerHTML="Csv";
-    $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).setAttribute("onclick","jsonTreeToCsvTree(\"\{0\}\",\"\{1\}\")".format(StructName,varName))
+    $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).setAttribute("onclick","jsonTreeToCsvTree(\"\{0\}\",\"\{1\}\",\{2\},\"{3}\")".format(StructName,varName,IsReference,preStructName));
 }
 
-function jsonTreeToCsvTree(StructName,varName) {
+function jsonTreeToCsvTree(StructName,varName,IsReference,preStructName) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
-    var jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
-    var listTbl = document.getElementById(StructName+varName+"csv");
-    var varType = jsonDict[StructName]["Fields"][varName]["Type"];
-    var cols = jsonDict[varType.slice(8,-4)]["Fields"];
+    var jsonDict = {};
+    var cols = {};
+    if(IsReference){
+        jsonDict =  CombineReferenceData[preStructName+varName];
+        cols = jsonDict[StructName]["Fields"];
+    }
+    else{
+        jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
+        var varType = jsonDict[StructName]["Fields"][varName]["Type"];
+        cols = jsonDict[varType.slice(8,-4)]["Fields"];
+    }
     var tb1 = document.getElementById(StructName+varName+"jsontree");
     var listArray = [];
     var colLen = getPropertyCount(cols);
@@ -321,7 +331,6 @@ function jsonTreeToCsvTree(StructName,varName) {
             listArray.push(tb1.rows[i1].cells[1].innerHTML);
     }
     var tb2 = document.getElementById(StructName+varName+"csv");
-
     var rowLen = listArray.length/colLen;
     var p=tb2.rows.length;
     while(tb2.rows.length>3){
@@ -351,20 +360,27 @@ function jsonTreeToCsvTree(StructName,varName) {
         }
         var collast=row.insertCell(colLen);
         collast.innerHTML='<button  onclick="delrow(this)" style="width: 75px;display: none" >Delete</button>';
-
     }
     document.getElementById(StructName+varName+"showCsv").style.display = "block";
     document.getElementById(StructName+varName+"jsontree").style.display = "none";
     $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).innerHTML="Json";
-    $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).setAttribute("onclick","csvTreeToJsonTree(\"\{0\}\",\"\{1\}\")".format(StructName,varName))
+    $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).setAttribute("onclick","csvTreeToJsonTree(\"\{0\}\",\"\{1\}\",\{2\},\"{3}\")".format(StructName,varName,IsReference,preStructName))
 }
 
-function jsonAdd(StructName,varName) {
+function jsonAdd(StructName,varName,IsReference,preStructName) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
-    var jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
+    var jsonDict = {};
+    var cols = {};
+    if(IsReference){
+        jsonDict =  CombineReferenceData[preStructName+varName];
+        cols = jsonDict[StructName]["Fields"];
+    }
+    else{
+        jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
+        var varType = jsonDict[StructName]["Fields"][varName]["Type"];
+        cols = jsonDict[varType.slice(8,-4)]["Fields"];
+    }
     var listTbl = document.getElementById(StructName+varName+"csv");
-    var varType = jsonDict[StructName]["Fields"][varName]["Type"];
-    var cols = jsonDict[varType.slice(8,-4)]["Fields"];
     var tb = document.getElementById(StructName+varName+"jsontree");
     var bkgcolor = randomColor();
     var spanFlag = true;
@@ -389,7 +405,6 @@ function jsonAdd(StructName,varName) {
                 col1.innerHTML = "<span style='color: red'>*</span>"+colelem+": ";
             else
                 col1.innerHTML = colelem+": ";
-
             col2=row.insertCell(1);
         }
         col2.setAttribute("className","jsoneditor-number jsoneditor-value MouseSelectCopy");
@@ -450,7 +465,7 @@ function expandSelectRefernce(structName,varName,obj) {
     var SelectedRefDict = CombineReferenceData[structName+varName][obj.name]["Fields"];
     var localli = $("#{0}".format(structName+varName+"REFDATA")).parent();
     var VarAttrs = JSON.parse( $("#{0}singleRefVarAttrs".format(structName+varName)).get(0).innerHTML);
-    var afterli = localli.after(listTamplate(obj.name,SelectedRefDict,VarAttrs));
+    var afterli = localli.after(listTamplate(obj.name,SelectedRefDict,VarAttrs,true,structName));
     afterli.attr("class","jsoneditor-ref")
 }
 function get_Multi_Reference_List(structName,varName) {
@@ -487,9 +502,7 @@ function onlyNumberBeforePaste(field) {
             x:0,// 默认为0 横向偏移 正数向右偏移 负数向左偏移
             y:0 // 默认为0 纵向偏移 正数向下偏移 负数向上偏移
         });
-
     }
-
 }
 function onlyNumberAfterPress(field) {
     if (/[^0-9\.]/.test(field.innerHTML)){
