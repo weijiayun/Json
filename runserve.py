@@ -6,5 +6,4 @@ from typeapp import app
 def run():
     app.debug = True
     app.run()
-
 run()

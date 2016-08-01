@@ -288,7 +288,7 @@ function csvTreeToJsonTree(StructName,varName,IsReference,preStructName) {
         for (var e in listDict) {
             html += "<tr style='border-radius: 2px;background-color: \{0\}'>".format(bkgcolor);
             if(spanFlag){
-                html += "<td rowspan='\{0\}\'><button onclick='jsondel(\"{1}\",\"{2}\",this)' style='width: 30px'>-</button></td>".format(getPropertyCount(listDict),StructName,varName);
+                html += "<td rowspan='\{0\}\'><button onclick='jsondel(\"{1}\",\"{2}\",this,\{3\},\"{4}\")' style='width: 30px'>-</button></td>".format(getPropertyCount(listDict),StructName,varName,IsReference,preStructName);
                 spanFlag=false
             }
             if(cols[e]["Requiredness"] == "required")
@@ -419,11 +419,19 @@ function jsonAdd(StructName,varName,IsReference,preStructName) {
         row.style.borderRadius="5px";
     }
 }
-function jsondel(StructName,varName,field) {
+function jsondel(StructName,varName,field,IsReference,preStructName) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
-    var jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
-    var varType = jsonDict[StructName]["Fields"][varName]["Type"];
-    var cols = jsonDict[varType.slice(8,-4)]["Fields"];
+    var jsonDict = {};
+    var cols = {};
+    if(IsReference){
+        jsonDict =  CombineReferenceData[preStructName+varName];
+        cols = jsonDict[StructName]["Fields"];
+    }
+    else{
+        jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
+        var varType = jsonDict[StructName]["Fields"][varName]["Type"];
+        cols = jsonDict[varType.slice(8,-4)]["Fields"];
+    }
     var tb = document.getElementById(StructName+varName+"jsontree");
     var colLen = getPropertyCount(cols);
     var rowIndex = field.parentNode.parentNode.rowIndex;
