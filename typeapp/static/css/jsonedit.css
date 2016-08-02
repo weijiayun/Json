@@ -28,11 +28,11 @@ ul li{
 	padding: 3px;
 	margin: 2px;
 	font-size: 16px;
-	font-family: "droid sans mono,consolas,monospace,courier new,courier,sans-serif";
+
 }
 li.jsoneditor-value .jsoneditor-number{
 	text-align: center;
-	columns:#800080;
+	color: purple;
 }
 button {
 	min-height: 30px;

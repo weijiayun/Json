@@ -29,7 +29,10 @@ INPUTOBJECT = {
                 "IsAuto": False,
                 "IsFixed": False,
                 "Default": None,
-                "Reference": None
+                "Reference": None,
+                "DimensionX":None,
+                "DimensionY":None,
+                "Function":None
             },
             "Ranges": {
                 "Type": "list<TradingRange>",

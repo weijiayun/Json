@@ -25,7 +25,7 @@ function TypesTemplate() {
     var html = "";
     html += '<div class="jsoneditor jsoneditor-mode-tree">';
     html +='<div class="jsoneditor-tree">';
-    html += '<ul id="oTable" width="100%">';
+    html += '<ul id="oTable" >';
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
     html += "<li><span>{0}</span></li>".format(SelectTypeTemplate(StrategyList));
     for(var i in StrategyList){
@@ -156,17 +156,28 @@ function NumberandStringTemplate(structname,VarAttrs) {
     return NumStrhtml;
 }
 function listTamplate(structname,listTypeFieldsDict,VarAttrs,IsReference,preStructName) {
+    var struct = "";
+    var name = "";
+    if(IsReference){
+        struct = preStructName;
+        name = structname;
+        preStructName=VarAttrs.Name;
+    }
+    else {
+        struct = structname;
+        name = VarAttrs.Name;
+    }
     var listhtml = "<li>";
     listhtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
-    listhtml += '<button onclick="collapsewin(\'{0}{1}\')">^</button>{1}'.format(structname,VarAttrs.Name);
-    listhtml += '<button id="{0}{1}GoJsonButton" onclick="csvTreeToJsonTree(\'{0}\',\'{1}\',\{2\},\'{3}\')" style="width: 60px;">Json</button>'.format(structname,VarAttrs.Name,IsReference,preStructName);
+    listhtml += '<button onclick="collapsewin(\'{0}{1}\')">^</button>{1}'.format(struct,name);
+    listhtml += '<button id="{0}{1}GoJsonButton" onclick="csvTreeToJsonTree(\'{0}\',\'{1}\',\{2\},\'{3}\')" style="width: 60px;">Json</button>'.format(struct,name,IsReference,preStructName);
     listhtml += "</span>";
-    listhtml += '<span style="display: none">{0}</span>'.format(VarAttrs.Name);
+    listhtml += '<span style="display: none">{0}</span>'.format(name);
     listhtml += '</li>';
-    listhtml += '<li id="{0}{1}" style="display: block">'.format(structname,VarAttrs.Name);
-    listhtml += '<span id="{0}{1}showCsv">'.format(structname,VarAttrs.Name);
+    listhtml += '<li id="{0}{1}" style="display: block">'.format(struct,name);
+    listhtml += '<span id="{0}{1}showCsv">'.format(struct,name);
     //listtable
-    listhtml += '<table style="margin-left: 30px" id="{0}{1}csv">'.format(structname,VarAttrs.Name);
+    listhtml += '<table style="margin-left: 30px" id="{0}{1}csv">'.format(struct,name);
     listhtml += '<tbody>';
     listhtml += '<tr style="display: none">';
     var listheadername = "";
@@ -189,10 +200,10 @@ function listTamplate(structname,listTypeFieldsDict,VarAttrs,IsReference,preStru
         listhtml += '<td class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter MouseSelectCopy" contenteditable="true" onkeypress="handleEnter(this,event)" spellcheck="false" ></td>'
     listhtml += '</tr>';
     listhtml += '<tr>';
-    listhtml += '<td><button style="width: 75px;" onclick="csvAddrow(\'{0}\',\'{1}\',\'csv\')" >Add</button></td>'.format(structname,VarAttrs.Name);
+    listhtml += '<td><button style="width: 75px;" onclick="csvAddrow(\'{0}\',\'{1}\',\'csv\')" >Add</button></td>'.format(struct,name);
     listhtml += '</tr></tbody></table>';
     listhtml += "</span>";
-    listhtml += '<span id="{0}{1}showJson"></span>'.format(structname,VarAttrs.Name);
+    listhtml += '<span id="{0}{1}showJson"></span>'.format(struct,name);
     listhtml += '</li>';
     return listhtml;
 }
@@ -200,7 +211,9 @@ function listRefTemplate(structname,VarAttrs) {
     var listrefhtml ="<li>";
     listrefhtml += '<span onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
     if(VarAttrs.Requiredness == "required")
-        listrefhtml += '<span style="color: red">*</span> <button onclick="get_Multi_Reference_List(\'{0}\',\'{1}\')" style="width: auto">{1}</button><span  id="{0}{1}tdSelect"></span>'.format(structname,VarAttrs.Name);
+        listrefhtml += '<span style="color: red">*</span>';
+    var jsonVarAttrs = JSON.stringify(VarAttrs);
+    listrefhtml += '<span id="{0}{1}singleRefVarAttrs" style="display: none">{2}</span><button onclick="get_Multi_Reference_List(\'{0}\',\'{1}\')" style="width: auto">{1}</button><span id="{0}{1}tdSelect"></span>'.format(structname,VarAttrs.Name,jsonVarAttrs);
     listrefhtml +='</span>';
     listrefhtml +='<span  style="display: none" id="m{0}{1}">{1}</span>'.format(structname,VarAttrs.Name);
     listrefhtml +='<span id="{0}{1}REFDATA" style="display: none"></span>'.format(structname,VarAttrs.Name);

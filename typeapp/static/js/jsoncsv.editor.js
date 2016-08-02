@@ -261,8 +261,8 @@ function csvTreeToJsonTree(StructName,varName,IsReference,preStructName) {
     var jsonDict = {};
     var cols = {};
     if(IsReference){
-        jsonDict =  CombineReferenceData[preStructName+varName];
-        cols = jsonDict[StructName]["Fields"];
+        jsonDict =  CombineReferenceData[StructName+preStructName];
+        cols = jsonDict[varName]["Fields"];
     }
     else{
         jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
@@ -313,8 +313,8 @@ function jsonTreeToCsvTree(StructName,varName,IsReference,preStructName) {
     var jsonDict = {};
     var cols = {};
     if(IsReference){
-        jsonDict =  CombineReferenceData[preStructName+varName];
-        cols = jsonDict[StructName]["Fields"];
+        jsonDict =  CombineReferenceData[StructName+preStructName];
+        cols = jsonDict[varName]["Fields"];
     }
     else{
         jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
@@ -372,8 +372,8 @@ function jsonAdd(StructName,varName,IsReference,preStructName) {
     var jsonDict = {};
     var cols = {};
     if(IsReference){
-        jsonDict =  CombineReferenceData[preStructName+varName];
-        cols = jsonDict[StructName]["Fields"];
+        jsonDict =  CombineReferenceData[StructName+preStructName];
+        cols = jsonDict[varName]["Fields"];
     }
     else{
         jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
@@ -424,8 +424,8 @@ function jsondel(StructName,varName,field,IsReference,preStructName) {
     var jsonDict = {};
     var cols = {};
     if(IsReference){
-        jsonDict =  CombineReferenceData[preStructName+varName];
-        cols = jsonDict[StructName]["Fields"];
+        jsonDict =  CombineReferenceData[StructName+preStructName];
+        cols = jsonDict[varName]["Fields"];
     }
     else{
         jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
@@ -457,7 +457,7 @@ function get_Reference_List(structName,varName) {
         html +="<ul class='dropdown-menu' role='menu' aria-labelledby='dropdownMenu1'>";
         for(var e in CombineReferenceData[structName+varName]){
             html +="<li role='presentation'>";
-            html +="<a role='menuitem' tabindex='-1' onmouseover='shadowover(this)' onmouseout='shadowout(this)' onclick='expandSelectRefernce(\"{0}\",\"{1}\",this)' name='{2}'>{2}</a></li>".format(structName,varName,e);
+            html +="<a role='menuitem' tabindex='-1' onmouseover='shadowover(this)' onmouseout='shadowout(this)' onclick='expandSelectRefernce(\"{0}\",\"{1}\",this,true)' name='{2}'>{2}</a></li>".format(structName,varName,e);
         }
         html +="</ul></span>";
         document.getElementById(structName+varName+"tdSelect").innerHTML = html;
@@ -465,23 +465,55 @@ function get_Reference_List(structName,varName) {
         ajaxLog("失败: "+xhr.status+'\n原因: '+status);
     });
 }
-function expandSelectRefernce(structName,varName,obj) {
-    var id1 = "{0}{1}refSelect".format(structName,varName);
-    var id2 = "{0}{1}buttonValue".format(structName,varName);
-    document.getElementById(id1).value = obj.name;
-    document.getElementById(id2).innerHTML = obj.name;
-    var SelectedRefDict = CombineReferenceData[structName+varName][obj.name]["Fields"];
+function expandSelectRefernce(structName,varName,obj,IsSingleRef) {
     var localli = $("#{0}".format(structName+varName+"REFDATA")).parent();
+    var tag = "";
+    var SelectedRefDict = {};
     var VarAttrs = JSON.parse( $("#{0}singleRefVarAttrs".format(structName+varName)).get(0).innerHTML);
-    var afterli = localli.after(listTamplate(obj.name,SelectedRefDict,VarAttrs,true,structName));
-    afterli.attr("class","jsoneditor-ref")
+    if(IsSingleRef){
+        SelectedRefDict = CombineReferenceData[structName+varName][obj.name]["Fields"];
+        var id1 = "{0}{1}refSelect".format(structName,varName);
+        var id2 = "{0}{1}buttonValue".format(structName,varName);
+        document.getElementById(id1).value = obj.name;
+        document.getElementById(id2).innerHTML = obj.name;
+        if(localli.next().get(0)) {
+            tag = localli.next().get(0).childNodes[0].tagName;
+            if(tag == "UL")
+                localli.next().remove();
+        }
+        localli.after("<li><ul>"+listTamplate(obj.name,SelectedRefDict,VarAttrs,true,structName)+"</ul></li>");
+    }
+    else {
+        if(localli.next().get(0)) {
+            tag = localli.next().get(0).childNodes[0].tagName;
+            alert(tag);
+            if(tag == "UL")
+                localli.next().remove();
+        }
+        var multivalue = $("#{0}{1}refSelect".format(structName,varName)).multiselect("MyValues").split(",").slice(0);
+        var StructDict = CombineReferenceData[structName+varName];
+        if(multivalue[0]!=""){
+            var multihtml = "<li><ul>";
+            for(var i=0;i<multivalue.length;i++){
+                SelectedRefDict=StructDict["FeedcodeMaxQty1"];
+                multihtml += listTamplate(multivalue[i],SelectedRefDict["Fields"],VarAttrs,true,structName);
+            }
+            multihtml += "</ul></li>";
+            localli.after(multihtml);
+        }
+    }
+    return null;
+    // localli.parent().children().eq(localli.index()+2).attr("class","jsoneditor-ref");
+    // localli.parent().children().eq(localli.index()+1).attr("class","jsoneditor-ref");
 }
 function get_Multi_Reference_List(structName,varName) {
     var refFeedback = $.ajax("/reference/market", {
         dataType: 'json'
     }).done(function (data) {
-        var html = "<select id='{0}' class='selectResult' multiple='multiple' size='5'>".format(structName+varName+"refSelect");
-        for(var e in data){
+        CombineReferenceData["BASEREFERENCE"]=JSON.parse($("#JsonDict").html());
+        CombineReferenceData[structName+varName]=$.extend({},data,CombineReferenceData.BASEREFERENCE["REFERENCES"]);
+        var html = "<select id='{0}{1}refSelect' class='selectResult' multiple='multiple' size='5' onclick='expandSelectRefernce(\"{0}\",\"{1}\",this,false)'>".format(structName,varName);
+        for(var e in CombineReferenceData[structName+varName]){
             html += "<option value='{0}'>{0}</option>".format(e);
         }
         html +="</select>";
@@ -556,7 +588,6 @@ function handleEnter(field,event) {
             rowIndex -= 1;
 
         }
-
         texta = field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML;
         field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].innerHTML = texta.replace(new RegExp("\\<br\\>", "g"), "");
         field.parentNode.parentNode.parentNode.rows[rowIndex].cells[colIndex].focus();
