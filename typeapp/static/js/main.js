@@ -81,12 +81,13 @@ function get_chekbox_value(checkboxid,showcheckid) {
 }
 function boolTemplate(structname,VarAttrs) {
     var boolhtml = "";
-    boolhtml += "<li id=\"{0}{1}bool\" style=\"display: block\"><span>".format(structname,VarAttrs.Name);
+    boolhtml += "<li id=\"{0}{1}bool\" style=\"display: block\">".format(structname,VarAttrs.Name);
+    boolhtml += "<span>";
     if(VarAttrs.Requiredness == "bool")
-        boolhtml +='<span style="color: red">*</span></span>';
+        boolhtml +='<span style="color: red">*</span>';
+    boolhtml += '</span>';
     boolhtml +='<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{0}</span>'.format(VarAttrs.Name);
-    boolhtml +='<span class="jsoneditor-tree">';
-    boolhtml +='<input type="checkbox" value="0" id="m{0}{1}" onclick="get_chekbox_value(\'m{0}{1}\',\'{0}{1}\')\"/>'.format(structname,VarAttrs.Name);
+    boolhtml +='<span><input type="checkbox" value="0" id="m{0}{1}" onclick="get_chekbox_value(\'m{0}{1}\',\'{0}{1}\')\"/>'.format(structname,VarAttrs.Name);
     boolhtml +='<span style="color: deepskyblue" id="{0}{1}">{2}</span></span>'.format(structname,VarAttrs.Name,VarAttrs.Default);
     boolhtml +='<span style="display: none" id="{0}{1}boolval">{2}</span></li>'.format(structname,VarAttrs.name,VarAttrs.Default);
     return boolhtml;
@@ -146,10 +147,13 @@ function SelectTypeTemplate(typeslist) {
 
 function NumberandStringTemplate(structname,VarAttrs) {
     var NumStrhtml = "";
-    NumStrhtml += '<li style="display: block" onmouseover="shadowover(this)" onmouseout="shadowout(this)"><span>'; 
+    NumStrhtml += '<li style="display: block" onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
+    NumStrhtml += '<span>';
     if(VarAttrs.Requiredness == "required")
-        NumStrhtml +='<span style="color: red">*</span>'; 
-    NumStrhtml +="</span><span class=\"jsoneditor-readonly jsoneditor-value\"  id=\"m{0}{1}\">{1}: </span>".format(structname,VarAttrs.Name);
+        NumStrhtml +='<span style="color: red">*</span>';
+    NumStrhtml += '</span>';
+    NumStrhtml +="<span class=\"jsoneditor-readonly jsoneditor-value\"  id=\"m{0}{1}\">{1}</span>".format(structname,VarAttrs.Name);
+    NumStrhtml += "<span>: </span>";
     NumStrhtml +='<span contenteditable="true" spellcheck="false" class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter" onkeypress="handleEnter(this,event)" id="{0}{1}">{2}</span></li>'.format(structname,VarAttrs.Name,VarAttrs.Default);
     return NumStrhtml;
 }

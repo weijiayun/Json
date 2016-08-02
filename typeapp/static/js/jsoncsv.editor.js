@@ -185,21 +185,21 @@ function treeToCode(SelectElemId) {
     var valoption = obj.options[index].value;
     var ul = document.getElementById(valoption);
     var ullen = ul.childNodes.length;
-    Jsoncode = Object();
+    var Jsoncode = Object();
     for (var i = 0; i < ullen; i++) {
-        var li = ul.childNodes[i];
-        var varName = li.childNodes[1].innerHTML;
-        var varType = jsonDict[valoption]["Fields"][varName]["Type"];
+        var ili = ul.childNodes[i];
+        var varName = ili.childNodes[1].innerHTML;
+        var varType = jsonDict[valoption].Fields[varName].Type;
         var varReference = jsonDict[valoption]["Fields"][varName]["Reference"];
         if (varReference == null) {
-            if (varType == "string" || varType == "double") {
-                Jsoncode[varName] = JsonFormatConvt(li.childNodes[2].innerHTML);
+            if (varType == "string" || varType == "double" || varType == "sint32" || varType == "uint32") {
+                Jsoncode[varName] = JsonFormatConvt(ili.childNodes[3].innerHTML);
             }
             else if (varType.match("list&lt;")) {
                 i = i + 1;
-                listTbl = document.getElementById(valoption + varName + "csv");
+                var listTbl = document.getElementById(valoption + varName + "csv");
                 var cols = jsonDict[varType.slice(8, -4)]["Fields"];
-                listDict = new Object();
+                var listDict = new Object();
                 var colindex = 0;
                 for (colName in cols) {
                     listArray = new Array();
@@ -212,7 +212,7 @@ function treeToCode(SelectElemId) {
                 Jsoncode[varName] = listDict;
             }
             else if (varType == "bool") {
-                Jsoncode[varName] = JsonFormatConvt(li.childNodes[3].innerHTML);
+                Jsoncode[varName] = JsonFormatConvt(ili.childNodes[3].innerHTML);
             }
             else if (varType.match("mat&lt;") || varType.match("vec&lt;")) {
                 i = i + 1;
@@ -243,14 +243,17 @@ function treeToCode(SelectElemId) {
         }
         else {
             if (varType.match("list&lt;")) {
+                i += 1;
                 var multivalue = $("#{0}".format(valoption + varName + "refSelect")).multiselect("MyValues").split(",");
                 var newMultivalue = new Array();
                 for (var mui in multivalue) {
                     newMultivalue.push(JsonFormatConvt(multivalue[mui]));
                 }
                 Jsoncode[varName] = newMultivalue;
+
             }
             else {
+                i += 1;
                 Jsoncode[varName] = JsonFormatConvt(document.getElementById(valoption + varName + "refSelect").value);
             }
         }
@@ -532,7 +535,7 @@ function get_Multi_Reference_List(structName,varName) {
         });
         var i1 = 0;
         for(var elem in CombineReferenceData[structName+varName]){
-            $("#ui-multiselect-{0}{1}refSelect-option-{2}".format(structName,varName,i1)).parent().parent().attr("onclick","expandSelectRefernce(\"{0}\",\"{1}\",this,false)".format(structName,varName));
+            $("#ui-multiselect-{0}{1}refSelect-option-{2}".format(structName,varName,i1)).parent().attr("onclick","expandSelectRefernce(\"{0}\",\"{1}\",this,false)".format(structName,varName));
             i1+=1;
         }
         $("#ui-multiselect-{0}{1}refSelect-option-0".format(structName,varName,i1)).parent().parent().parent().prev().attr("onclick","expandSelectRefernce(\"{0}\",\"{1}\",this,false)".format(structName,varName));
