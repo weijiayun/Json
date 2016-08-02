@@ -10,9 +10,9 @@
         {% set varReference=FieldsVar[varName].Reference|string %}
         {% if varReference == "None" %}
             {% if varType=="sint32" or varType=="uint32" %}
-                {% include 'double.html'%}
+                {% include 'double.html' %}
             {% elif varType=="string" %}
-                {% include 'string.html'%}
+                {% include '../test/string.html' %}
             {% elif ("::" in varType) %}
                     {% include 'enum.html' %}
             {% elif "list<" in varType %}
@@ -28,7 +28,7 @@
             {% if "list<" in varType %}
                 {% include "listref.html" %}
             {% elif  varType == "sint32" or varType=="uint32"%}
-                {% include "singleref.html" %}
+                {% include "../test/singleref.html" %}
             {% endif %}
         {% endif %}
     {% endfor %}

@@ -15,7 +15,7 @@ var PreloadFuncDict = {
         });
     },
     "HandleEnter":function () {
-        $('td').keypress(function () {
+        $('span').keypress(function () {
             handleEnter(this,e);
         });
     }

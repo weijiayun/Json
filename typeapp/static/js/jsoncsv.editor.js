@@ -528,13 +528,14 @@ function get_Multi_Reference_List(structName,varName) {
             noneSelectedText: varName,
             checkAllText: "全选",
             uncheckAllText: '全不选',
-            selectedList:2
+            selectedList:1
         });
         var i1 = 0;
         for(var elem in CombineReferenceData[structName+varName]){
-            $("#ui-multiselect-{0}{1}refSelect-option-{2}".format(structName,varName,i1)).parent().parent().attr("onclick","expandSelectRefernce(\"{0}\",\"{1}\",this,false)".format(structName,varName));
+            $("#ui-multiselect-{0}{1}refSelect-option-{2}".format(structName,varName,i1)).parentsUntil("li").attr("onclick","expandSelectRefernce(\"{0}\",\"{1}\",this,false)".format(structName,varName));
             i1+=1;
         }
+        $("#ui-multiselect-{0}{1}refSelect-option-0".format(structName,varName,i1)).parent().parent().parent().prev().attr("onclick","expandSelectRefernce(\"{0}\",\"{1}\",this,false)".format(structName,varName));
     }).fail(function (xhr,status) {
         ajaxLog("失败: "+xhr.status+'\n原因: '+status);
     });
