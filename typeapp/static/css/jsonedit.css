@@ -3,7 +3,9 @@ div.jsoneditor,div.jsoneditor-outer{
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box
 }
-
+div.jsoneditor-selecttype{
+	padding: 10px;
+}
 .jsonlist{
 	min-height:16px;
 	min-width:80px;

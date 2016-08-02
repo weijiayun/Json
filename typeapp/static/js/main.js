@@ -23,15 +23,13 @@ var PreloadFuncDict = {
 };
 function TypesTemplate() {
     var html = "";
-    html += '<div class="jsoneditor jsoneditor-mode-tree">';
-    html +='<div class="jsoneditor-tree">';
-    html += '<ul id="oTable" >';
+    html += '<div class="jsoneditor jsoneditor-mode-tree jsoneditor-tree">';
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
-    html += "<li><span>{0}</span></li>".format(SelectTypeTemplate(StrategyList));
+    html += "<div class='jsoneditor-selecttype'><span>{0}</span></div>".format(SelectTypeTemplate(StrategyList));
     for(var i in StrategyList){
-        html +="<li><span id='{0}Parent'>{1}</span></li>".format(StrategyList[i],TypeUnitTemplate(StrategyList[i]));
+        html += "<div><span id='{0}Parent'>{1}</span></div>".format(StrategyList[i],TypeUnitTemplate(StrategyList[i]));
     }
-    html +="</ul></div></div>";
+    html +="</div>";
     $("#loadlog").html(html);
     PreloadFuncDict.MouseSelectCopyorPaste();
     PreloadFuncDict.HandleEnter();

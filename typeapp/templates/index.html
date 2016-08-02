@@ -36,7 +36,7 @@
         <div style="width: 100%">
             <select id="StrategyJsonToCodeSelect" onchange="treeToCode('StrategyJsonToCodeSelect');" style="width: 200px;height: 40px;">
                 {% with %}
-                    {% for e in StrategyDict %}
+                    {% for e in StrategyDict.REFLIST %}
                         <option value="{{ e }}">{{ e }}</option>
                     {% endfor %}
                 {% endwith %}

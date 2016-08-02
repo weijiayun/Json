@@ -2,7 +2,7 @@
     <div class="col-xs-3">
         <select id="StrategySelect" onchange="selectshow('StrategySelect')" style="width: 200px;height: 40px">
             {% with %}
-                {% for e in StrategyDict %}
+                {% for e in StrategyDict.REFLIST %}
                     <option value="{{ e }}">{{ e }}</option>
                 {% endfor %}
             {% endwith %}

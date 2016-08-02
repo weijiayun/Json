@@ -183,16 +183,17 @@ function treeToCode(SelectElemId) {
     var obj = document.getElementById(SelectElemId);
     var index = obj.selectedIndex;
     var valoption = obj.options[index].value;
-    tbl = document.getElementById(valoption);
+    var ul = document.getElementById(valoption);
+    var ullen = ul.childNodes.length;
     Jsoncode = Object();
-    for (var i = 0; i < tbl.rows.length; i++) {
-        var r = tbl.rows[i];
-        var varName = r.cells[1].innerHTML;
+    for (var i = 0; i < ullen; i++) {
+        var li = ul.childNodes[i];
+        var varName = li.childNodes[1].innerHTML;
         var varType = jsonDict[valoption]["Fields"][varName]["Type"];
         var varReference = jsonDict[valoption]["Fields"][varName]["Reference"];
         if (varReference == null) {
             if (varType == "string" || varType == "double") {
-                Jsoncode[varName] = JsonFormatConvt(r.cells[2].innerHTML);
+                Jsoncode[varName] = JsonFormatConvt(li.childNodes[2].innerHTML);
             }
             else if (varType.match("list&lt;")) {
                 i = i + 1;
@@ -211,7 +212,7 @@ function treeToCode(SelectElemId) {
                 Jsoncode[varName] = listDict;
             }
             else if (varType == "bool") {
-                Jsoncode[varName] = JsonFormatConvt(r.cells[3].innerHTML);
+                Jsoncode[varName] = JsonFormatConvt(li.childNodes[3].innerHTML);
             }
             else if (varType.match("mat&lt;") || varType.match("vec&lt;")) {
                 i = i + 1;
@@ -484,35 +485,40 @@ function expandSelectRefernce(structName,varName,obj,IsSingleRef) {
         localli.after("<li><ul>"+listTamplate(obj.name,SelectedRefDict,VarAttrs,true,structName)+"</ul></li>");
     }
     else {
+        var i1 = 0;
+        var multivalue = new Array();
+        for(var elem in CombineReferenceData[structName+varName]){
+            var checkbox = $("#ui-multiselect-{0}{1}refSelect-option-{2}".format(structName,varName,i1));
+            var Ischecked = document.getElementById("ui-multiselect-{0}{1}refSelect-option-{2}".format(structName,varName,i1)).checked;
+            if(Ischecked) multivalue.push(checkbox.val());
+            i1+=1;
+        }
         if(localli.next().get(0)) {
             tag = localli.next().get(0).childNodes[0].tagName;
-            alert(tag);
             if(tag == "UL")
                 localli.next().remove();
         }
-        var multivalue = $("#{0}{1}refSelect".format(structName,varName)).multiselect("MyValues").split(",").slice(0);
         var StructDict = CombineReferenceData[structName+varName];
-        if(multivalue[0]!=""){
-            var multihtml = "<li><ul>";
-            for(var i=0;i<multivalue.length;i++){
-                SelectedRefDict=StructDict["FeedcodeMaxQty1"];
-                multihtml += listTamplate(multivalue[i],SelectedRefDict["Fields"],VarAttrs,true,structName);
-            }
-            multihtml += "</ul></li>";
-            localli.after(multihtml);
+        var multihtml = "<li><ul>";
+        for(var i=0;i<multivalue.length;i++){
+            SelectedRefDict=StructDict[multivalue[i]];
+            multihtml += listTamplate(multivalue[i],SelectedRefDict["Fields"],VarAttrs,true,structName);
         }
+        multihtml += "</ul></li>";
+        localli.after(multihtml);
     }
     return null;
     // localli.parent().children().eq(localli.index()+2).attr("class","jsoneditor-ref");
     // localli.parent().children().eq(localli.index()+1).attr("class","jsoneditor-ref");
 }
+
 function get_Multi_Reference_List(structName,varName) {
     var refFeedback = $.ajax("/reference/market", {
         dataType: 'json'
     }).done(function (data) {
         CombineReferenceData["BASEREFERENCE"]=JSON.parse($("#JsonDict").html());
         CombineReferenceData[structName+varName]=$.extend({},data,CombineReferenceData.BASEREFERENCE["REFERENCES"]);
-        var html = "<select id='{0}{1}refSelect' class='selectResult' multiple='multiple' size='5' onclick='expandSelectRefernce(\"{0}\",\"{1}\",this,false)'>".format(structName,varName);
+        var html = "<select id='{0}{1}refSelect' class='selectResult' multiple='multiple' size='5'>".format(structName,varName);
         for(var e in CombineReferenceData[structName+varName]){
             html += "<option value='{0}'>{0}</option>".format(e);
         }
@@ -524,6 +530,11 @@ function get_Multi_Reference_List(structName,varName) {
             uncheckAllText: '全不选',
             selectedList:2
         });
+        var i1 = 0;
+        for(var elem in CombineReferenceData[structName+varName]){
+            $("#ui-multiselect-{0}{1}refSelect-option-{2}".format(structName,varName,i1)).parent().parent().attr("onclick","expandSelectRefernce(\"{0}\",\"{1}\",this,false)".format(structName,varName));
+            i1+=1;
+        }
     }).fail(function (xhr,status) {
         ajaxLog("失败: "+xhr.status+'\n原因: '+status);
     });
