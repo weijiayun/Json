@@ -46,23 +46,23 @@ function TypeUnitTemplate(structname){
         FieldsVarAttrs = FieldsVar[varName];
         FieldsVarAttrs["Name"] = varName;
         if(!FieldsVarAttrs.Reference){
-            if(FieldsVarAttrs.Type == "sint32" || FieldsVarAttrs.Type == "uint32"||FieldsVarAttrs.Type == "string")
+            if(FieldsVarAttrs.Type == "sint_32" || FieldsVarAttrs.Type == "uint_32"||FieldsVarAttrs.Type == "string")
                typehtml += NumberandStringTemplate(structname,FieldsVarAttrs);
-            else if(FieldsVarAttrs.Type.match("::")){
+            else if(FieldsVarAttrs.Type == "enum"){
                 var enumList = Object.getOwnPropertyNames(StrategyDict[FieldsVarAttrs.Type]);
                 typehtml += enumTemplate(structname,enumList,FieldsVarAttrs)
             }
-            else if(FieldsVarAttrs.Type.match("mat&lt;") ||FieldsVarAttrs.Type.match("vec&lt;"))
+            else if(FieldsVarAttrs.Type.match("mat") ||FieldsVarAttrs.Type.match("vec"))
                 typehtml += matrixTemplate(structname,FieldsVarAttrs);
             else if(FieldsVarAttrs.Type == "bool")
                 typehtml += boolTemplate(structname,FieldsVarAttrs);
-            else if(FieldsVarAttrs.Type.match("list&lt;"))
-                typehtml += listTamplate(structname,StrategyDict[FieldsVarAttrs.Type.split(/&lt;|&gt;/g)[1]].Fields,FieldsVarAttrs,false,structname);
+            else if(FieldsVarAttrs.Type.match("list"))
+                typehtml += listTamplate(structname,StrategyDict[FieldsVarAttrs.EleType].Fields,FieldsVarAttrs,false,structname);
         }
         else {
-            if(FieldsVarAttrs.Type.match("list&lt;"))
+            if(FieldsVarAttrs.Type.match("list"))
              typehtml += listRefTemplate(structname,FieldsVarAttrs);
-            else if(FieldsVarAttrs.Type == "sint32" || FieldsVarAttrs.Type == "uint32")
+            else if(FieldsVarAttrs.Type == "sint_32" || FieldsVarAttrs.Type == "uint_32")
                 typehtml += singleRefTemplate(structname,FieldsVarAttrs);
          }
     }
@@ -160,16 +160,19 @@ function NumberandStringTemplate(structname,VarAttrs) {
 function listTamplate(structname,listTypeFieldsDict,VarAttrs,IsReference,preStructName) {
     var struct = "";
     var name = "";
+    var liId = "";
     if(IsReference){
         struct = preStructName;
         name = structname;
         preStructName=VarAttrs.Name;
+        liId = struct+preStructName+name;
     }
     else {
         struct = structname;
         name = VarAttrs.Name;
+        liId = struct+name;
     }
-    var listhtml = "<li>";
+    var listhtml = "<li id='{0}'>".format(liId);
     listhtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
     listhtml += '<button onclick="collapsewin(\'{0}{1}\')">^</button>{1}'.format(struct,name);
     listhtml += '<button id="{0}{1}GoJsonButton" onclick="csvTreeToJsonTree(\'{0}\',\'{1}\',\{2\},\'{3}\')" style="width: 60px;">Json</button>'.format(struct,name,IsReference,preStructName);
@@ -246,20 +249,19 @@ function getDimention(vartype) {
 function matrixTemplate(structname,VarAttrs) {
     var mathtml = "";
     mathtml +="<li>";
-    var matDim = getDimention(VarAttrs.Type);
-    if(VarAttrs.Requiredness == "required")
-        mathtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)"><span style="color: red">*</span>{0} [{1}x{2}]</span>'.format(VarAttrs.Name,matDim[0],matDim[1]);
+    if(VarAttrs.Requiredness)
+        mathtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)"><span style="color: red">*</span>{0} [{1}x{2}]</span>'.format(VarAttrs.Name,VarAttrs.DimensionY,VarAttrs.DimensionX);
     else
-        mathtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{0} [{1}x{2} }}]</span>'.format(VarAttrs.Name,matDim[0],matDim[1]);
+        mathtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{0} [{1}x{2}]</span>'.format(VarAttrs.Name,VarAttrs.DimensionY,VarAttrs.DimensionX);
     mathtml +='<span style="display: none">{0}</span>'.format(VarAttrs.Name);
     mathtml +='</li>';
     mathtml +='<li>';
     mathtml +='<span>';
     mathtml += '<table border="1" id="{0}{1}matrix" style="margin-left: 30px">'.format(structname,VarAttrs.Name);
     mathtml += '<tbody>';
-    for(var i=0;i<matDim[0];i++){
+    for(var i=0;i<parseInt(VarAttrs.DimensionY);i++){
         mathtml += '<tr style="height: 30px;">';
-        for(var j=0;j<matDim[1];j++){
+        for(var j=0;j<parseInt(VarAttrs.DimensionX);j++){
             mathtml += '<td class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter" onkeypress="handleEnter(this,event)"  contenteditable="true" spellcheck="false" ></td>'
         }
         mathtml += '</tr>';

@@ -470,51 +470,63 @@ function get_Reference_List(structName,varName) {
     });
 }
 function expandSelectRefernce(structName,varName,obj,IsSingleRef) {
-    var localli = $("#{0}".format(structName+varName+"REFDATA")).parent();
+    var localli = $("#{0}".format(structName + varName + "REFDATA")).parent();
     var tag = "";
     var SelectedRefDict = {};
-    var VarAttrs = JSON.parse( $("#{0}singleRefVarAttrs".format(structName+varName)).get(0).innerHTML);
-    if(IsSingleRef){
-        SelectedRefDict = CombineReferenceData[structName+varName][obj.name]["Fields"];
-        var id1 = "{0}{1}refSelect".format(structName,varName);
-        var id2 = "{0}{1}buttonValue".format(structName,varName);
+    var VarAttrs = JSON.parse($("#{0}singleRefVarAttrs".format(structName + varName)).get(0).innerHTML);
+    if (IsSingleRef) {
+        SelectedRefDict = CombineReferenceData[structName + varName][obj.name]["Fields"];
+        var id1 = "{0}{1}refSelect".format(structName, varName);
+        var id2 = "{0}{1}buttonValue".format(structName, varName);
         document.getElementById(id1).value = obj.name;
         document.getElementById(id2).innerHTML = obj.name;
-        if(localli.next().get(0)) {
+        if (localli.next().get(0)) {
             tag = localli.next().get(0).childNodes[0].tagName;
-            if(tag == "UL")
-                localli.next().remove();
+            if (tag == "UL") {
+                var tempID = localli.next().children().first().children().first().get(0).id;
+                if ((structName + varName + obj.name) != tempID)
+                    localli.next().remove();
+                else
+                    return null;
+            }
         }
-        localli.after("<li><ul>"+listTamplate(obj.name,SelectedRefDict,VarAttrs,true,structName)+"</ul></li>");
+        localli.after("<li><ul>" + listTamplate(obj.name, SelectedRefDict, VarAttrs, true, structName) + "</ul></li>");
     }
     else {
-        var i1 = 0;
-        var multivalue = new Array();
-        for(var elem in CombineReferenceData[structName+varName]){
-            var checkbox = $("#ui-multiselect-{0}{1}refSelect-option-{2}".format(structName,varName,i1));
-            var Ischecked = document.getElementById("ui-multiselect-{0}{1}refSelect-option-{2}".format(structName,varName,i1)).checked;
-            if(Ischecked) multivalue.push(checkbox.val());
-            i1+=1;
-        }
-        if(localli.next().get(0)) {
+        var StructDict = CombineReferenceData[structName + varName];
+        var multihtml = "";
+        var showedSet = [];
+        if (localli.next().get(0)) {
             tag = localli.next().get(0).childNodes[0].tagName;
-            if(tag == "UL")
-                localli.next().remove();
+            if (tag == "UL") {
+                localli.next().children().first().children().each(function (index,DomEle) {
+                    showedSet.push($(this).attr('id'));
+                });
+                var i1 = 0;
+                for (var elem in StructDict) {
+                    var checkbox = $("#ui-multiselect-{0}{1}refSelect-option-{2}".format(structName, varName, i1));
+                    var Ischecked = document.getElementById("ui-multiselect-{0}{1}refSelect-option-{2}".format(structName, varName, i1)).checked;
+                    if(Ischecked&&!Set(showedSet).has(structName+varName+checkbox.val())) {
+                        SelectedRefDict = StructDict[checkbox.val()]["Fields"];
+                        multihtml += listTamplate(checkbox.val(), SelectedRefDict, VarAttrs, true, structName);
+                    }
+                    else {
+                        alert(String(checkbox.val()));
+                        $("#{0}{1}{2}".format(structName, varName, String(checkbox.val()))).remove();
+                        $("#{0}{1}".format(structName, String(checkbox.val()))).remove();
+                    }
+                    i1 += 1;
+                }
+                localli.next().children().append(multihtml);
+            }
+            else {
+                localli.after('<li><ul></ul></li>')
+            }
         }
-        var StructDict = CombineReferenceData[structName+varName];
-        var multihtml = "<li><ul>";
-        for(var i=0;i<multivalue.length;i++){
-            SelectedRefDict=StructDict[multivalue[i]];
-            multihtml += listTamplate(multivalue[i],SelectedRefDict["Fields"],VarAttrs,true,structName);
-        }
-        multihtml += "</ul></li>";
-        localli.after(multihtml);
+        // localli.parent().children().eq(localli.index()+2).attr("class","jsoneditor-ref");
+        // localli.parent().children().eq(localli.index()+1).attr("class","jsoneditor-ref");
     }
-    return null;
-    // localli.parent().children().eq(localli.index()+2).attr("class","jsoneditor-ref");
-    // localli.parent().children().eq(localli.index()+1).attr("class","jsoneditor-ref");
 }
-
 function get_Multi_Reference_List(structName,varName) {
     var refFeedback = $.ajax("/reference/market", {
         dataType: 'json'

@@ -3,10 +3,12 @@ __author__ = 'jiayun.wei'
 from flask import render_template,request,redirect,url_for
 from jinja2 import Environment
 from typeapp import app
-from typeapp.typeconfig import INPUTOBJECT,INPUTOBJECT1
-
+from typeapp.typeconfig import INPUTOBJECT,INPUTOBJECT1,INPUTOBJECT2,ConvertTowebFormatJson
 import json
-JsonDict=json.dumps({"REFLIST":["Automaton","Automatontest"],"REFERENCES":INPUTOBJECT})
+newInput = ConvertTowebFormatJson(INPUTOBJECT2)
+print newInput
+JsonDict=json.dumps({"REFLIST":["Annapurna"],"REFERENCES":newInput})
+
 @app.route('/',methods=["GET","POST"])
 @app.route('/<StructName>',methods=["GET","POST"])
 def index(StructName=""):
