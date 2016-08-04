@@ -268,6 +268,7 @@ function matrixTemplate(structname,VarAttrs) {
         }
         mathtml += '</tr>';
     }
+
     mathtml +='<tr style="display: none"><td></td></tr>';
     mathtml +='</tbody></table></span></li>';
     return mathtml;
