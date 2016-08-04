@@ -2,7 +2,6 @@
 __author__ = 'jiayun.wei'
 
 from typeapp import app
-
 def run():
     app.debug = True
     app.run()

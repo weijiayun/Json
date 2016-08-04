@@ -35,7 +35,6 @@ function TypesTemplate() {
     PreloadFuncDict.HandleEnter();
     PreloadFuncDict.InputCheck();
 }
-
 function TypeUnitTemplate(structname){
     var typehtml="";
     var StrategyDict = JSON.parse($("#JsonDict").html())["REFERENCES"];
@@ -49,7 +48,7 @@ function TypeUnitTemplate(structname){
             if(FieldsVarAttrs.Type == "sint_32" || FieldsVarAttrs.Type == "uint_32"||FieldsVarAttrs.Type == "string")
                typehtml += NumberandStringTemplate(structname,FieldsVarAttrs);
             else if(FieldsVarAttrs.Type == "enum"){
-                var enumList = Object.getOwnPropertyNames(StrategyDict[FieldsVarAttrs.Type]);
+                var enumList = Object.getOwnPropertyNames(StrategyDict[FieldsVarAttrs.EleType].Fields);
                 typehtml += enumTemplate(structname,enumList,FieldsVarAttrs)
             }
             else if(FieldsVarAttrs.Type.match("mat") ||FieldsVarAttrs.Type.match("vec"))
@@ -80,6 +79,8 @@ function get_chekbox_value(checkboxid,showcheckid) {
     }
 }
 function boolTemplate(structname,VarAttrs) {
+    if(!VarAttrs.Default)
+        VarAttrs.Default = false;
     var boolhtml = "";
     boolhtml += "<li id=\"{0}{1}bool\" style=\"display: block\">".format(structname,VarAttrs.Name);
     boolhtml += "<span>";
@@ -215,7 +216,7 @@ function listTamplate(structname,listTypeFieldsDict,VarAttrs,IsReference,preStru
 function listRefTemplate(structname,VarAttrs) {
     var listrefhtml ="<li>";
     listrefhtml += '<span onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
-    if(VarAttrs.Requiredness == "required")
+    if(VarAttrs.Requiredness)
         listrefhtml += '<span style="color: red">*</span>';
     var jsonVarAttrs = JSON.stringify(VarAttrs);
     listrefhtml += '<span id="{0}{1}singleRefVarAttrs" style="display: none">{2}</span><button onclick="get_Multi_Reference_List(\'{0}\',\'{1}\')" style="width: auto">{1}</button><span id="{0}{1}tdSelect"></span>'.format(structname,VarAttrs.Name,jsonVarAttrs);
@@ -230,8 +231,9 @@ function singleRefTemplate(structname,VarAttrs) {
     var srefhtml ='<li>';
     srefhtml += '<span onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
     var jsonVarAttrs = JSON.stringify(VarAttrs);
-    if(VarAttrs.Requiredness == 'required')
-        srefhtml +='<span style="color: red">*</span><span id="{0}singleRefVarAttrs" style="display: none">{1}</span>'.format(structname+VarAttrs.Name,jsonVarAttrs);
+    if(VarAttrs.Requiredness)
+        srefhtml +='<span style="color: red">*</span>';
+    srefhtml += '<span id="{0}singleRefVarAttrs" style="display: none">{1}</span>'.format(structname+VarAttrs.Name,jsonVarAttrs);
     srefhtml += '<button onclick="get_Reference_List(\'{0}\',\'{1}\')" style="width: auto">{1}</button><span id="{0}{1}tdSelect"></span>'.format(structname,VarAttrs.Name);
     srefhtml += '</span>';
     srefhtml += '<span style="display: none"  id="m{0}{1}">{1}</span>'.format(structname,VarAttrs.Name);

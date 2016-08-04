@@ -3,17 +3,16 @@ __author__ = 'jiayun.wei'
 from flask import render_template,request,redirect,url_for
 from jinja2 import Environment
 from typeapp import app
-from typeapp.typeconfig import INPUTOBJECT,INPUTOBJECT1,INPUTOBJECT2,ConvertTowebFormatJson
+from typeapp.typeconfig import INPUTOBJECT3,INPUTOBJECT2,ConvertTowebFormatJson
 import json
+
 newInput = ConvertTowebFormatJson(INPUTOBJECT2)
-print newInput
 JsonDict=json.dumps({"REFLIST":["Annapurna"],"REFERENCES":newInput})
 
 @app.route('/',methods=["GET","POST"])
 @app.route('/<StructName>',methods=["GET","POST"])
 def index(StructName=""):
     if request.method == "POST":
-        print StructName
         if len(StructName) == 0:
             print request.form["SubmitAllInput"]
         else:
@@ -30,5 +29,5 @@ def index(StructName=""):
 @app.route("/reference/<type>",methods=["GET","POST"])
 def ref(type):
     if type == "market":
-        refdata = INPUTOBJECT1
+        refdata = ConvertTowebFormatJson(INPUTOBJECT3)
         return json.dumps(refdata)

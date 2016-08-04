@@ -195,10 +195,10 @@ function treeToCode(SelectElemId) {
             if (varType == "string" || varType == "double" || varType == "sint32" || varType == "uint32") {
                 Jsoncode[varName] = JsonFormatConvt(ili.childNodes[3].innerHTML);
             }
-            else if (varType.match("list&lt;")) {
+            else if (varType.match("list")) {
                 i = i + 1;
                 var listTbl = document.getElementById(valoption + varName + "csv");
-                var cols = jsonDict[varType.slice(8, -4)]["Fields"];
+                var cols = jsonDict[varType]["Fields"];
                 var listDict = new Object();
                 var colindex = 0;
                 for (colName in cols) {
@@ -214,7 +214,7 @@ function treeToCode(SelectElemId) {
             else if (varType == "bool") {
                 Jsoncode[varName] = JsonFormatConvt(ili.childNodes[3].innerHTML);
             }
-            else if (varType.match("mat&lt;") || varType.match("vec&lt;")) {
+            else if (varType.match("mat") || varType.match("vec")) {
                 i = i + 1;
                 var matTbl = document.getElementById(valoption + varName + "matrix");
                 var matBigArr = Array();
@@ -242,7 +242,7 @@ function treeToCode(SelectElemId) {
             }
         }
         else {
-            if (varType.match("list&lt;")) {
+            if (varType.match("list")) {
                 i += 1;
                 var multivalue = $("#{0}".format(valoption + varName + "refSelect")).multiselect("MyValues").split(",");
                 var newMultivalue = new Array();
@@ -270,8 +270,8 @@ function csvTreeToJsonTree(StructName,varName,IsReference,preStructName) {
     }
     else{
         jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
-        var varType = jsonDict[StructName]["Fields"][varName]["Type"];
-        cols = jsonDict[varType.slice(8,-4)]["Fields"];
+        var varType = jsonDict[StructName]["Fields"][varName]["EleType"];
+        cols = jsonDict[varType]["Fields"];
     }
     var listTbl = document.getElementById(StructName+varName+"csv");
     var listDict = {};
@@ -322,8 +322,8 @@ function jsonTreeToCsvTree(StructName,varName,IsReference,preStructName) {
     }
     else{
         jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
-        var varType = jsonDict[StructName]["Fields"][varName]["Type"];
-        cols = jsonDict[varType.slice(8,-4)]["Fields"];
+        var varType = jsonDict[StructName]["Fields"][varName]["EleType"];
+        cols = jsonDict[varType]["Fields"];
     }
     var tb1 = document.getElementById(StructName+varName+"jsontree");
     var listArray = [];
@@ -381,8 +381,8 @@ function jsonAdd(StructName,varName,IsReference,preStructName) {
     }
     else{
         jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
-        var varType = jsonDict[StructName]["Fields"][varName]["Type"];
-        cols = jsonDict[varType.slice(8,-4)]["Fields"];
+        var varType = jsonDict[StructName]["Fields"][varName]["EleType"];
+        cols = jsonDict[varType]["Fields"];
     }
     var listTbl = document.getElementById(StructName+varName+"csv");
     var tb = document.getElementById(StructName+varName+"jsontree");
@@ -433,8 +433,8 @@ function jsondel(StructName,varName,field,IsReference,preStructName) {
     }
     else{
         jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
-        var varType = jsonDict[StructName]["Fields"][varName]["Type"];
-        cols = jsonDict[varType.slice(8,-4)]["Fields"];
+        var varType = jsonDict[StructName]["Fields"][varName]["EleType"];
+        cols = jsonDict[varType]["Fields"];
     }
     var tb = document.getElementById(StructName+varName+"jsontree");
     var colLen = getPropertyCount(cols);
@@ -510,10 +510,11 @@ function expandSelectRefernce(structName,varName,obj,IsSingleRef) {
                         SelectedRefDict = StructDict[checkbox.val()]["Fields"];
                         multihtml += listTamplate(checkbox.val(), SelectedRefDict, VarAttrs, true, structName);
                     }
-                    else {
-                        alert(String(checkbox.val()));
-                        $("#{0}{1}{2}".format(structName, varName, String(checkbox.val()))).remove();
-                        $("#{0}{1}".format(structName, String(checkbox.val()))).remove();
+                    if(!Ischecked){
+                        if(document.getElementById("{0}{1}{2}".format(structName, varName, String(checkbox.val())))&&document.getElementById("{0}{1}".format(structName, String(checkbox.val())))){
+                            document.getElementById("{0}{1}{2}".format(structName, varName, String(checkbox.val()))).remove();
+                            document.getElementById("{0}{1}".format(structName, String(checkbox.val()))).remove();
+                        }
                     }
                     i1 += 1;
                 }
@@ -526,6 +527,7 @@ function expandSelectRefernce(structName,varName,obj,IsSingleRef) {
         // localli.parent().children().eq(localli.index()+2).attr("class","jsoneditor-ref");
         // localli.parent().children().eq(localli.index()+1).attr("class","jsoneditor-ref");
     }
+    return null;
 }
 function get_Multi_Reference_List(structName,varName) {
     var refFeedback = $.ajax("/reference/market", {
