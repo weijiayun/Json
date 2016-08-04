@@ -98,7 +98,7 @@ function enumTemplate(structname,enumlist,VarAttrs) {
     var enumhtml = "";
     enumhtml = '<li id="{0}">'.format(structname+VarAttrs.Name);
     enumhtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)" >';
-    if(VarAttrs.Requiredness == "required")
+    if(VarAttrs.Requiredness )
         enumhtml += '<span style="color: red">*</span>'; 
     enumhtml +='<span >{0} </span>'.format(VarAttrs.Name);
     enumhtml +="<span class='dropdown'>";
@@ -150,7 +150,7 @@ function NumberandStringTemplate(structname,VarAttrs) {
     var NumStrhtml = "";
     NumStrhtml += '<li style="display: block" onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
     NumStrhtml += '<span>';
-    if(VarAttrs.Requiredness == "required")
+    if(VarAttrs.Requiredness )
         NumStrhtml +='<span style="color: red">*</span>';
     NumStrhtml += '</span>';
     NumStrhtml +="<span class=\"jsoneditor-readonly jsoneditor-value\"  id=\"m{0}{1}\">{1}</span>".format(structname,VarAttrs.Name);
@@ -194,7 +194,7 @@ function listTamplate(structname,listTypeFieldsDict,VarAttrs,IsReference,preStru
     for(listheadername in listTypeFieldsDict){
         var listVars = listTypeFieldsDict[listheadername];
         listhtml += '<th style="text-align: center">';
-        if(listVars.Requiredness == "required")
+        if(listVars.Requiredness )
             listhtml += '<span style="color: red">*</span>{0}'.format(listheadername);
         else
             listhtml += '<span>{0}</span>'.format(listheadername);

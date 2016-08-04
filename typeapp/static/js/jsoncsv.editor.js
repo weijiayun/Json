@@ -8,6 +8,7 @@ function JsonFormatConvt(strNum) {
     var intTest = /^-*\d+$/i;
     var falseTest = /^False$/i;
     var trueTest = /^True$/i;
+    var nulltest = /^null$/i;
     strNum = strNum.replace(new RegExp("\\<br\\>","g"),"");
     var tempvalue;
     if(doubleTest.test(strNum))
@@ -18,6 +19,8 @@ function JsonFormatConvt(strNum) {
         tempvalue = false;
     else if(trueTest.test(strNum))
         tempvalue = true;
+    else if(nulltest.test(strNum))
+        tempvalue = null;
     else
         tempvalue = strNum;
     return tempvalue;
@@ -89,7 +92,7 @@ function submitform(formName,inputValueID,cnt) {
     var memberlist = jsonobj[1];
     FLAG=false;
     for(var i=0;i<memberlist.length;i++){
-        if(requireList[i] == "required" && document.getElementById(cnt+structname+memberlist[i]).innerHTML.length==0){
+        if(requireList[i]  && document.getElementById(cnt+structname+memberlist[i]).innerHTML.length==0){
             alert('You must insert the required * values');
             FLAG=false;
             break;
@@ -118,7 +121,7 @@ function submitAllForm(formName,inputValueID,totalStruct) {
             var memberlist = jsonobj[1];
             FLAG=false;
             for(var i=0;i<memberlist.length;i++){
-                if(requireList[i] == "required" && document.getElementById(cnt+structname+memberlist[i]).innerHTML.length==0){
+                if(requireList[i]  && document.getElementById(cnt+structname+memberlist[i]).innerHTML.length==0){
                     alert('You must insert the required * values of '+structname);
                     FLAG=false;
                     break;
@@ -190,6 +193,7 @@ function treeToCode(SelectElemId) {
         var ili = ul.childNodes[i];
         var varName = ili.childNodes[1].innerHTML;
         var varType = jsonDict[valoption].Fields[varName].Type;
+        var varEleType = jsonDict[valoption].Fields[varName].EleType;
         var varReference = jsonDict[valoption]["Fields"][varName]["Reference"];
         if (varReference == null) {
             if (varType == "string" || varType == "double" || varType == "sint32" || varType == "uint32") {
@@ -197,19 +201,7 @@ function treeToCode(SelectElemId) {
             }
             else if (varType.match("list")) {
                 i = i + 1;
-                var listTbl = document.getElementById(valoption + varName + "csv");
-                var cols = jsonDict[varType]["Fields"];
-                var listDict = new Object();
-                var colindex = 0;
-                for (colName in cols) {
-                    listArray = new Array();
-                    for (var li = 2; li < listTbl.rows.length - 1; li++) {
-                        listArray[li - 2] = JsonFormatConvt(listTbl.rows[li].cells[colindex].innerHTML);
-                    }
-                    listDict[colName] = listArray;
-                    colindex += 1;
-                }
-                Jsoncode[varName] = listDict;
+                Jsoncode[varName] = ReadCsvTableDict(jsonDict,valoption+varName+"csv",varEleType)
             }
             else if (varType == "bool") {
                 Jsoncode[varName] = JsonFormatConvt(ili.childNodes[3].innerHTML);
@@ -236,30 +228,60 @@ function treeToCode(SelectElemId) {
                     Jsoncode[varName] = matSmallArr;
                 }
             }
-
-            else if (varType.match("::")) {
+            else if (varType.match("enum")) {
                 Jsoncode[varName] = JsonFormatConvt(document.getElementById(valoption + varName + "enumSelect").value);
             }
         }
         else {
+            var refJsonDict = CombineReferenceData[valoption+varName];
             if (varType.match("list")) {
                 i += 1;
                 var multivalue = $("#{0}".format(valoption + varName + "refSelect")).multiselect("MyValues").split(",");
-                var newMultivalue = new Array();
-                for (var mui in multivalue) {
-                    newMultivalue.push(JsonFormatConvt(multivalue[mui]));
+                var resultsref = {};
+                for(var i1 in multivalue){
+                    multivalue[i1]=multivalue[i1].replace(/\s+/g,"");
+                    resultsref[multivalue[i1]]=ReadCsvTableDict(refJsonDict,valoption+multivalue[i1]+"csv",multivalue[i1]);
                 }
-                Jsoncode[varName] = newMultivalue;
-
+                Jsoncode[varName] =resultsref;
             }
             else {
                 i += 1;
-                Jsoncode[varName] = JsonFormatConvt(document.getElementById(valoption + varName + "refSelect").value);
+                var singleRefResult = JsonFormatConvt(document.getElementById(valoption + varName + "refSelect").value);
+                Jsoncode[varName] = ReadCsvTableDict(refJsonDict,valoption+singleRefResult+"csv",singleRefResult);
             }
         }
     }
     alert(JSON.stringify(Jsoncode));
 }
+function  ReadCsvTableDict(jsondict,csvTableID,refType) {
+    csvTableID = csvTableID.replace(/\s+/g,"");
+    var listTbl = document.getElementById(csvTableID);
+    var cols = jsondict[refType]["Fields"];
+    var listDict = {};
+    var colindex = 0;
+    for (var colName in cols) {
+        var listArray = [];
+        if(listTbl.rows.length == 4){
+            listDict[colName] = JsonFormatConvt(listTbl.rows[2].cells[colindex].innerHTML);
+        }
+        else {
+            for (li = 2; li < listTbl.rows.length - 1; li++) {
+                listArray[li - 2] = listTbl.rows[li].cells[colindex].innerHTML;
+            }
+            listDict[colName] = StrListConverFormatedJson(listArray);
+        }
+        colindex += 1;
+    }
+    return listDict
+
+}
+function StrListConverFormatedJson(slist){
+    return slist.map(function (selem) {
+        return JsonFormatConvt(selem);
+    })
+}
+
+
 function csvTreeToJsonTree(StructName,varName,IsReference,preStructName) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
     var jsonDict = {};
@@ -295,7 +317,7 @@ function csvTreeToJsonTree(StructName,varName,IsReference,preStructName) {
                 html += "<td rowspan='\{0\}\'><button onclick='jsondel(\"{1}\",\"{2}\",this,\{3\},\"{4}\")' style='width: 30px'>-</button></td>".format(getPropertyCount(listDict),StructName,varName,IsReference,preStructName);
                 spanFlag=false
             }
-            if(cols[e]["Requiredness"] == "required")
+            if(cols[e]["Requiredness"] )
                 html += "<td class='jsoneditor-readonly'><span style='color: red'>*</span>" + e + ": " + "</td>";
             else
                 html += "<td class='jsoneditor-readonly'>" + e + ": " + "</td>";
@@ -308,8 +330,8 @@ function csvTreeToJsonTree(StructName,varName,IsReference,preStructName) {
     html += "</table>";
     document.getElementById(StructName+varName+"showJson").innerHTML = html;
     document.getElementById(StructName+varName+"showCsv").style.display = "none";
-    $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).innerHTML="Csv";
-    $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).setAttribute("onclick","jsonTreeToCsvTree(\"\{0\}\",\"\{1\}\",\{2\},\"{3}\")".format(StructName,varName,IsReference,preStructName));
+    document.getElementById("{0}".format(StructName+varName+"GoJsonButton")).innerHTML="Csv";
+    document.getElementById("{0}".format(StructName+varName+"GoJsonButton")).setAttribute("onclick","jsonTreeToCsvTree(\"\{0\}\",\"\{1\}\",\{2\},\"{3}\")".format(StructName,varName,IsReference,preStructName));
 }
 
 function jsonTreeToCsvTree(StructName,varName,IsReference,preStructName) {
@@ -367,8 +389,8 @@ function jsonTreeToCsvTree(StructName,varName,IsReference,preStructName) {
     }
     document.getElementById(StructName+varName+"showCsv").style.display = "block";
     document.getElementById(StructName+varName+"jsontree").style.display = "none";
-    $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).innerHTML="Json";
-    $("#{0}".format(StructName+varName+"GoJsonButton")).get(0).setAttribute("onclick","csvTreeToJsonTree(\"\{0\}\",\"\{1\}\",\{2\},\"{3}\")".format(StructName,varName,IsReference,preStructName))
+    document.getElementById("{0}".format(StructName+varName+"GoJsonButton")).innerHTML="Json";
+    document.getElementById("{0}".format(StructName+varName+"GoJsonButton")).setAttribute("onclick","csvTreeToJsonTree(\"\{0\}\",\"\{1\}\",\{2\},\"{3}\")".format(StructName,varName,IsReference,preStructName))
 }
 
 function jsonAdd(StructName,varName,IsReference,preStructName) {
@@ -397,7 +419,7 @@ function jsonAdd(StructName,varName,IsReference,preStructName) {
             col.innerHTML = "<button onclick='jsondel(\"{0}\",\"{1}\",this)' style='width: 30px'>-</button></td>".format(StructName,varName);
             spanFlag=false;
             var col1=row.insertCell(1);
-            if(cols[colelem]["Requiredness"] == "required")
+            if(cols[colelem]["Requiredness"] )
                 col1.innerHTML = "<span style='color: red'>*</span>"+colelem+": ";
             else
                 col1.innerHTML = colelem+": ";
@@ -405,7 +427,7 @@ function jsonAdd(StructName,varName,IsReference,preStructName) {
         }
         else {
             col1=row.insertCell(0);
-            if(cols[colelem]["Requiredness"] == "required")
+            if(cols[colelem]["Requiredness"] )
                 col1.innerHTML = "<span style='color: red'>*</span>"+colelem+": ";
             else
                 col1.innerHTML = colelem+": ";
