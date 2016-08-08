@@ -6,58 +6,57 @@ var MouseSelect = {
     "resultHeightBegin":0,
     "backColor":'yellow',
     "SelectedPointRecord":{},
-    "preTbRowsLen":0,
     "this":"",
+    "tableType":"",
+    "pretableType":"",
     "stposX":0,
     "stposY":0
 };
 //$(".MouseSelectCopy").mousedown(OnMouseDown);
 function OnMouseDown(field,tbtype) {
     MouseSelect.log = [];
+    MouseSelect.tableType = tbtype;
     var tr = field.parentNode;
     var tb = field.parentNode.parentNode.parentNode;
     var tbrowstart = 0;
     var prerowsend = 0;
     var tbrowsend = 0;
     var tbcellsend = 0;
+    var backgroundcolor = "";
     if(tbtype=="list") {
         tbrowstart = 2;
-        if(MouseSelect.this)
-            prerowsend = MouseSelect.preTbRowsLen-1;
         tbrowsend = tb.rows.length-1;
         tbcellsend = tr.cells.length-1;
     }
     else if(tbtype = 'mat'){
-        if(MouseSelect.this)
-            prerowsend = MouseSelect.preTbRowsLen;
         tbrowstart = 0;
         tbrowsend = tb.rows.length;
         tbcellsend = tr.cells.length;
-
     }
-    if(MouseSelect.this) {
-        if (MouseSelect.this.parentNode.parentNode.parentNode != tb) {
-            if (Object.getOwnPropertyNames(MouseSelect.SelectedPointRecord).length != 0)
-                for (var e in MouseSelect.SelectedPointRecord)
-                    MouseSelect.this.parentNode.parentNode.parentNode.rows[MouseSelect.SelectedPointRecord[e][0]].cells[MouseSelect.SelectedPointRecord[e][1]].style.backgroundColor = MouseSelect.SelectedPointRecord[e][2];
-            MouseSelect.SelectedPointRecord = {};
-            for (var i = tbrowstart; i < tbrowsend; i++)
-                for (var j = 0; j < tbcellsend; j++)
-                    MouseSelect.SelectedPointRecord["r" + i + "c" + j] = [i, j, tb.rows[i].cells[j].style.backgroundColor];
-        }
-        else {
-            for (i = prerowsend; i < tbrowsend; i++)
-                for (j = 0; j < tbcellsend; j++)
-                    MouseSelect.SelectedPointRecord["r" + i + "c" + j] = [i, j, tb.rows[i].cells[j].style.backgroundColor];
-            if (Object.getOwnPropertyNames(MouseSelect.SelectedPointRecord).length != 0)
-                for (e in MouseSelect.SelectedPointRecord)
-                    tb.rows[MouseSelect.SelectedPointRecord[e][0]].cells[MouseSelect.SelectedPointRecord[e][1]].style.backgroundColor = MouseSelect.SelectedPointRecord[e][2];
-        }
+    for(var i1=tbrowstart;i1<tbrowsend;i1++){
+            backgroundcolor = RowsColor(i1);
+            for(var j1=0;j1<tbcellsend;j1++)
+            tb.rows[i1].cells[j1].style.backgroundColor = backgroundcolor;
     }
-    else {
-        for(i=tbrowstart;i<tbrowsend;i++)
-            for ( j = 0; j < tbcellsend; j++)
-                MouseSelect.SelectedPointRecord["r" + i + "c" + j] = [i, j, tb.rows[i].cells[j].style.backgroundColor];
+    if(MouseSelect.this){
+        tr = MouseSelect.this.parentNode;
+        tb = MouseSelect.this.parentNode.parentNode.parentNode;
+        tbtype = MouseSelect.pretableType;
+        if(tbtype=="list") {
+            tbrowstart = 2;
+            tbrowsend = tb.rows.length-1;
+            tbcellsend = tr.cells.length-1;
+        }
+        else if(tbtype = 'mat'){
+            tbrowstart = 0;
+            tbrowsend = tb.rows.length;
+            tbcellsend = tr.cells.length;
+        }
+        for(i1=tbrowstart;i1<tbrowsend;i1++){
+            backgroundcolor = RowsColor(i1);
+            for(j1=0;j1<tbcellsend;j1++)
+                tb.rows[i1].cells[j1].style.backgroundColor = backgroundcolor;
+        }
     }
     field.style.backgroundColor = MouseSelect.backColor;
     MouseSelect.stposX=field.cellIndex;
@@ -67,7 +66,7 @@ function OnMouseDown(field,tbtype) {
 }
 function onMouseUp() {
     MouseSelect.this=this;
-    MouseSelect.preTbRowsLen = this.parentNode.parentNode.parentNode.rows.length;
+    MouseSelect.pretableType = MouseSelect.tableType;
     var width = MouseSelect.resultWidth = Math.abs(this.cellIndex-MouseSelect.stposX)+1;
     var height = MouseSelect.resultHeight = Math.abs(this.parentNode.rowIndex-MouseSelect.stposY)+1;
     var colBegin = this.cellIndex>MouseSelect.stposX?MouseSelect.stposX:this.cellIndex;
@@ -92,9 +91,28 @@ function onMouseOver() {
     var height = Math.abs(this.parentNode.rowIndex-MouseSelect.stposY)+1;
     var colBegin = this.cellIndex>MouseSelect.stposX?MouseSelect.stposX:this.cellIndex;
     var rowBegin = this.parentNode.rowIndex>MouseSelect.stposY?MouseSelect.stposY:this.parentNode.rowIndex;
-    if(Object.getOwnPropertyNames(MouseSelect.SelectedPointRecord).length != 0)
-        for(var e in MouseSelect.SelectedPointRecord)
-            tb.rows[MouseSelect.SelectedPointRecord[e][0]].cells[MouseSelect.SelectedPointRecord[e][1]].style.backgroundColor=MouseSelect.SelectedPointRecord[e][2];
+    var tr = this.parentNode;
+    var tbrowstart = 0;
+    var prerowsend = 0;
+    var tbrowsend = 0;
+    var tbcellsend = 0;
+    var backgroundcolor = "";
+    var tbtype = MouseSelect.tableType;
+    if(tbtype=="list") {
+        tbrowstart = 2;
+        tbrowsend = tb.rows.length-1;
+        tbcellsend = tr.cells.length-1;
+    }
+    else if(tbtype = 'mat'){
+        tbrowstart = 0;
+        tbrowsend = tb.rows.length;
+        tbcellsend = tr.cells.length;
+    }
+    for(var i1=tbrowstart;i1<tbrowsend;i1++){
+            backgroundcolor = RowsColor(i1);
+            for(var j1=0;j1<tbcellsend;j1++)
+                tb.rows[i1].cells[j1].style.backgroundColor = backgroundcolor;
+    }
     for(var i=0;i<height;i++){
         for(var j=0;j<width;j++){
             tb.rows[rowBegin+i].cells[colBegin+j].style.backgroundColor=MouseSelect.backColor;

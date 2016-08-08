@@ -25,12 +25,11 @@ function JsonFormatConvt(strNum) {
     return tempvalue;
 }
 
-var ColorCount=1;
-var colorBoard = ['grey','darkgray'];
-function randomColor() {
-    var id = ColorCount==0?1:0;
-    ColorCount=id;
-    return colorBoard[id];
+
+
+function RowsColor(rowIndex) {
+    var colorBoard = ['grey','darkgray'];
+    return colorBoard[rowIndex%2==0?0:1];
 }
 
 
@@ -165,7 +164,7 @@ function csvAddrow(structName,varName,idSufix) {
     var colLen = tb.rows[0].cells.length;
     var rowIndex=tb.rows.length-1;
     var row = tb.insertRow(rowIndex);
-    var bkgcolor = randomColor();
+    var bkgcolor = RowsColor(rowIndex-1);
     row.setAttribute("onmouseover","showButtonOver(this)");
     row.setAttribute("onmouseout","showButtonOut(this)");
     for(var i=0;i<colLen;i++){
@@ -199,7 +198,7 @@ function treeToCode(SelectElemId) {
         var varReference = jsonDict[valoption]["Fields"][varName]["Reference"];
         if (varReference == null) {
             if (varType == "string" || varType == "double" || varType == "sint32" || varType == "uint32") {
-                Jsoncode[varName] = JsonFormatConvt(ili.childNodes[3].innerHTML);
+                Jsoncode[varName] = JsonFormatConvt(ili.childNodes[2].rows[0].cells[4].innerHTML);
             }
             else if (varType.match("list")) {
                 i = i + 1;
@@ -310,7 +309,7 @@ function csvTreeToJsonTree(StructName,varName,IsReference,preStructName) {
     }
     var html = "<table style='margin-left: 30px' id='\{0\}'>".format(StructName+varName+"jsontree");
     for(var i=0;i<listTbl.rows.length-3;i++) {
-        var bkgcolor = randomColor();
+        var bkgcolor = RowsColor(i);
         var spanFlag = true;
         for (var e in listDict) {
             html += "<tr style='border-radius: 2px;background-color: \{0\}'>".format(bkgcolor);
@@ -370,7 +369,7 @@ function jsonTreeToCsvTree(StructName,varName,IsReference,preStructName) {
         var row = tb2.insertRow(rowIndex);
         row.setAttribute("onmouseover","showButtonOver(this)");
         row.setAttribute("onmouseout","showButtonOut(this)");
-        var bkgcolor = randomColor();
+        var bkgcolor = RowsColor(rowIndex);
         for(var j2=0;j2<colLen;j2++){
             var col=row.insertCell(j2);
             col.style.height="30px";
@@ -409,10 +408,10 @@ function jsonAdd(StructName,varName,IsReference,preStructName) {
     }
     var listTbl = document.getElementById(StructName+varName+"csv");
     var tb = document.getElementById(StructName+varName+"jsontree");
-    var bkgcolor = randomColor();
+    var bkgcolor = RowsColor((tb.rows.length-1)/Object.getOwnPropertyNames(cols).length);
     var spanFlag = true;
     for(var colelem in cols){
-        rowIndex=tb.rows.length-1;
+        var rowIndex=tb.rows.length-1;
         var row = tb.insertRow(rowIndex);
         if(spanFlag){
             var col=row.insertCell(0);
