@@ -182,6 +182,16 @@
     setCurrentTab: function($shell, $tab) {
       $shell.find('.chrome-tab-current').removeClass('chrome-tab-current');
       $tab.addClass('chrome-tab-current');
+      var tabid = $tab.attr("id");
+      $shell.find('.chrome-tab').each(function () {
+        var exitedTabId = $(this).attr("id");
+        $('#loadlog').children().each(function () {
+          if($(this).attr("id")) {
+            if ($(this).attr("id").match(exitedId)&&exitedTabId != tabid)
+              $(this).style.display = "none";
+          }
+        });
+      });
       return chromeTabs.render($shell);
     },
     closeTab: function($shell, $tab) {
@@ -192,6 +202,12 @@
           chromeTabs.setCurrentTab($shell, $tab.next());
         }
       }
+      var tabid = $tab.attr("id");
+      $('#loadlog').children().each(function () {
+        if($(this).attr("id"))
+            if($(this).attr("id").match(tabid))
+                $(this).remove();
+      });
       $tab.remove();
       return chromeTabs.render($shell);
     },
