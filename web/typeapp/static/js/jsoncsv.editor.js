@@ -1,7 +1,6 @@
-// $(document).ready(function (){
-//     $('.handleEnter').keypress(function (event) {handleEnter(this,event)});
-//     $('.jsoneditor-number').blur(function(){NumberChecktips(this)});
-// });
+$(document).ready(function (){
+    $('.jsoneditor-number').blur(function(){NumberChecktips(this)});
+});
 
 function JsonFormatConvt(strNum) {
     var doubleTest = /^-*\d+.\d+$/i;
@@ -26,12 +25,11 @@ function JsonFormatConvt(strNum) {
     return tempvalue;
 }
 
-var ColorCount=1;
-var colorBoard = ['grey','darkgray'];
-function randomColor() {
-    var id = ColorCount==0?1:0;
-    ColorCount=id;
-    return colorBoard[id];
+
+
+function RowsColor(rowIndex) {
+    var colorBoard = ['grey','darkgray'];
+    return colorBoard[rowIndex%2==0?0:1];
 }
 
 
@@ -142,6 +140,13 @@ function submitAllForm(formName,inputValueID,totalStruct) {
 }
 function delrow(obj) {
     var rowIndex = obj.parentNode.parentNode.rowIndex;
+    var cellsLen = obj.parentNode.parentNode.cells.length-1;
+    var tbrowslen = obj.parentNode.parentNode.parentNode.rows.length-1;
+    for(var i1 =rowIndex;i1<tbrowslen-1;i1++)
+        for(var j=0;j<cellsLen;j++)
+            MouseSelect.SelectedPointRecord["r"+i1+"c"+j]=MouseSelect.SelectedPointRecord["r"+(i1+1)+"c"+j];
+    for(j=0;j<cellsLen;j++)
+        delete MouseSelect.SelectedPointRecord["r"+(tbrowslen-1)+"c"+j]
     var tableID = obj.parentElement.parentElement.parentElement.parentElement.id;
     var tb = document.getElementById(tableID);
     tb.deleteRow(rowIndex);
@@ -159,20 +164,16 @@ function csvAddrow(structName,varName,idSufix) {
     var colLen = tb.rows[0].cells.length;
     var rowIndex=tb.rows.length-1;
     var row = tb.insertRow(rowIndex);
-    var bkgcolor = randomColor();
+    var bkgcolor = RowsColor(rowIndex-1);
     row.setAttribute("onmouseover","showButtonOver(this)");
     row.setAttribute("onmouseout","showButtonOut(this)");
     for(var i=0;i<colLen;i++){
         var col=row.insertCell(i);
-        col.setAttribute("spellcheck","false");
-        col.setAttribute("onmousedown","OnMouseDown(this)");
-        //col.setAttribute("onkeyup","onlyNumberAfterPress(this)");
-        //col.setAttribute("onbeforepaste","onlyNumberBeforePaste(this)");
         col.setAttribute("onblur",'NumberChecktips(this)');
         col.setAttribute("class","jsoneditor-value jsoneditor-number MouseSelectCopy");
+        col.setAttribute("onmousedown","OnMouseDown(this,\'list\')");
         col.setAttribute("contenteditable","true");
         col.setAttribute("onkeypress","handleEnter(this,event)");
-        //col.innerHTML=document.getElementById(tableId+i).innerHTML;
         col.style.textAlign="center";
         col.style.backgroundColor=bkgcolor;
         col.setAttribute("spellcheck","false");
@@ -197,7 +198,7 @@ function treeToCode(SelectElemId) {
         var varReference = jsonDict[valoption]["Fields"][varName]["Reference"];
         if (varReference == null) {
             if (varType == "string" || varType == "double" || varType == "sint32" || varType == "uint32") {
-                Jsoncode[varName] = JsonFormatConvt(ili.childNodes[3].innerHTML);
+                Jsoncode[varName] = JsonFormatConvt(ili.childNodes[2].rows[0].cells[4].innerHTML);
             }
             else if (varType.match("list")) {
                 i = i + 1;
@@ -209,7 +210,7 @@ function treeToCode(SelectElemId) {
             else if (varType.match("mat") || varType.match("vec")) {
                 i = i + 1;
                 var matTbl = document.getElementById(valoption + varName + "matrix");
-                var matBigArr = Array();
+                var matBigArr = new Array();
                 if (matTbl.rows.length > 1) {
                     for (var mi = 0; mi < matTbl.rows.length; mi++) {
                         var matSmallArr = new Array();
@@ -221,8 +222,8 @@ function treeToCode(SelectElemId) {
                     Jsoncode[varName] = matBigArr;
                 }
                 else {
-                    var matSmallArr = new Array();
-                    for (var mj = 0; mj < matTbl.rows[0].cells.length; mj++) {
+                    matSmallArr = new Array();
+                    for (mj = 0; mj < matTbl.rows[0].cells.length; mj++) {
                         matSmallArr[mj] = JsonFormatConvt(matTbl.rows[0].cells[mj].innerHTML)
                     }
                     Jsoncode[varName] = matSmallArr;
@@ -281,7 +282,6 @@ function StrListConverFormatedJson(slist){
     })
 }
 
-
 function csvTreeToJsonTree(StructName,varName,IsReference,preStructName) {
     var JSONDICT = document.getElementById("JsonDict").innerHTML;
     var jsonDict = {};
@@ -309,7 +309,7 @@ function csvTreeToJsonTree(StructName,varName,IsReference,preStructName) {
     }
     var html = "<table style='margin-left: 30px' id='\{0\}'>".format(StructName+varName+"jsontree");
     for(var i=0;i<listTbl.rows.length-3;i++) {
-        var bkgcolor = randomColor();
+        var bkgcolor = RowsColor(i);
         var spanFlag = true;
         for (var e in listDict) {
             html += "<tr style='border-radius: 2px;background-color: \{0\}'>".format(bkgcolor);
@@ -321,7 +321,7 @@ function csvTreeToJsonTree(StructName,varName,IsReference,preStructName) {
                 html += "<td class='jsoneditor-readonly'><span style='color: red'>*</span>" + e + ": " + "</td>";
             else
                 html += "<td class='jsoneditor-readonly'>" + e + ": " + "</td>";
-            html += "<td class='jsoneditor-value jsoneditor-number MouseSelectCopy' onmousedown='OnMouseDown()' onblur='NumberChecktips(this)' onkeypress='handleEnter(this,event)' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
+            html += "<td class='jsoneditor-value jsoneditor-number MouseSelectCopy' onmousedown='OnMouseDown(this,\"list\")' onblur='NumberChecktips(this)' onkeypress='handleEnter(this,event)' contenteditable='true' spellcheck='false' style='background-color: \{0\}'>".format(bkgcolor);
             html += listDict[e][i]+'</td>';
             html += "</tr>";
         }
@@ -369,7 +369,7 @@ function jsonTreeToCsvTree(StructName,varName,IsReference,preStructName) {
         var row = tb2.insertRow(rowIndex);
         row.setAttribute("onmouseover","showButtonOver(this)");
         row.setAttribute("onmouseout","showButtonOut(this)");
-        var bkgcolor = randomColor();
+        var bkgcolor = RowsColor(rowIndex);
         for(var j2=0;j2<colLen;j2++){
             var col=row.insertCell(j2);
             col.style.height="30px";
@@ -382,7 +382,7 @@ function jsonTreeToCsvTree(StructName,varName,IsReference,preStructName) {
             //col.setAttribute("onbeforepaste","onlyNumberBeforePaste(this)");
             col.setAttribute("onblur",'NumberChecktips(this)');
             col.style.backgroundColor= bkgcolor;
-            col.setAttribute("onmousedown","OnMouseDown()")
+            col.setAttribute("onmousedown","OnMouseDown(this,\"list\")");
         }
         var collast=row.insertCell(colLen);
         collast.innerHTML='<button  onclick="delrow(this)" style="width: 75px;display: none" >Delete</button>';
@@ -408,10 +408,10 @@ function jsonAdd(StructName,varName,IsReference,preStructName) {
     }
     var listTbl = document.getElementById(StructName+varName+"csv");
     var tb = document.getElementById(StructName+varName+"jsontree");
-    var bkgcolor = randomColor();
+    var bkgcolor = RowsColor((tb.rows.length-1)/Object.getOwnPropertyNames(cols).length);
     var spanFlag = true;
     for(var colelem in cols){
-        rowIndex=tb.rows.length-1;
+        var rowIndex=tb.rows.length-1;
         var row = tb.insertRow(rowIndex);
         if(spanFlag){
             var col=row.insertCell(0);

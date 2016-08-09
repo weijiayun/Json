@@ -6,17 +6,12 @@ var app = {
 };
 var PreloadFuncDict = {
     "MouseSelectCopyorPaste":function () {
-        $(".MouseSelectCopy").mousedown(OnMouseDown(this));
+        $(".MouseSelectCopy").mousedown(OnMouseDown());
         CopyAndPaste();
     },
     "InputCheck":function () {
         $('.jsoneditor-number').blur(function () {
           NumberChecktips(this);
-        });
-    },
-    "HandleEnter":function () {
-        $('span').keypress(function () {
-            handleEnter(this,e);
         });
     }
 
@@ -149,13 +144,18 @@ function SelectTypeTemplate(typeslist) {
 function NumberandStringTemplate(structname,VarAttrs) {
     var NumStrhtml = "";
     NumStrhtml += '<li style="display: block" onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
-    NumStrhtml += '<span>';
+    NumStrhtml += '<span style="display: none"></span><span style="display: none">{0}</span>'.format(VarAttrs.Name);
+    NumStrhtml += '<table><tr>';
+    NumStrhtml += '<td>';
     if(VarAttrs.Requiredness )
-        NumStrhtml +='<span style="color: red">*</span>';
-    NumStrhtml += '</span>';
-    NumStrhtml +="<span class=\"jsoneditor-readonly jsoneditor-value\"  id=\"m{0}{1}\">{1}</span>".format(structname,VarAttrs.Name);
-    NumStrhtml += "<span>: </span>";
-    NumStrhtml +='<span contenteditable="true" spellcheck="false" class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter" onkeypress="handleEnter(this,event)" id="{0}{1}">{2}</span></li>'.format(structname,VarAttrs.Name,VarAttrs.Default);
+        NumStrhtml +='<td style="color: red">*</td>';
+    NumStrhtml += '</td>';
+    NumStrhtml +="<td class=\"jsoneditor-readonly jsoneditor-value\"  id=\"m{0}{1}\">{1}</td>".format(structname,VarAttrs.Name);
+    NumStrhtml += "<td>: </td>";
+    if(VarAttrs.Default == null)
+        VarAttrs.Default = "";
+    NumStrhtml +='<td contenteditable="true" spellcheck="false" class="jsoneditor-number jsoneditor-value jsoneditor-listinput handleEnter" onkeypress="handleEnter(this,event)" onblur="NumberChecktips(this)" id="{0}{1}">{2}</td></li>'.format(structname,VarAttrs.Name,VarAttrs.Default);
+    NumStrhtml += '</tr></table>';
     return NumStrhtml;
 }
 function listTamplate(structname,listTypeFieldsDict,VarAttrs,IsReference,preStructName) {
@@ -203,7 +203,8 @@ function listTamplate(structname,listTypeFieldsDict,VarAttrs,IsReference,preStru
     listhtml +='</tr>';
     listhtml +='<tr>';
     for(listheadername in listTypeFieldsDict)
-        listhtml += '<td class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter MouseSelectCopy" contenteditable="true" onkeypress="handleEnter(this,event)" spellcheck="false" ></td>'
+        listhtml += '<td class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter MouseSelectCopy" contenteditable="true" onkeypress="handleEnter(this,event)" onblur="NumberChecktips(this)" onmousedown="OnMouseDown(this,\'list\')"  spellcheck="false" ></td>'
+    listhtml += '<td style="display: none"></td>';
     listhtml += '</tr>';
     listhtml += '<tr>';
     listhtml += '<td><button style="width: 75px;" onclick="csvAddrow(\'{0}\',\'{1}\',\'csv\')" >Add</button></td>'.format(struct,name);
@@ -241,13 +242,7 @@ function singleRefTemplate(structname,VarAttrs) {
     srefhtml += '</li>';
     return srefhtml;
 }
-function getDimention(vartype) {
-    var typeSplit=vartype.split(/&lt;|&gt;|,/);
-    if(typeSplit.length == 3)
-        return [1,parseInt(typeSplit[1])];
-    else
-        return [parseInt(typeSplit[1]),parseInt(typeSplit[2])];
-}
+
 function matrixTemplate(structname,VarAttrs) {
     var mathtml = "";
     mathtml +="<li>";
@@ -262,14 +257,13 @@ function matrixTemplate(structname,VarAttrs) {
     mathtml += '<table border="1" id="{0}{1}matrix" style="margin-left: 30px">'.format(structname,VarAttrs.Name);
     mathtml += '<tbody>';
     for(var i=0;i<parseInt(VarAttrs.DimensionY);i++){
+        var backgroundcolor = RowsColor(i+1);
         mathtml += '<tr style="height: 30px;">';
         for(var j=0;j<parseInt(VarAttrs.DimensionX);j++){
-            mathtml += '<td class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter" onkeypress="handleEnter(this,event)"  contenteditable="true" spellcheck="false" ></td>'
+            mathtml += '<td class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter MouseSelectCopy" style="background-color: {0}"   onkeypress="handleEnter(this,event)" onblur="NumberChecktips(this)" onmousedown="OnMouseDown(this,\'mat\')"  spellcheck="false" contenteditable="true"></td>'.format(backgroundcolor);
         }
         mathtml += '</tr>';
     }
-
-    mathtml +='<tr style="display: none"><td></td></tr>';
     mathtml +='</tbody></table></span></li>';
     return mathtml;
 }
