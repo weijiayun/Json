@@ -26,9 +26,18 @@
       <script type="text/javascript" src="../static/js/jsoncsv.editor.js"></script>
       <script type="text/javascript" src="../static/js/main.js" ></script>
 
+        <link data-jsfiddle="common" rel="stylesheet" media="screen" href="../static/dist/handsontable.css">
+  <link data-jsfiddle="common" rel="stylesheet" media="screen" href="../static/dist/pikaday/pikaday.css">
+  <script data-jsfiddle="common" src="../static/dist/pikaday/pikaday.js"></script>
+  <script data-jsfiddle="common" src="../static/dist/moment/moment.js"></script>
+  <script data-jsfiddle="common" src="../static/dist/zeroclipboard/ZeroClipboard.js"></script>
+  <script data-jsfiddle="common" src="../static/dist/numbro/numbro.js"></script>
+  <script data-jsfiddle="common" src="../static/dist/numbro/languages.js"></script>
+  <script data-jsfiddle="common" src="../static/dist/handsontable.js"></script>
 
   </head>
-  <body onload="app.load()" >
+  <body onload="app.load2()" >
+
     <div class="container">
         <h1 class="demo-logo">DFC tech.</h1>
           <div id="JsonDict" style="display: none">{{ JsonDict }}</div>
@@ -41,10 +50,36 @@
                     {% endfor %}
                 {% endwith %}
             </select>
-            <div class="col-sm-12" id="loadlog" ></div>
+            <div id="loadlog" ></div>
         </div>
     </div>
-
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+       aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close"
+               data-dismiss="modal" aria-hidden="true">
+                  &times;
+            </button>
+            <h4 class="modal-title" id="myModalLabel">
+               模态框（Modal）标题
+            </h4>
+         </div>
+         <div class="modal-body" id="bodymodal">
+            在这里添加一些文本
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default"
+               data-dismiss="modal">关闭
+            </button>
+            <button type="button" class="btn btn-primary">
+               提交更改
+            </button>
+         </div>
+      </div><!-- /.modal-content -->
+   </div><!-- /.modal -->
+  </div>
   </body>
 
 </html>

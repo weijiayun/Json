@@ -2,7 +2,8 @@
  * Created by jiayun.wei on 7/28/16.
  */
 var app = {
-    "load":TypesTemplate
+    load1:TypesTemplate,
+    load2:HtmlExcelAll
 };
 var PreloadFuncDict = {
     "MouseSelectCopyorPaste":function () {
@@ -19,8 +20,101 @@ var PreloadFuncDict = {
             handleEnter(this,e);
         });
     }
-
 };
+function HtmlExcelAll() {
+    var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
+    var ColumsAttr = [];
+    var hot1,container1;
+    for(var i in StrategyList){
+        ColumsAttr.push(GetColumsAttrs(StrategyList[i]))
+    }
+    container1 = document.getElementById('loadlog');
+    hot1 = new Handsontable(container1, {
+        data: ColumsAttr[0][2],
+        colHeaders: ColumsAttr[0][0],
+        columns:ColumsAttr[0][1],
+        minSpareRows: 1
+        });
+        // original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+        function strip_tags(input, allowed) {
+          var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,
+            commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi;
+
+          // making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
+          allowed = (((allowed || "") + "").toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join('');
+
+          return input.replace(commentsAndPhpTags, '').replace(tags, function ($0, $1) {
+            return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : '';
+          });
+        }
+        function safeHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
+          var escaped = Handsontable.helper.stringify(value);
+          escaped = strip_tags(escaped, '<em><b><strong><a><big>'); //be sure you only allow certain HTML tags to avoid XSS threats (you should also remove unwanted HTML attributes)
+          td.innerHTML = escaped;
+
+          return td;
+        }
+    
+}
+function GetColumsAttrs(structname) {
+    var StrategyDict = JSON.parse($("#JsonDict").html())["REFERENCES"];
+    var FieldsVar = StrategyDict[structname].Fields;
+    var FieldsVarAttrs = {};
+    var ColumsAttrList = new Array();
+    var ColDataDict = {};
+    var colAttrDict = {};
+    var colHeaders = new Array();
+    for(var varName in FieldsVar){
+        colAttrDict = {};
+        FieldsVarAttrs = FieldsVar[varName];
+        FieldsVarAttrs["Name"] = varName;
+        if(!FieldsVarAttrs.Reference){
+            if(FieldsVarAttrs.Type == "sint_32" || FieldsVarAttrs.Type == "uint_32") {
+                colAttrDict.data = FieldsVarAttrs.Name;
+                colAttrDict.type = "numeric";
+                ColumsAttrList.push(colAttrDict);
+                colHeaders.push(FieldsVarAttrs.Name);
+                ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
+            }
+            else if(FieldsVarAttrs.Type == "string") {
+                colAttrDict.data = FieldsVarAttrs.Name;
+                ColumsAttrList.push(colAttrDict);
+                colHeaders.push(FieldsVarAttrs.Name);
+                ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
+            }
+            else if(FieldsVarAttrs.Type == "enum"){
+                var enumList = Object.getOwnPropertyNames(StrategyDict[FieldsVarAttrs.EleType].Fields);
+                colAttrDict.data = FieldsVarAttrs.Name;
+                colAttrDict.type = "dropdown";
+                colAttrDict.source = enumList;
+                ColumsAttrList.push(colAttrDict);
+                colHeaders.push(FieldsVarAttrs.Name);
+                ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
+            }
+            // else if(FieldsVarAttrs.Type.match("mat") ||FieldsVarAttrs.Type.match("vec")){
+            //
+            //
+            //
+            // }
+            else if(FieldsVarAttrs.Type == "bool"){
+                colAttrDict.data = FieldsVarAttrs.Name;
+                colAttrDict.type = "checkbox";
+                ColumsAttrList.push(colAttrDict);
+                colHeaders.push(FieldsVarAttrs.Name);
+                ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
+            }
+            // else if(FieldsVarAttrs.Type.match("list"))
+            //     typehtml += listTamplate(structname,StrategyDict[FieldsVarAttrs.EleType].Fields,FieldsVarAttrs,false,structname);
+        }
+        // else {
+        //     if(FieldsVarAttrs.Type.match("list"))
+        //      typehtml += listRefTemplate(structname,FieldsVarAttrs);
+        //     else if(FieldsVarAttrs.Type == "sint_32" || FieldsVarAttrs.Type == "uint_32")
+        //         typehtml += singleRefTemplate(structname,FieldsVarAttrs);
+        //  }
+    }
+    return [colHeaders,ColumsAttrList,[ColDataDict]];
+}
 function TypesTemplate() {
     var html = "";
     html += '<div class="jsoneditor jsoneditor-mode-tree jsoneditor-tree">';

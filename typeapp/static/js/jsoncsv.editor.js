@@ -9,21 +9,25 @@ function JsonFormatConvt(strNum) {
     var falseTest = /^False$/i;
     var trueTest = /^True$/i;
     var nulltest = /^null$/i;
-    strNum = strNum.replace(new RegExp("\\<br\\>","g"),"");
-    var tempvalue;
-    if(doubleTest.test(strNum))
-        tempvalue = parseFloat(strNum);
-    else if(intTest.test(strNum))
-        tempvalue = parseInt(strNum);
-    else if(falseTest.test(strNum))
-        tempvalue = false;
-    else if(trueTest.test(strNum))
-        tempvalue = true;
-    else if(nulltest.test(strNum))
-        tempvalue = null;
+    if(strNum) {
+        strNum = strNum.replace(new RegExp("\\<br\\>", "g"), "");
+        var tempvalue;
+        if (doubleTest.test(strNum))
+            tempvalue = parseFloat(strNum);
+        else if (intTest.test(strNum))
+            tempvalue = parseInt(strNum);
+        else if (falseTest.test(strNum))
+            tempvalue = false;
+        else if (trueTest.test(strNum))
+            tempvalue = true;
+        else if (nulltest.test(strNum))
+            tempvalue = null;
+        else
+            tempvalue = strNum;
+        return tempvalue;
+    }
     else
-        tempvalue = strNum;
-    return tempvalue;
+        return "";
 }
 
 var ColorCount=1;

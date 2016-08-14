@@ -1,543 +1,6 @@
 #!/opt/Apps/local/Python/anaconda/bin/python2.7
 __author__ = 'jiayun.wei'
 
-TYPES = {
-    1:"Choose hero",
-    2:"Spider Man",
-    3:"Wolverine",
-    4:"Captain America",
-    5:"X-Men",
-    6:"Crocodile",
-    7:"Json Wei"
-}
-INPUTOBJECT = {
-    "Automaton": {
-        "Type": "Automaton",
-        "Category": "strategy",
-        "Fields": {
-            "I": {
-                "Type": "vec<3>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "OrderType": {
-                "Type": "OrderType::type",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None,
-                "DimensionX":None,
-                "DimensionY":None,
-                "Function":None
-            },
-            "Ranges": {
-                "Type": "list<TradingRange>",
-                "Requiredness": "optional",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "RiskMatrix": {
-                "Type": "mat<3,3>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Dimension": {
-                "Type": "sint32",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": True,
-                "Default": 3,
-                "Reference": None
-            },
-            "Type": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": True,
-                "Default": "Automaton",
-                "Reference": None
-            },
-            "SplitType": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": True,
-                "Default": "ShyGirl",
-                "Reference": None
-            },
-            "MaxOrderQty": {
-                "Type": "list<FeedcodeMaxQty>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Strategies": {
-                "Type": "list<uint32>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": "strategy"
-            },
-            "IsDaylight":{
-                "Type": "bool",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": False,
-                "Reference": None
-            },
-            "Market": {
-                "Type": "sint32",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": True,
-                "Default": None,
-                "Reference": "market"
-            },
-            "Components": {
-                "Type": "list<IInstructionComponent>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            }
-
-        }
-    },
-    "Automatontest": {
-        "Type": "Automatontest",
-        "Category": "strategy",
-        "Fields": {
-            "I": {
-                "Type": "vec<3>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "OrderType": {
-                "Type": "OrderType::type",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Ranges": {
-                "Type": "list<TradingRange>",
-                "Requiredness": "optional",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "RiskMatrix": {
-                "Type": "mat<3,3>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Dimension": {
-                "Type": "sint32",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": True,
-                "Default": 3,
-                "Reference": None
-            },
-            "Type": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": True,
-                "Default": "Automaton",
-                "Reference": None
-            },
-            "SplitType": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": True,
-                "Default": "ShyGirl",
-                "Reference": None
-            },
-            "MaxOrderQty": {
-                "Type": "list<FeedcodeMaxQty>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Strategies": {
-                "Type": "list<uint32>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": "strategy"
-            },
-            "Market": {
-                "Type": "sint32",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": True,
-                "Default": None,
-                "Reference": "market"
-            },
-            "Components": {
-                "Type": "list<IInstructionComponent>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            }
-
-        }
-    },
-    "OrderType::type": {
-        "Type": "OrderType::type",
-        "Category": "enum",
-        "Fields": {
-            "OTGFD": 0,
-            "SIMULATION": 1,
-            "IOC": 2,
-            "POTF": 3
-        }
-    },
-    "IStrategy": {
-        "Type": "IStrategy",
-        "Category": "strategy",
-        "Fields": {
-            "Name": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Id": {
-                "Type": "sint32",
-                "Requiredness": "required",
-                "IsAuto": True,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Type": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": True,
-                "Default": "IStrategy",
-                "Reference": None
-            }
-        }
-    },
-    "IInstructionComponent": {
-        "Type": "IInstructionComponent",
-        "Category": "struct",
-        "Fields": {
-            "End": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": "DateTime"
-            },
-            "Start": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": "DateTime"
-            }
-        }
-    },
-    "FeedcodeMaxQty": {
-        "Type": "FeedcodeMaxQty",
-        "Category": "struct",
-        "Fields": {
-            "MaxQty": {
-                "Type": "sint32",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Feedcode": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Feedbeed": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Feedmarket": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            }
-        }
-    },
-    "TradingRange":{
-        "Type": "TradingRange",
-        "Category": "struct",
-        "Fields": {
-            "End": {
-                "Type": "sint32",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Start": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            }
-        }
-    }
-}
-INPUTOBJECT1 = {
-    "Automatontest": {
-        "Type": "Automatontest",
-        "Category": "strategy",
-        "Fields": {
-            "I": {
-                "Type": "vec<3>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "OrderType": {
-                "Type": "OrderType::type1",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Ranges": {
-                "Type": "list<TradingRange1>",
-                "Requiredness": "optional",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "RiskMatrix": {
-                "Type": "mat<3,3>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Dimension": {
-                "Type": "sint32",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": True,
-                "Default": 3,
-                "Reference": None
-            },
-            "Type": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": True,
-                "Default": "Automaton",
-                "Reference": None
-            },
-            "SplitType": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": True,
-                "Default": "ShyGirl",
-                "Reference": None
-            },
-            "MaxOrderQty": {
-                "Type": "list<FeedcodeMaxQty1>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Strategies": {
-                "Type": "list<uint32>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": "strategy"
-            },
-            "Market": {
-                "Type": "sint32",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": True,
-                "Default": None,
-                "Reference": "market"
-            },
-            "Components": {
-                "Type": "list<IInstructionComponent1>",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            }
-
-        }
-    },
-    "OrderType::type1": {
-        "Type": "OrderType::type1",
-        "Category": "enum",
-        "Fields": {
-            "OTGFD": 0,
-            "SIMULATION": 1,
-            "IOC": 2,
-            "POTF": 3
-        }
-    },
-    "IStrategy1": {
-        "Type": "IStrategy1",
-        "Category": "strategy",
-        "Fields": {
-            "Name": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Id": {
-                "Type": "sint32",
-                "Requiredness": "required",
-                "IsAuto": True,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Type": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": True,
-                "Default": "IStrategy",
-                "Reference": None
-            }
-        }
-    },
-    "IInstructionComponent1": {
-        "Type": "IInstructionComponent1",
-        "Category": "struct",
-        "Fields": {
-            "End": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": "DateTime"
-            },
-            "Start": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": "DateTime"
-            }
-        }
-    },
-    "FeedcodeMaxQty1": {
-        "Type": "FeedcodeMaxQty1",
-        "Category": "struct",
-        "Fields": {
-            "MaxQty": {
-                "Type": "sint32",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Feedcode": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            }
-        }
-    },
-    "TradingRange1":{
-        "Type": "TradingRange1",
-        "Category": "struct",
-        "Fields": {
-            "End": {
-                "Type": "sint32",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            },
-            "Start": {
-                "Type": "string",
-                "Requiredness": "required",
-                "IsAuto": False,
-                "IsFixed": False,
-                "Default": None,
-                "Reference": None
-            }
-        }
-    }
-}
 
 INPUTOBJECT2=[
     {
@@ -585,7 +48,7 @@ INPUTOBJECT2=[
                 },
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default": "Observe",
                 "DimensionX": None,
                 "DimensionY": None,
                 "IsFixed": True,
@@ -598,7 +61,7 @@ INPUTOBJECT2=[
                 "Function": None,
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default": "Anna",
                 "DimensionX": None,
                 "DimensionY": None,
                 "IsFixed": True,
@@ -702,7 +165,7 @@ INPUTOBJECT2=[
                 "Function": None,
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default": True,
                 "DimensionX": 3,
                 "DimensionY": 2,
                 "IsFixed": False,
@@ -788,7 +251,7 @@ INPUTOBJECT2=[
                 },
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default": "Observe",
                 "DimensionX": None,
                 "DimensionY": None,
                 "IsFixed": True,
@@ -801,7 +264,7 @@ INPUTOBJECT2=[
                 "Function": None,
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default": "Anna",
                 "DimensionX": None,
                 "DimensionY": None,
                 "IsFixed": True,
@@ -905,7 +368,7 @@ INPUTOBJECT2=[
                 "Function": None,
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default": True,
                 "DimensionX": 3,
                 "DimensionY": 2,
                 "IsFixed": False,
@@ -1113,7 +576,7 @@ INPUTOBJECT3=[
                 },
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default": "Observe",
                 "DimensionX": None,
                 "DimensionY": None,
                 "IsFixed": True,
@@ -1126,7 +589,7 @@ INPUTOBJECT3=[
                 "Function": None,
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default": "Anna",
                 "DimensionX": None,
                 "DimensionY": None,
                 "IsFixed": True,
@@ -1230,7 +693,7 @@ INPUTOBJECT3=[
                 "Function": None,
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default": True,
                 "DimensionX": 3,
                 "DimensionY": 2,
                 "IsFixed": False,
@@ -1268,7 +731,7 @@ INPUTOBJECT3=[
                 },
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default":1,
                 "DimensionX": None,
                 "DimensionY": None,
                 "IsFixed": True,
@@ -1281,7 +744,7 @@ INPUTOBJECT3=[
                 "Function": None,
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default": 2,
                 "DimensionX": None,
                 "DimensionY": None,
                 "IsFixed": False,
@@ -1309,7 +772,7 @@ INPUTOBJECT3=[
               },
               "IsAuto": False,
               "Reference": None,
-              "Default": None,
+              "Default": 3,
               "DimensionX": None,
               "DimensionY": None,
               "IsFixed": True,
@@ -1322,7 +785,7 @@ INPUTOBJECT3=[
               "Function": None,
               "IsAuto": False,
               "Reference": None,
-              "Default": None,
+              "Default": 4,
               "DimensionX": None,
               "DimensionY": None,
               "IsFixed": False,
@@ -1335,7 +798,7 @@ INPUTOBJECT3=[
               "Function": None,
               "IsAuto": False,
               "Reference": None,
-              "Default": None,
+              "Default": 5,
               "DimensionX": None,
               "DimensionY": None,
               "IsFixed": False,
@@ -1391,7 +854,7 @@ INPUTOBJECT4=[
                 },
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default": 6,
                 "DimensionX": None,
                 "DimensionY": None,
                 "IsFixed": True,
@@ -1425,7 +888,7 @@ INPUTOBJECT4=[
                 },
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default": "Observe",
                 "DimensionX": None,
                 "DimensionY": None,
                 "IsFixed": True,
@@ -1438,7 +901,7 @@ INPUTOBJECT4=[
                 "Function": None,
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default": "Anna",
                 "DimensionX": None,
                 "DimensionY": None,
                 "IsFixed": True,
@@ -1542,7 +1005,7 @@ INPUTOBJECT4=[
                 "Function": None,
                 "IsAuto": False,
                 "Reference": None,
-                "Default": None,
+                "Default": True,
                 "DimensionX": 3,
                 "DimensionY": 2,
                 "IsFixed": False,
@@ -1722,4 +1185,5 @@ def ConvertTowebFormatJson(data):
             template["Type"] = elem["TemplName"]
             template["Fields"] = temldict
         outputDict[elem["TemplName"]] = template
+    print outputDict
     return outputDict
