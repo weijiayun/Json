@@ -65,7 +65,25 @@ function SaveBigTableData() {
             var name = element.getAttribute('data-dump');
             var instance = element.getAttribute('data-instance');
             var hot = window[instance];
-            var data = JSON.stringify(hot.getData(),4);
+            var tbl = hot.table;
+            var tr = $(tbl).children().eq(2).children().eq(0).get(0);
+            var rowlen = $(tbl).children().eq(2).children().size();
+            var collen = $(tbl).children().eq(2).children().eq(0).children().size();//start of row is 1
+            var i,j,td,datalist = [],templlist = [];
+            for(i=1;i<=rowlen;i++){
+                templlist = [];
+                for(j=1;j<collen;j++){
+                    td = tbl.rows[i].cells[j];
+                    if($(td).children().eq(0).get(0).tagName == "BUTTON"){
+                        templlist.push($(td).children().eq(0).val());
+                    }
+                    else if($(td).children().eq(0).get(0).tagName == "INPUT"){
+                        templlist.push($(td).children().eq(0).attr('checked'))
+                    }
+                }
+                datalist.push(templlist);
+            }
+            var data = JSON.stringify(datalist);
             $("#showhot1data").html(data)
         }
     });
