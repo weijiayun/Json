@@ -58,15 +58,23 @@ function MatButoon(field) {
 
 }
 
-function SaveBigTableData(){
-
-
+function SaveBigTableData() {
+    Handsontable.Dom.addEvent(document.body, 'click', function (e) {
+        var element = e.target || e.srcElement;
+        if (element.nodeName == "BUTTON" && element.name == 'dump') {
+            var name = element.getAttribute('data-dump');
+            var instance = element.getAttribute('data-instance');
+            var hot = window[instance];
+            var data = JSON.stringify(hot.getData(),4);
+            $("#showhot1data").html(data)
+        }
+    });
 }
-
+var hot1;
 function HtmlExcelAll() {
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
     var ColumsAttr = [];
-    var hot1,container1;
+    var container1;
     for(var i in StrategyList){
         ColumsAttr.push(GetColumsAttrs(StrategyList[i]))
     }
@@ -76,7 +84,7 @@ function HtmlExcelAll() {
         var currentRowindex = $(".currentRow").eq(0).parent().index();
         if($(td).parent().index() != currentRowindex){
             if($(td).children().length==0) {
-                $(td).append("<button  onclick='MatButoon(this)'>{0}</button>".format(prop));
+                $(td).html("<button  onclick='MatButoon(this)'>{0}</button>".format(prop));
                 $(td).children().eq(0).attr("data-dimensionRows", ColumsAttr[0][3][prop].DimensionY);
                 $(td).children().eq(0).attr("data-dimensionCols", ColumsAttr[0][3][prop].DimensionX);
                 $(td).children().eq(0).attr("data-Rows", row);
@@ -86,6 +94,7 @@ function HtmlExcelAll() {
                 var a3 = $(td).parent().parent().children().eq(currentRowindex).children().eq(col+1).children().eq(0).val();
                 $(td).children().eq(0).val(a3);
             }
+        SaveBigTableData();
         // else if(ColumsAttr[0][3][colheader].Type === "list"){
         // }
     }
@@ -173,6 +182,7 @@ function GetColumsAttrs(structname) {
                 ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
             }
             else if(FieldsVarAttrs.Type.match("mat") ||FieldsVarAttrs.Type.match("vec")){
+                //colAttrDict.type = "html";
                 colAttrDict.data = FieldsVarAttrs.Name;
                 ColumsAttrList.push(colAttrDict);
                 colHeaders.push(FieldsVarAttrs.Name);
