@@ -21,29 +21,43 @@ var PreloadFuncDict = {
         });
     }
 };
+var WindowTables={};
 function MatButoon(field) {
-    $('#myModal').modal('show');
+    var hot,container0,container,data1;
+    container0 = document.getElementById('bodymodal');
+    $(container0).children().remove();
+    $(container0).append("<div></div>");
+    container = $(container0).children().get(0);
     var rowlen = parseInt($(field).attr("data-dimensionRows"));
     var collen = parseInt($(field).attr("data-dimensionCols"));
-    var hot,container,data1;
-    var datalist=[];
-    var templlist = [];
-
-    container = document.getElementById('bodymodal');
+    var rowindex = parseInt($(field).attr("data-Rows"));
+    var colindex = parseInt($(field).attr("data-Cols"));
+    var colHeader = parseInt($(field).attr("data-prop"));
+    if( $(field).val())
+        data1 = JSON.parse($(field).val());
     hot = new Handsontable(container, {
+        data:data1,
         startRows:rowlen,
         startCols:collen,
-        data:[],
-        //columns:true,
+        maxRows:rowlen,
         rowHeaders:true,
         colHeaders: true,
-        minSpareRows:1,
-        // //stretchH: 'all',
-        // contextMenu: true,
+        contextMenu: true,
         currentRowClassName: 'currentRow',
         currentColClassName: 'currentCol'
         });
+    WindowTables['hot'+colHeader+"Row"+rowindex+"Col"+colindex] = hot;
+
+    $('#myModal').modal('show');
+    function savedata() {
+        $(field).val(JSON.stringify(WindowTables['hot'+colHeader+"Row"+rowindex+"Col"+colindex].getData()))
+
+    }
+    $(function () { $('#myModal').on('hide.bs.modal', savedata)});
+
 }
+
+
 function HtmlExcelAll() {
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
     var ColumsAttr = [];
@@ -53,12 +67,18 @@ function HtmlExcelAll() {
     }
     container1 = document.getElementById('loadlog');
     function InseritAttrFromColHeader(instance, td, row, col, prop, value, cellProperties) {
-        Handsontable.renderers.TextRenderer.apply(this, arguments);
+        //Handsontable.renderers.TextRenderer.apply(this, arguments);
         if (ColumsAttr[0][3][prop].Type === 'mat' || ColumsAttr[0][3][prop].Type === 'vec'){
-            $(td).append("<button style='width: 100%;height: 100%' onclick='MatButoon(this)'  class=\"btn btn-primary btn-lg\">{0}</button>".format(prop));
-            $(td).children().eq(0).attr("data-dimensionRows",ColumsAttr[0][3][prop].DimensionY);
-            $(td).children().eq(0).attr("data-dimensionCols",ColumsAttr[0][3][prop].DimensionX);
-
+            if($(td).children().length==0) {
+                $(td).append("<button  onclick='MatButoon(this)'  >{0}</button>".format(prop));
+                $(td).children().eq(0).attr("data-dimensionRows", ColumsAttr[0][3][prop].DimensionY);
+                $(td).children().eq(0).attr("data-dimensionCols", ColumsAttr[0][3][prop].DimensionX);
+                $(td).children().eq(0).attr("data-Rows", row);
+                $(td).children().eq(0).attr("data-Cols", col);
+                $(td).children().eq(0).attr("data-Prop", prop);
+                var a = instance.getData(0,col);
+                //$(td).children().eq(0).val(a2.val());
+            }
         }
         // else if(ColumsAttr[0][3][colheader].Type === "list"){
         // }
@@ -70,19 +90,19 @@ function HtmlExcelAll() {
         columns:ColumsAttr[0][1],
         rowHeaders:true,
         //colHeaders: true,
-        minSpareRows: 1,
+        //minSpareRows: 1,
         stretchH: 'all',
         contextMenu: true,
         currentRowClassName: 'currentRow',
         currentColClassName: 'currentCol',
         cells:function (row, col, prop) {
             var cellProperties = {};
-            if(ColumsAttr[0][3][prop].Type === 'mat' || ColumsAttr[0][3][prop].Type === 'vec') {
+            if (ColumsAttr[0][3][prop].Type === 'mat' || ColumsAttr[0][3][prop].Type === 'vec') {
                 cellProperties.renderer = "InseritAttrFromColHeader";
             }
             return cellProperties;
         }
-        });
+    });
         // original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
         function strip_tags(input, allowed) {
           var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,
