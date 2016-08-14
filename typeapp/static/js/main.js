@@ -26,7 +26,7 @@ function MatButoon(field) {
     var hot,container0,container,data1;
     container0 = document.getElementById('bodymodal');
     $(container0).children().remove();
-    $(container0).append("<div></div>");
+    $(container0).append("<div class='handsontable htRowHeaders htColumnHeaders'></div>");
     container = $(container0).children().get(0);
     var rowlen = parseInt($(field).attr("data-dimensionRows"));
     var collen = parseInt($(field).attr("data-dimensionCols"));
@@ -44,7 +44,8 @@ function MatButoon(field) {
         colHeaders: true,
         contextMenu: true,
         currentRowClassName: 'currentRow',
-        currentColClassName: 'currentCol'
+        currentColClassName: 'currentCol',
+        autoWrapRow: true
         });
     WindowTables['hot'+colHeader+"Row"+rowindex+"Col"+colindex] = hot;
 
@@ -57,6 +58,10 @@ function MatButoon(field) {
 
 }
 
+function SaveBigTableData(){
+
+
+}
 
 function HtmlExcelAll() {
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
@@ -68,18 +73,19 @@ function HtmlExcelAll() {
     container1 = document.getElementById('loadlog');
     function InseritAttrFromColHeader(instance, td, row, col, prop, value, cellProperties) {
         //Handsontable.renderers.TextRenderer.apply(this, arguments);
-        if (ColumsAttr[0][3][prop].Type === 'mat' || ColumsAttr[0][3][prop].Type === 'vec'){
+        var currentRowindex = $(".currentRow").eq(0).parent().index();
+        if($(td).parent().index() != currentRowindex){
             if($(td).children().length==0) {
-                $(td).append("<button  onclick='MatButoon(this)'  >{0}</button>".format(prop));
+                $(td).append("<button  onclick='MatButoon(this)'>{0}</button>".format(prop));
                 $(td).children().eq(0).attr("data-dimensionRows", ColumsAttr[0][3][prop].DimensionY);
                 $(td).children().eq(0).attr("data-dimensionCols", ColumsAttr[0][3][prop].DimensionX);
                 $(td).children().eq(0).attr("data-Rows", row);
                 $(td).children().eq(0).attr("data-Cols", col);
                 $(td).children().eq(0).attr("data-Prop", prop);
-                var a = instance.getData(0,col);
-                //$(td).children().eq(0).val(a2.val());
             }
-        }
+                var a3 = $(td).parent().parent().children().eq(currentRowindex).children().eq(col+1).children().eq(0).val();
+                $(td).children().eq(0).val(a3);
+            }
         // else if(ColumsAttr[0][3][colheader].Type === "list"){
         // }
     }
@@ -88,7 +94,12 @@ function HtmlExcelAll() {
         data: ColumsAttr[0][2],
         colHeaders: ColumsAttr[0][0],
         columns:ColumsAttr[0][1],
+        manualColumnMove: true,
+        manualRowMove: true,
+        manualColumnResize: true,
+        manualRowResize: true,
         rowHeaders:true,
+        colHeights:100,
         //colHeaders: true,
         //minSpareRows: 1,
         stretchH: 'all',
@@ -103,6 +114,7 @@ function HtmlExcelAll() {
             return cellProperties;
         }
     });
+
         // original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
         function strip_tags(input, allowed) {
           var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,
