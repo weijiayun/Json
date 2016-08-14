@@ -21,6 +21,29 @@ var PreloadFuncDict = {
         });
     }
 };
+function MatButoon(field) {
+    $('#myModal').modal('show');
+    var rowlen = parseInt($(field).attr("data-dimensionRows"));
+    var collen = parseInt($(field).attr("data-dimensionCols"));
+    var hot,container,data1;
+    var datalist=[];
+    var templlist = [];
+
+    container = document.getElementById('bodymodal');
+    hot = new Handsontable(container, {
+        startRows:rowlen,
+        startCols:collen,
+        data:[],
+        //columns:true,
+        rowHeaders:true,
+        colHeaders: true,
+        minSpareRows:1,
+        // //stretchH: 'all',
+        // contextMenu: true,
+        currentRowClassName: 'currentRow',
+        currentColClassName: 'currentCol'
+        });
+}
 function HtmlExcelAll() {
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
     var ColumsAttr = [];
@@ -29,11 +52,36 @@ function HtmlExcelAll() {
         ColumsAttr.push(GetColumsAttrs(StrategyList[i]))
     }
     container1 = document.getElementById('loadlog');
+    function InseritAttrFromColHeader(instance, td, row, col, prop, value, cellProperties) {
+        Handsontable.renderers.TextRenderer.apply(this, arguments);
+        if (ColumsAttr[0][3][prop].Type === 'mat' || ColumsAttr[0][3][prop].Type === 'vec'){
+            $(td).append("<button style='width: 100%;height: 100%' onclick='MatButoon(this)'  class=\"btn btn-primary btn-lg\">{0}</button>".format(prop));
+            $(td).children().eq(0).attr("data-dimensionRows",ColumsAttr[0][3][prop].DimensionY);
+            $(td).children().eq(0).attr("data-dimensionCols",ColumsAttr[0][3][prop].DimensionX);
+
+        }
+        // else if(ColumsAttr[0][3][colheader].Type === "list"){
+        // }
+    }
+    Handsontable.renderers.registerRenderer('InseritAttrFromColHeader', InseritAttrFromColHeader);
     hot1 = new Handsontable(container1, {
         data: ColumsAttr[0][2],
         colHeaders: ColumsAttr[0][0],
         columns:ColumsAttr[0][1],
-        minSpareRows: 1
+        rowHeaders:true,
+        //colHeaders: true,
+        minSpareRows: 1,
+        stretchH: 'all',
+        contextMenu: true,
+        currentRowClassName: 'currentRow',
+        currentColClassName: 'currentCol',
+        cells:function (row, col, prop) {
+            var cellProperties = {};
+            if(ColumsAttr[0][3][prop].Type === 'mat' || ColumsAttr[0][3][prop].Type === 'vec') {
+                cellProperties.renderer = "InseritAttrFromColHeader";
+            }
+            return cellProperties;
+        }
         });
         // original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
         function strip_tags(input, allowed) {
@@ -54,8 +102,9 @@ function HtmlExcelAll() {
 
           return td;
         }
-    
+
 }
+
 function GetColumsAttrs(structname) {
     var StrategyDict = JSON.parse($("#JsonDict").html())["REFERENCES"];
     var FieldsVar = StrategyDict[structname].Fields;
@@ -91,11 +140,12 @@ function GetColumsAttrs(structname) {
                 colHeaders.push(FieldsVarAttrs.Name);
                 ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
             }
-            // else if(FieldsVarAttrs.Type.match("mat") ||FieldsVarAttrs.Type.match("vec")){
-            //
-            //
-            //
-            // }
+            else if(FieldsVarAttrs.Type.match("mat") ||FieldsVarAttrs.Type.match("vec")){
+                colAttrDict.data = FieldsVarAttrs.Name;
+                ColumsAttrList.push(colAttrDict);
+                colHeaders.push(FieldsVarAttrs.Name);
+                ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
+            }
             else if(FieldsVarAttrs.Type == "bool"){
                 colAttrDict.data = FieldsVarAttrs.Name;
                 colAttrDict.type = "checkbox";
@@ -113,7 +163,7 @@ function GetColumsAttrs(structname) {
         //         typehtml += singleRefTemplate(structname,FieldsVarAttrs);
         //  }
     }
-    return [colHeaders,ColumsAttrList,[ColDataDict]];
+    return [colHeaders,ColumsAttrList,[ColDataDict],FieldsVar];
 }
 function TypesTemplate() {
     var html = "";
@@ -193,7 +243,7 @@ function enumTemplate(structname,enumlist,VarAttrs) {
     enumhtml = '<li id="{0}">'.format(structname+VarAttrs.Name);
     enumhtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)" >';
     if(VarAttrs.Requiredness )
-        enumhtml += '<span style="color: red">*</span>'; 
+        enumhtml += '<span style="color: red">*</span>';
     enumhtml +='<span >{0} </span>'.format(VarAttrs.Name);
     enumhtml +="<span class='dropdown'>";
     enumhtml +="<button type='button' class='btn dropdown-toggle btn-large btn-primary' id='{0}enumSelect' data-toggle='dropdown'>".format(structname+VarAttrs.Name);
