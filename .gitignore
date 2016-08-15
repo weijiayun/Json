@@ -3,3 +3,4 @@ config.txt
 *log.txt
 .idea
 *.pem
+*~
