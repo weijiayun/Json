@@ -1,0 +1,14 @@
+<tr id="{{ StructName }}bool" style="display: block">
+    <td>
+        {% if varReq == "required" %}
+            <span style="color: red">*</span>
+        {% endif %}
+    </td>
+    <td class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{{ varName }}</td>
+    <td class="jsoneditor-tree">
+        <input type="checkbox" value="0" id="m{{ StructName }}{{ varName }}"
+               onclick="get_chekbox_value('m{{ StructName }}{{ varName }}','{{ StructName }}{{ varName }}')"/>
+        <span style="color: deepskyblue" id="{{ StructName }}{{ varName }}">{{ varDefault }}</span>
+    </td>
+    <td style="display: none" id="{{ StructName }}{{ varName }}boolval">{{ varDefault }}</td>
+</tr>

@@ -1,0 +1,36 @@
+
+<table id="{{ StructName }}" style="display: none;margin-left: 40px" >
+    <tbody>
+    {% set FieldsVar = StructInfo[StructName].Fields %}
+    {% for varName in FieldsVar %}
+        {% set varType=FieldsVar[varName].Type %}
+        {% set varReq=FieldsVar[varName].Requiredness %}
+        {% set varIsFixed=FieldsVar[varName].IsFixed|string %}
+        {% set varDefault=FieldsVar[varName].Default|string %}
+        {% set varReference=FieldsVar[varName].Reference|string %}
+        {% if varReference == "None" %}
+            {% if varType=="sint32" or varType=="uint32" %}
+                {% include 'double.html' %}
+            {% elif varType=="string" %}
+                {% include '../test/string.html' %}
+            {% elif ("::" in varType) %}
+                    {% include 'enum.html' %}
+            {% elif "list<" in varType %}
+                {% set listTypeName=varType|getListTypeName %}
+                {% include 'list.html' %}
+            {% elif ("mat<" in varType or "vec<" in varType)%}
+                {% set matDim=varType|getDim %}
+                {% include "matrix.html" %}
+            {% elif varType == "bool" %}
+                {% include 'bool.html' %}
+            {% endif %}
+        {% else %}
+            {% if "list<" in varType %}
+                {% include "listref.html" %}
+            {% elif  varType == "sint32" or varType=="uint32"%}
+                {% include "../test/singleref.html" %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    </tbody>
+</table>
