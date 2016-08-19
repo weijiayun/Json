@@ -44,49 +44,41 @@ function MatButoon(field) {
 }
 
 function SaveBigTableData() {
-    Handsontable.Dom.addEvent(document.body, 'click', function (e) {
-        var element = e.target || e.srcElement;
-        if (element.nodeName == "BUTTON" && element.name == 'dump') {
-            var name = element.getAttribute('data-dump');
-            var instance = element.getAttribute('data-instance');
-            var hot = window[instance];
-            var tbl = hot.table;
-            var tbody = $(tbl).children().eq(2).get(0);
-            var rowlen = $(tbl).children().eq(2).children().size();
-            var collen = $(tbl).children().eq(2).children().eq(0).children().size();//start of row is 1
-            var i,j,td,theader,datalist = [],tempdict = {},listTest = /[\[\]\{\}]/i;
-            for(i=0;i<rowlen;i++){
-                tempdict = {};
-                for(j=1;j<collen;j++){
-                    theader = $(tbl).children().eq(1).children().eq(0).children().eq(j).children().eq(0).children().eq(0).html();
-                    td = $(tbody).children().eq(i).children().eq(j).get(0);
-                    var a = $(td).children().size();
-                    if($(td).children().size() != 0){
-                    if($(td).children().eq(0).get(0).tagName == "BUTTON"){
-                        if(listTest.test($(td).children().eq(0).val()))
-                            tempdict[theader] = JSON.parse($(td).children().eq(0).val()).map(function(s){ return s.map(function (se){ return JsonFormatConvt(se)})});
-                        else
-                            tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
-                    }
-                    else if($(td).children().eq(0).get(0).tagName == "INPUT"){
-                        tempdict[theader] = $(td).children().eq(0).get(0).checked;
-                    }
-                    else if($(td).children().eq(0).get(0).tagName == "DIV"){
-                        tempdict[theader] = JsonFormatConvt($(td).html().split('<div')[0]);
-                    }
+        var hot = window["hot1"];
+        var tbl = hot.table;
+        var tbody = $(tbl).children().eq(2).get(0);
+        var rowlen = $(tbl).children().eq(2).children().size();
+        var collen = $(tbl).children().eq(2).children().eq(0).children().size();//start of row is 1
+        var i,j,td,theader,datalist = [],tempdict = {},listTest = /[\[\]\{\}]/i;
+        for(i=0;i<rowlen;i++){
+            tempdict = {};
+            for(j=1;j<collen;j++){
+                theader = $(tbl).children().eq(1).children().eq(0).children().eq(j).children().eq(0).children().eq(0).html();
+                td = $(tbody).children().eq(i).children().eq(j).get(0);
+                var a = $(td).children().size();
+                if($(td).children().size() != 0){
+                if($(td).children().eq(0).get(0).tagName == "BUTTON"){
+                    if(listTest.test($(td).children().eq(0).val()))
+                        tempdict[theader] = JSON.parse($(td).children().eq(0).val()).map(function(s){ return s.map(function (se){ return JsonFormatConvt(se)})});
+                    else
+                        tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
                 }
-                else
-                    {
-                        tempdict[theader] = JsonFormatConvt($(td).html());
-                    }
+                else if($(td).children().eq(0).get(0).tagName == "INPUT"){
+                    tempdict[theader] = $(td).children().eq(0).get(0).checked;
                 }
-                datalist.push(tempdict);
-
+                else if($(td).children().eq(0).get(0).tagName == "DIV"){
+                    tempdict[theader] = JsonFormatConvt($(td).html().split('<div')[0]);
+                }
             }
-            var data = JSON.stringify(datalist,null,10);
-            $("#showhot1data").html(data)
+            else
+                {
+                    tempdict[theader] = JsonFormatConvt($(td).html());
+                }
+            }
+            datalist.push(tempdict);
         }
-    });
+        var data = JSON.stringify(datalist,null,10);
+        $("#showhot1data").html(data)
 }
 var hot1;
 function HtmlExcelAll() {

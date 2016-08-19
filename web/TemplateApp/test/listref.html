@@ -1,0 +1,9 @@
+<tr>
+    <td onmouseover="shadowover(this)" onmouseout="shadowout(this)">
+        {% if varReq == "required" %}
+            <span style="color: red">*</span> <button onclick="get_Multi_Reference_List('{{ StructName }}','{{ varName }}')" style="width: auto">{{ varName }}</button><span class="selectwww" id="{{ StructName }}{{ varName }}tdSelect"></span>
+        {% endif %}
+    </td>
+    <td  style="display: none" id="m{{ StructName }}{{ varName }}">{{ varName }}</td>
+    <td id="{{ StructName }}{{ varName }}REFDATA" style="display: none"></td>
+</tr>

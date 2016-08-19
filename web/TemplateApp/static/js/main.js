@@ -2,7 +2,7 @@
  * Created by jiayun.wei on 7/28/16.
  */
 var app = {
-    load1:TypesTemplate,
+    load:TypesTemplate,
     load2:HtmlExcelAll
 };
 
@@ -44,11 +44,6 @@ function MatButoon(field) {
 }
 
 function SaveBigTableData() {
-    Handsontable.Dom.addEvent(document.body, 'click', function (e) {
-        var element = e.target || e.srcElement;
-        if (element.nodeName == "BUTTON" && element.name == 'dump') {
-            var name = element.getAttribute('data-dump');
-            var instance = element.getAttribute('data-instance');
             var hot = window["hot1"];
             var tbl = hot.table;
             var tbody = $(tbl).children().eq(2).get(0);
@@ -85,8 +80,6 @@ function SaveBigTableData() {
             }
             var data = JSON.stringify(datalist,null,10);
             $("#showhot1data").html(data)
-        }
-    });
 }
 var hot1;
 function HtmlExcelAll() {
@@ -112,7 +105,6 @@ function HtmlExcelAll() {
                 var a3 = $(td).parent().parent().children().eq(currentRowindex).children().eq(col+1).children().eq(0).val();
                 $(td).children().eq(0).val(a3);
             }
-        SaveBigTableData();
         // else if(ColumsAttr[0][3][colheader].Type === "list"){
         // }
     }
@@ -139,6 +131,33 @@ function HtmlExcelAll() {
                 cellProperties.renderer = "InseritAttrFromColHeader";
             }
             return cellProperties;
+        }
+    });
+    hot1.updateSettings({
+        contextMenu: {
+            callback: function (key, options) {
+                if (key === 'json') {
+                    app.load("TAB1","bodymodal");
+                    $('#myModal').modal('show');
+                    $(function () { $('#myModal').on('hide.bs.modal', savedata)});
+                }
+            },
+            items: {
+                "row_above": {},
+                "row_below": {},
+                "undo":{},
+                "redo":{},
+                "alignment":{},
+                "clear_column":{},
+                "remove_row":{
+                    name:"remove this row!",
+                    disabled:function () {
+                        return (hot1.getSelected() && hot1.getSelected()[0] === 0)
+                    }
+                },
+                "json":{name:"Trun row to Json"}
+            }
+
         }
     });
 
@@ -265,11 +284,12 @@ function get_TypesSelect_Result(TemplatesUnitIdPrefix,obj) {
     });
 }
 
-function TypesTemplate(TemplateUnitIdPrefix) {
+
+function TypesTemplate(TemplateUnitIdPrefix,medal) {
     var html = "";
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
     html += "<div class='jsoneditor-selecttype' id='{0}TemplatesSelection' style='display: block'>{1}</div>".format(TemplateUnitIdPrefix,SelectTypeTemplate(TemplateUnitIdPrefix,StrategyList));
-    $("#loadlog").append(html);
+    $("#{0}".format(medal)).append(html);
 }
 function TypeUnitTemplate(structname,TemplateUnitIdPrefix){
     var typehtml="";

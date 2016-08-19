@@ -42,7 +42,7 @@
       <script type="text/javascript" src="../static/js/jquery.multiselect.js"></script>
       <script type="text/javascript" src="../static/js/jquery.tips.js"></script>
       <script type="text/javascript" src="../static/js/baseFunctions.js"></script>
-      <!--<script type="text/javascript" src="../static/js/MouseSelectCopyandPaste.js"></script>-->
+      <script type="text/javascript" src="../static/js/MouseSelectCopyandPaste.js"></script>
       <script type="text/javascript" src="../static/js/jsoncsv.editor.js"></script>
       <script type="text/javascript" src="../static/js/main.js" ></script>
 
@@ -115,8 +115,8 @@
           <div class="am-g">
               <div  class="am-u-sm-10 am-scrollable-vertical" style="height: 900px;padding-top: 0;" >
                   <div class="handsontable htRowHeaders htColumnHeaders" id="loadlog" ></div>
-                  <p>
-                      <button onclick="SaveBigTableData()">
+                  <p id="para">
+                      <button name="dump" data-dump="#example1" data-instance="hot1" onclick="SaveBigTableData()">
                           Dump data to console
                       </button>
                   </p>

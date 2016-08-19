@@ -1,0 +1,25 @@
+<tr id="{{ StructName }}{{ varName }}">
+    <td class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)" >
+        {% if varReq == "required" %}
+            <span style="color: red">*</span>
+        {% endif %}
+        <span >{{ varName }} </span>
+    <span class='dropdown'>
+     <button type='button' class='btn dropdown-toggle btn-large btn-primary' id='{{ StructName }}{{ varName }}refSelect' data-toggle='dropdown'>
+         <span id="{{ StructName }}{{ varName }}buttonValue">{{ varName }}</span>
+         <span class='caret'></span>
+     </button>
+     <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+         {% set enumFieldsVar = StructInfo[varType].Fields %}
+         {% for enumVarName in enumFieldsVar %}
+             <li role="presentation">
+             <a role="menuitem" tabindex="-1" onmouseover="shadowover(this)" onmouseout="shadowout(this)" onclick="returnval('{{ StructName }}{{ varName }}',this)" name="{{ enumVarName }}">{{ enumVarName }}</a>
+         </li>
+         {% endfor %}
+     </ul>
+    </span>
+    </td>
+    <td id="m{{ StructName }}{{varName }}" style="display: none">{{ varName }}</td>
+</tr>
+
+
