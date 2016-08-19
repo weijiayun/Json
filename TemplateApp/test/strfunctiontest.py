@@ -18,7 +18,6 @@ if __name__ == "__main__":
         "paras":["test1","test2"]
     }
     a=funcDict["paras"]
-    print '{0:,}'.format(34535345345)
     summ = reduce(lambda x,y:"'{0}','{1}'".format(x,y),a)
     exec("s=foo()")
     exec("s.func({0})".format(summ))

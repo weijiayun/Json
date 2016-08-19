@@ -7,7 +7,7 @@ var app = {
 };
 
 var WindowTables={};
-function MatButoon(field) {
+function MatButton(field) {
     var hot,container0,container,data1;
     container0 = document.getElementById('bodymodal');
     $(container0).children().remove();
@@ -31,6 +31,45 @@ function MatButoon(field) {
         currentRowClassName: 'currentRow',
         currentColClassName: 'currentCol',
         autoWrapRow: true
+        });
+    WindowTables['hot'+colHeader+"Row"+rowindex+"Col"+colindex] = hot;
+
+    $('#myModal').modal('show');
+    function savedata() {
+        $(field).val(JSON.stringify(WindowTables['hot'+colHeader+"Row"+rowindex+"Col"+colindex].getData()))
+
+    }
+    $(function () { $('#myModal').on('hide.bs.modal', savedata)});
+
+}
+
+function ListButton(field) {
+    var hot,container0,container,data1;
+    container0 = document.getElementById('bodymodal');
+    $(container0).children().remove();
+    $(container0).append("<div class='handsontable htRowHeaders htColumnHeaders'></div>");
+    container = $(container0).children().get(0);
+    var colHeadsList = JSON.parse($(field).attr("data-colNamesList"));
+    var rowindex = parseInt($(field).attr("data-Rows"));
+    var colindex = parseInt($(field).attr("data-Cols"));
+    var colHeader = parseInt($(field).attr("data-prop"));
+    if( $(field).val())
+        data1 = JSON.parse($(field).val());
+    var columnsAttrsList = [];
+    for(var i in colHeadsList){
+        columnsAttrsList.push({data:colHeadsList[i],type:"numeric"})
+    }
+    hot = new Handsontable(container, {
+        data:data1,
+        rowHeaders:true,
+        colHeaders:colHeadsList,
+        columns:columnsAttrsList,
+        contextMenu: true,
+        currentRowClassName: 'currentRow',
+        currentColClassName: 'currentCol',
+        minSpareRows: 1,
+        startRows:1
+        //autoWrapRow: true
         });
     WindowTables['hot'+colHeader+"Row"+rowindex+"Col"+colindex] = hot;
 
@@ -90,12 +129,12 @@ function HtmlExcelAll() {
         ColumsAttr.push(GetColumsAttrs(StrategyList[i]))
     }
     container1 = document.getElementById('loadlog');
-    function InseritAttrFromColHeader(instance, td, row, col, prop, value, cellProperties) {
+    function expandMatrix(instance, td, row, col, prop, value, cellProperties) {
         //Handsontable.renderers.TextRenderer.apply(this, arguments);
         var currentRowindex = $(".currentRow").eq(0).parent().index();
         if($(td).parent().index() != currentRowindex){
             if($(td).children().length==0) {
-                $(td).html("<button  onclick='MatButoon(this)'>{0}</button>".format(prop));
+                $(td).html("<button  onclick='MatButton(this)'>{0}</button>".format(prop));
                 $(td).children().eq(0).attr("data-dimensionRows", ColumsAttr[0][3][prop].DimensionY);
                 $(td).children().eq(0).attr("data-dimensionCols", ColumsAttr[0][3][prop].DimensionX);
                 $(td).children().eq(0).attr("data-Rows", row);
@@ -105,10 +144,23 @@ function HtmlExcelAll() {
                 var a3 = $(td).parent().parent().children().eq(currentRowindex).children().eq(col+1).children().eq(0).val();
                 $(td).children().eq(0).val(a3);
             }
-        // else if(ColumsAttr[0][3][colheader].Type === "list"){
-        // }
     }
-    Handsontable.renderers.registerRenderer('InseritAttrFromColHeader', InseritAttrFromColHeader);
+    function expandList(instance, td, row, col, prop, value, cellProperties) {
+        var currentRowindex = $(".currentRow").eq(0).parent().index();
+        if($(td).parent().index() != currentRowindex){
+            if($(td).children().length==0) {
+                $(td).html("<button  onclick='ListButton(this)'>{0}</button>".format(prop));
+                $(td).children().eq(0).attr("data-colNamesList",JSON.stringify(Object.getOwnPropertyNames(ColumsAttr[0][2][prop])));
+                $(td).children().eq(0).attr("data-Rows", row);
+                $(td).children().eq(0).attr("data-Cols", col);
+                $(td).children().eq(0).attr("data-Prop", prop);
+            }
+                var a3 = $(td).parent().parent().children().eq(currentRowindex).children().eq(col+1).children().eq(0).val();
+                $(td).children().eq(0).val(a3);
+            }
+    }
+    Handsontable.renderers.registerRenderer('expandMatrix', expandMatrix);
+    Handsontable.renderers.registerRenderer('expandList', expandList);
     hot1 = new Handsontable(container1, {
         data: ColumsAttr[0][2],
         colHeaders: ColumsAttr[0][0],
@@ -121,6 +173,7 @@ function HtmlExcelAll() {
         colHeights:100,
         //colHeaders: true,
         //minSpareRows: 1,
+        startRows:1,
         stretchH: 'all',
         contextMenu: true,
         currentRowClassName: 'currentRow',
@@ -128,7 +181,10 @@ function HtmlExcelAll() {
         cells:function (row, col, prop) {
             var cellProperties = {};
             if (ColumsAttr[0][3][prop].Type === 'mat' || ColumsAttr[0][3][prop].Type === 'vec') {
-                cellProperties.renderer = "InseritAttrFromColHeader";
+                cellProperties.renderer = "expandMatrix";
+            }
+            else if (ColumsAttr[0][3][prop].Type === "list") {
+                cellProperties.renderer = "expandList";
             }
             return cellProperties;
         }
@@ -155,32 +211,18 @@ function HtmlExcelAll() {
                         return (hot1.getSelected() && hot1.getSelected()[0] === 0)
                     }
                 },
-                "json":{name:"Trun row to Json"}
+                "json":{
+                    name:"Trun row to Json"
+                    // disabled:function () {
+                    //     hot1.getCell()
+                    //     return (hot1.getSelected() && hot1.getSelected()[0] === 0)
+                    //
+                    // }
+                }
             }
 
         }
     });
-
-        // original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-        function strip_tags(input, allowed) {
-          var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,
-            commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi;
-
-          // making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
-          allowed = (((allowed || "") + "").toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join('');
-
-          return input.replace(commentsAndPhpTags, '').replace(tags, function ($0, $1) {
-            return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : '';
-          });
-        }
-        function safeHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
-          var escaped = Handsontable.helper.stringify(value);
-          escaped = strip_tags(escaped, '<em><b><strong><a><big>'); //be sure you only allow certain HTML tags to avoid XSS threats (you should also remove unwanted HTML attributes)
-          td.innerHTML = escaped;
-
-          return td;
-        }
-
 }
 
 function GetColumsAttrs(structname) {
@@ -219,7 +261,6 @@ function GetColumsAttrs(structname) {
                 ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
             }
             else if(FieldsVarAttrs.Type.match("mat") ||FieldsVarAttrs.Type.match("vec")){
-                //colAttrDict.type = "html";
                 colAttrDict.data = FieldsVarAttrs.Name;
                 ColumsAttrList.push(colAttrDict);
                 colHeaders.push(FieldsVarAttrs.Name);
@@ -232,8 +273,12 @@ function GetColumsAttrs(structname) {
                 colHeaders.push(FieldsVarAttrs.Name);
                 ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
             }
-            // else if(FieldsVarAttrs.Type.match("list"))
-            //     typehtml += listTamplate(structname,StrategyDict[FieldsVarAttrs.EleType].Fields,FieldsVarAttrs,false,structname);
+            else if(FieldsVarAttrs.Type == "list"){
+                colAttrDict.data = FieldsVarAttrs.Name;
+                ColumsAttrList.push(colAttrDict);
+                colHeaders.push(FieldsVarAttrs.Name);
+                ColDataDict[FieldsVarAttrs.Name] = StrategyDict[FieldsVarAttrs.EleType].Fields;
+            }
         }
         // else {
         //     if(FieldsVarAttrs.Type.match("list"))
@@ -242,7 +287,7 @@ function GetColumsAttrs(structname) {
         //         typehtml += singleRefTemplate(structname,FieldsVarAttrs);
         //  }
     }
-    return [colHeaders,ColumsAttrList,[ColDataDict],FieldsVar];
+    return [colHeaders,ColumsAttrList,ColDataDict,FieldsVar];
 }
 
 
@@ -285,11 +330,11 @@ function get_TypesSelect_Result(TemplatesUnitIdPrefix,obj) {
 }
 
 
-function TypesTemplate(TemplateUnitIdPrefix,medal) {
+function TypesTemplate(TemplateUnitIdPrefix) {
     var html = "";
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
     html += "<div class='jsoneditor-selecttype' id='{0}TemplatesSelection' style='display: block'>{1}</div>".format(TemplateUnitIdPrefix,SelectTypeTemplate(TemplateUnitIdPrefix,StrategyList));
-    $("#{0}".format(medal)).append(html);
+    $("#loadlog").append(html);
 }
 function TypeUnitTemplate(structname,TemplateUnitIdPrefix){
     var typehtml="";
