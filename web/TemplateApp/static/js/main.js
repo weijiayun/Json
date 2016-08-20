@@ -6,7 +6,6 @@ var app = {
     load2:HtmlExcelAll
 };
 
-var WindowTables={};
 function MatButton(field) {
     var hot,container0,container,data1;
     container0 = document.getElementById('bodymodal');
@@ -17,7 +16,7 @@ function MatButton(field) {
     var collen = parseInt($(field).attr("data-dimensionCols"));
     var rowindex = parseInt($(field).attr("data-Rows"));
     var colindex = parseInt($(field).attr("data-Cols"));
-    var colHeader = parseInt($(field).attr("data-prop"));
+    var colHeader = $(field).attr("data-prop");
     if( $(field).val())
         data1 = JSON.parse($(field).val());
     hot = new Handsontable(container, {
@@ -32,14 +31,15 @@ function MatButton(field) {
         currentColClassName: 'currentCol',
         autoWrapRow: true
         });
-    WindowTables['hot'+colHeader+"Row"+rowindex+"Col"+colindex] = hot;
-
     $('#myModal').modal('show');
     function savedata() {
-        $(field).val(JSON.stringify(WindowTables['hot'+colHeader+"Row"+rowindex+"Col"+colindex].getData()))
+        $(field).val(JSON.stringify(hot.getData()))
 
     }
-    $(function () { $('#myModal').on('hide.bs.modal', savedata)});
+    $(function () {
+        $('#myModal').off('hide.bs.modal', savedata);
+        $('#myModal').on('hide.bs.modal', savedata)}
+    );
 
 }
 
@@ -52,7 +52,7 @@ function ListButton(field) {
     var colHeadsList = JSON.parse($(field).attr("data-colNamesList"));
     var rowindex = parseInt($(field).attr("data-Rows"));
     var colindex = parseInt($(field).attr("data-Cols"));
-    var colHeader = parseInt($(field).attr("data-prop"));
+    var colHeader = $(field).attr("data-prop");
     if( $(field).val())
         data1 = JSON.parse($(field).val());
     var columnsAttrsList = [];
@@ -67,59 +67,129 @@ function ListButton(field) {
         contextMenu: true,
         currentRowClassName: 'currentRow',
         currentColClassName: 'currentCol',
-        minSpareRows: 1,
+        //minSpareRows: 1,
         startRows:1
         //autoWrapRow: true
         });
-    WindowTables['hot'+colHeader+"Row"+rowindex+"Col"+colindex] = hot;
-
     $('#myModal').modal('show');
     function savedata() {
-        $(field).val(JSON.stringify(WindowTables['hot'+colHeader+"Row"+rowindex+"Col"+colindex].getData()))
-
+        var a1 = [];
+        var tempDict = {};
+        var a2 = hot.getData();
+        for(var i in a2){
+            tempDict = {};
+            for(var j in a2[i] ){
+                tempDict[colHeadsList[j]]=a2[i][j];
+            }
+            a1.push(tempDict)
+        }
+        $(field).val(JSON.stringify(a1))
     }
-    $(function () { $('#myModal').on('hide.bs.modal', savedata)});
+    $(function () {
+        $('#myModal').off('hide.bs.modal', savedata);
+        $('#myModal').on('hide.bs.modal', savedata)});
 
 }
 
 function SaveBigTableData() {
-            var hot = window["hot1"];
-            var tbl = hot.table;
-            var tbody = $(tbl).children().eq(2).get(0);
-            var rowlen = $(tbl).children().eq(2).children().size();
-            var collen = $(tbl).children().eq(2).children().eq(0).children().size();//start of row is 1
-            var i,j,td,theader,datalist = [],tempdict = {},listTest = /[\[\]\{\}]/i;
-            for(i=0;i<rowlen;i++){
-                tempdict = {};
-                for(j=1;j<collen;j++){
-                    theader = $(tbl).children().eq(1).children().eq(0).children().eq(j).children().eq(0).children().eq(0).html();
-                    td = $(tbody).children().eq(i).children().eq(j).get(0);
-                    var a = $(td).children().size();
-                    if($(td).children().size() != 0){
-                    if($(td).children().eq(0).get(0).tagName == "BUTTON"){
-                        if(listTest.test($(td).children().eq(0).val()))
-                            tempdict[theader] = JSON.parse($(td).children().eq(0).val()).map(function(s){ return s.map(function (se){ return JsonFormatConvt(se)})});
-                        else
-                            tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
-                    }
-                    else if($(td).children().eq(0).get(0).tagName == "INPUT"){
-                        tempdict[theader] = $(td).children().eq(0).get(0).checked;
-                    }
-                    else if($(td).children().eq(0).get(0).tagName == "DIV"){
-                        tempdict[theader] = JsonFormatConvt($(td).html().split('<div')[0]);
-                    }
+    var hot = window["hot1"];
+    var tbl = hot.table;
+    var tbody = $(tbl).children().eq(2).get(0);
+    var rowlen = $(tbl).children().eq(2).children().size();
+    var collen = $(tbl).children().eq(2).children().eq(0).children().size();//start of row is 1
+    var i,j,td,theader,datalist = [],tempdict = {},listTest = /[\[\]\{\}]/i;
+    for(i=0;i<rowlen;i++){
+        tempdict = {};
+        for(j=1;j<collen;j++){
+            theader = $(tbl).children().eq(1).children().eq(0).children().eq(j).children().eq(0).children().eq(0).html();
+            td = $(tbody).children().eq(i).children().eq(j).get(0);
+            var a = $(td).children().size();
+            if($(td).children().size() != 0){
+            if($(td).children().eq(0).get(0).tagName == "BUTTON"){
+                if($(td).children().eq(0).attr("data-type") === "MATRIX") {
+                    if (listTest.test($(td).children().eq(0).val()))
+                        tempdict[theader] = JSON.parse($(td).children().eq(0).val()).map(function (s) {
+                            return s.map(function (se) {
+                                return JsonFormatConvt(se)
+                            })
+                        });
+                    else
+                        tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
                 }
-                else
-                    {
-                        tempdict[theader] = JsonFormatConvt($(td).html());
-                    }
-                }
-                datalist.push(tempdict);
+                else if($(td).children().eq(0).attr("data-type") === "LIST") {
+                    if (listTest.test($(td).children().eq(0).val()))
+                        tempdict[theader] = JSON.parse($(td).children().eq(0).val());
+                    else
+                        tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
 
+
+                }
             }
-            var data = JSON.stringify(datalist,null,10);
-            $("#showhot1data").html(data)
+            else if($(td).children().eq(0).get(0).tagName == "INPUT"){
+                tempdict[theader] = $(td).children().eq(0).get(0).checked;
+            }
+            else if($(td).children().eq(0).get(0).tagName == "DIV"){
+                tempdict[theader] = JsonFormatConvt($(td).html().split('<div')[0]);
+            }
+        }
+        else
+            {
+                tempdict[theader] = JsonFormatConvt($(td).html());
+            }
+        }
+        datalist.push(tempdict);
+
+    }
+    var data = JSON.stringify(datalist,null,10);
+    $("#showhot1data").html(data)
 }
+
+
+function getCurrentRowData() {
+    var i,j,tbl,tr,td,theader,tempdict = {},listTest = /[\[\]\{\}]/i,collen;
+    tr = $(".currentRow").parent().eq(1);
+    tbl = $(".currentRow").parent().parent().parent().eq(1);
+    collen = tr.children().size();
+    for(j=1;j<collen;j++){
+        theader = $(tbl).children().eq(1).children().eq(0).children().eq(j).children().eq(0).children().eq(0).html();
+        td = tr.children().eq(j).get(0);
+        var a = $(td).children().size();
+        if($(td).children().size() != 0){
+        if($(td).children().eq(0).get(0).tagName == "BUTTON"){
+            if($(td).children().eq(0).attr("data-type") === "MATRIX") {
+                if (listTest.test($(td).children().eq(0).val()))
+                    tempdict[theader] = JSON.parse($(td).children().eq(0).val()).map(function (s) {
+                        return s.map(function (se) {
+                            return JsonFormatConvt(se)
+                        })
+                    });
+                else
+                    tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
+            }
+            else if($(td).children().eq(0).attr("data-type") === "LIST") {
+                if (listTest.test($(td).children().eq(0).val()))
+                    tempdict[theader] = JSON.parse($(td).children().eq(0).val());
+                else
+                    tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
+            }
+        }
+        else if($(td).children().eq(0).get(0).tagName == "INPUT"){
+            tempdict[theader] = $(td).children().eq(0).get(0).checked;
+        }
+        else if($(td).children().eq(0).get(0).tagName == "DIV"){
+            tempdict[theader] = JsonFormatConvt($(td).html().split('<div')[0]);
+        }
+    }
+    else
+        {
+            tempdict[theader] = JsonFormatConvt($(td).html());
+        }
+    }
+    var data = JSON.stringify(tempdict,null,10);
+    $("#showhot1data").html(data);
+    return tempdict;
+}
+
 var hot1;
 function HtmlExcelAll() {
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
@@ -137,6 +207,7 @@ function HtmlExcelAll() {
                 $(td).html("<button  onclick='MatButton(this)'>{0}</button>".format(prop));
                 $(td).children().eq(0).attr("data-dimensionRows", ColumsAttr[0][3][prop].DimensionY);
                 $(td).children().eq(0).attr("data-dimensionCols", ColumsAttr[0][3][prop].DimensionX);
+                $(td).children().eq(0).attr("data-type","MATRIX");
                 $(td).children().eq(0).attr("data-Rows", row);
                 $(td).children().eq(0).attr("data-Cols", col);
                 $(td).children().eq(0).attr("data-Prop", prop);
@@ -154,6 +225,7 @@ function HtmlExcelAll() {
                 $(td).children().eq(0).attr("data-Rows", row);
                 $(td).children().eq(0).attr("data-Cols", col);
                 $(td).children().eq(0).attr("data-Prop", prop);
+                $(td).children().eq(0).attr("data-type","LIST");
             }
                 var a3 = $(td).parent().parent().children().eq(currentRowindex).children().eq(col+1).children().eq(0).val();
                 $(td).children().eq(0).val(a3);
@@ -193,9 +265,12 @@ function HtmlExcelAll() {
         contextMenu: {
             callback: function (key, options) {
                 if (key === 'json') {
+                    var curRowDataDict = getCurrentRowData();
+
                     app.load("TAB1","bodymodal");
                     $('#myModal').modal('show');
                     $(function () { $('#myModal').on('hide.bs.modal', savedata)});
+                    
                 }
             },
             items: {
@@ -214,10 +289,8 @@ function HtmlExcelAll() {
                 "json":{
                     name:"Trun row to Json"
                     // disabled:function () {
-                    //     hot1.getCell()
-                    //     return (hot1.getSelected() && hot1.getSelected()[0] === 0)
-                    //
-                    // }
+                    //     return ($(".currentRow").get(0))
+                    //  }
                 }
             }
 
@@ -330,7 +403,7 @@ function get_TypesSelect_Result(TemplatesUnitIdPrefix,obj) {
 }
 
 
-function TypesTemplate(TemplateUnitIdPrefix) {
+function TypesTemplate(rowDataDict) {
     var html = "";
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
     html += "<div class='jsoneditor-selecttype' id='{0}TemplatesSelection' style='display: block'>{1}</div>".format(TemplateUnitIdPrefix,SelectTypeTemplate(TemplateUnitIdPrefix,StrategyList));
