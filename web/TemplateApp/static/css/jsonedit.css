@@ -172,9 +172,7 @@ span.jsoneditor span.jsoneditor-separator{
 }
 
 td.jsoneditor-field.jsoneditor-highlight,td.jsoneditor-field[contenteditable=true]:focus,td.jsoneditor-field[contenteditable=true]:hover,td.jsoneditor-value.jsoneditor-highlight,td.jsoneditor-value[contenteditable=true]:focus,td.jsoneditor-value[contenteditable=true]:hover{
-	background-color:#FFFFAB;
-	border:2px solid #428bca;
-	border-radius: 5px;
+	background-color:#428bac;
 
 }
 span.jsoneditor-valuebox,span.jsoneditor-field.jsoneditor-highlight,span.jsoneditor-field[contenteditable=true]:focus,span.jsoneditor-field[contenteditable=true]:hover,span.jsoneditor-value.jsoneditor-highlight,span.jsoneditor-value[contenteditable=true]:focus,span.jsoneditor-value[contenteditable=true]:hover{

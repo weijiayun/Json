@@ -57,7 +57,7 @@
 
 
   </head>
-  <body class="am-with-topbar-fixed-top"  style="background-color: #636363" onload="app.load2()">
+  <body class="am-with-topbar-fixed-top"  style="background-color: #f2f2f2" onload="app.load2()">
   <header class="am-topbar-fixed-top am-topbar am-topbar-inverse">
       <div class="chrome-tabs-shell">
           <div class="chrome-tabs">
@@ -103,20 +103,13 @@
   {% set StrategyDict = JsonDict|jsontoObj %}
   <div class="am-g">
       <div class="am-u-sm-2 am-scrollable-vertical LeftMenu" style="max-height: 930px;height: 930px">
-          <select id="StrategyJsonToCodeSelect" onchange="treeToCode('StrategyJsonToCodeSelect');" style="width: 200px;height: 40px;">
-              {% with %}
-              {% for e in StrategyDict.REFLIST %}
-              <option value="{{ e }}">{{ e }}</option>
-              {% endfor %}
-              {% endwith %}
-          </select>
       </div>
       <div class="am-u-sm-10 RightArea" style="height: 900px">
           <div class="am-g">
-              <div  class="am-u-sm-10 am-scrollable-vertical" style="height: 900px;padding-top: 0;" >
+              <div  class="am-u-sm-10 am-scrollable-vertical" style="height: 900px;padding-top: 30px;" >
                   <div class="handsontable htRowHeaders htColumnHeaders" id="loadlog" ></div>
                   <p id="para">
-                      <button name="dump" data-dump="#example1" data-instance="hot1" onclick="SaveBigTableData()">
+                      <button name="dump" data-dump="#example1" data-instance="hot1" onclick="saveBigTableData()">
                           Dump data to console
                       </button>
                   </p>

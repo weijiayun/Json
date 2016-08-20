@@ -5,6 +5,111 @@ var app = {
     load:TypesTemplate,
     load2:HtmlExcelAll
 };
+var mainTable;
+function HtmlExcelAll() {
+    var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
+    var ColumsAttr = [];
+    var container1;
+    ColumsAttr=getColumsAttrs(StrategyList[0]);
+    container1 = document.getElementById('loadlog');
+    function expandMatrix(instance, td, row, col, prop, value, cellProperties) {
+        //Handsontable.renderers.TextRenderer.apply(this, arguments);
+        var currentRowindex = $(".currentRow").eq(0).parent().index();
+        if($(td).parent().index() != currentRowindex){
+            if($(td).children().length==0) {
+                $(td).html("<button  onclick='MatButton(this)'>{0}</button>".format(prop));
+                $(td).children().eq(0).attr("data-dimensionRows", ColumsAttr[3][prop].DimensionY);
+                $(td).children().eq(0).attr("data-dimensionCols", ColumsAttr[3][prop].DimensionX);
+                $(td).children().eq(0).attr("data-type","MATRIX");
+                $(td).children().eq(0).attr("data-Rows", row);
+                $(td).children().eq(0).attr("data-Cols", col);
+                $(td).children().eq(0).attr("data-Prop", prop);
+            }
+                var a3 = $(td).parent().parent().children().eq(currentRowindex).children().eq(col+1).children().eq(0).val();
+                $(td).children().eq(0).val(a3);
+            }
+    }
+    function expandList(instance, td, row, col, prop, value, cellProperties) {
+        var currentRowindex = $(".currentRow").eq(0).parent().index();
+        if($(td).parent().index() != currentRowindex){
+            if($(td).children().length==0) {
+                $(td).html("<button  onclick='ListButton(this)'>{0}</button>".format(prop));
+                $(td).children().eq(0).attr("data-colNamesList",JSON.stringify(Object.getOwnPropertyNames(ColumsAttr[2][prop])));
+                $(td).children().eq(0).attr("data-Rows", row);
+                $(td).children().eq(0).attr("data-Cols", col);
+                $(td).children().eq(0).attr("data-Prop", prop);
+                $(td).children().eq(0).attr("data-type","LIST");
+            }
+                var a3 = $(td).parent().parent().children().eq(currentRowindex).children().eq(col+1).children().eq(0).val();
+                $(td).children().eq(0).val(a3);
+            }
+    }
+    Handsontable.renderers.registerRenderer('expandMatrix', expandMatrix);
+    Handsontable.renderers.registerRenderer('expandList', expandList);
+    mainTable = new Handsontable(container1, {
+        data: ColumsAttr[2],
+        colHeaders: ColumsAttr[0],
+        columns:ColumsAttr[1],
+        manualColumnMove: true,
+        manualRowMove: true,
+        manualColumnResize: true,
+        manualRowResize: true,
+        rowHeaders:true,
+        colHeights:100,
+        //colHeaders: true,
+        //minSpareRows: 1,
+        startRows:1,
+        stretchH: 'all',
+        contextMenu: true,
+        currentRowClassName: 'currentRow',
+        currentColClassName: 'currentCol',
+        cells:function (row, col, prop) {
+            var cellProperties = {};
+            if (ColumsAttr[3][prop].Type === 'mat' || ColumsAttr[3][prop].Type === 'vec') {
+                cellProperties.renderer = "expandMatrix";
+            }
+            else if (ColumsAttr[3][prop].Type === "list") {
+                cellProperties.renderer = "expandList";
+            }
+            return cellProperties;
+        }
+    });
+    mainTable.updateSettings({
+        contextMenu: {
+            callback: function (key, options) {
+                if (key === 'json') {
+                    var curRowDataDict = getCurrentRowData(StrategyList[0]);
+
+                    // app.load("TAB1","bodymodal");
+                    // $('#myModal').modal('show');
+                    // $(function () { $('#myModal').on('hide.bs.modal', savedata)});
+                    
+                }
+            },
+            items: {
+                "row_above": {},
+                "row_below": {},
+                "undo":{},
+                "redo":{},
+                "alignment":{},
+                "clear_column":{},
+                "remove_row":{
+                    name:"remove this row!",
+                    disabled:function () {
+                        return (mainTable.getSelected() && mainTable.getSelected()[0] === 0)
+                    }
+                },
+                "json":{
+                    name:"Trun row to Json"
+                    // disabled:function () {
+                    //     return ($(".currentRow").get(0))
+                    //  }
+                }
+            }
+
+        }
+    });
+}
 
 function MatButton(field) {
     var hot,container0,container,data1;
@@ -91,8 +196,8 @@ function ListButton(field) {
 
 }
 
-function SaveBigTableData() {
-    var hot = window["hot1"];
+function saveBigTableData() {
+    var hot = window["mainTable"];
     var tbl = hot.table;
     var tbody = $(tbl).children().eq(2).get(0);
     var rowlen = $(tbl).children().eq(2).children().size();
@@ -145,7 +250,7 @@ function SaveBigTableData() {
 }
 
 
-function getCurrentRowData() {
+function getCurrentRowData(structName) {
     var i,j,tbl,tr,td,theader,tempdict = {},listTest = /[\[\]\{\}]/i,collen;
     tr = $(".currentRow").parent().eq(1);
     tbl = $(".currentRow").parent().parent().parent().eq(1);
@@ -187,118 +292,42 @@ function getCurrentRowData() {
     }
     var data = JSON.stringify(tempdict,null,10);
     $("#showhot1data").html(data);
-    return tempdict;
+    var typehtml="";
+    var StrategyDict = JSON.parse($("#JsonDict").html())["REFERENCES"];
+    var TemplateUnitIdPrefix = "HandsontableMain";
+    typehtml += "<ul id=\"{0}{1}\"></ul>".format(TemplateUnitIdPrefix,structName);
+    $("#loadlog").append(typehtml);
+    var FieldsVar = StrategyDict[structName].Fields;
+    var FieldsVarAttrs = {};
+    for(var varName in FieldsVar){
+        FieldsVarAttrs = FieldsVar[varName];
+        FieldsVarAttrs["Name"] = varName;
+        if(!FieldsVarAttrs.Reference){
+            if(FieldsVarAttrs.Type == "sint_32" || FieldsVarAttrs.Type == "uint_32"||FieldsVarAttrs.Type == "string")
+                NumberandStringTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix,tempdict);
+            else if(FieldsVarAttrs.Type == "enum"){
+                var enumList = Object.getOwnPropertyNames(StrategyDict[FieldsVarAttrs.EleType].Fields);
+                enumTemplate(structName,enumList,FieldsVarAttrs,TemplateUnitIdPrefix,tempdict)
+            }
+            else if(FieldsVarAttrs.Type.match("mat") ||FieldsVarAttrs.Type.match("vec"))
+                matrixTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix,tempdict);
+            else if(FieldsVarAttrs.Type == "bool")
+                boolTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix,tempdict);
+            else if(FieldsVarAttrs.Type.match("list"))
+                listTamplate(structName,StrategyDict[FieldsVarAttrs.EleType].Fields,FieldsVarAttrs,false,structName,TemplateUnitIdPrefix,tempdict);
+        }
+        // else {
+        //     if(FieldsVarAttrs.Type.match("list"))
+        //      typehtml += listRefTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix);
+        //     else if(FieldsVarAttrs.Type == "sint_32" || FieldsVarAttrs.Type == "uint_32")
+        //         typehtml += singleRefTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix);
+        //  }
+    }
+
 }
 
-var hot1;
-function HtmlExcelAll() {
-    var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
-    var ColumsAttr = [];
-    var container1;
-    for(var i in StrategyList){
-        ColumsAttr.push(GetColumsAttrs(StrategyList[i]))
-    }
-    container1 = document.getElementById('loadlog');
-    function expandMatrix(instance, td, row, col, prop, value, cellProperties) {
-        //Handsontable.renderers.TextRenderer.apply(this, arguments);
-        var currentRowindex = $(".currentRow").eq(0).parent().index();
-        if($(td).parent().index() != currentRowindex){
-            if($(td).children().length==0) {
-                $(td).html("<button  onclick='MatButton(this)'>{0}</button>".format(prop));
-                $(td).children().eq(0).attr("data-dimensionRows", ColumsAttr[0][3][prop].DimensionY);
-                $(td).children().eq(0).attr("data-dimensionCols", ColumsAttr[0][3][prop].DimensionX);
-                $(td).children().eq(0).attr("data-type","MATRIX");
-                $(td).children().eq(0).attr("data-Rows", row);
-                $(td).children().eq(0).attr("data-Cols", col);
-                $(td).children().eq(0).attr("data-Prop", prop);
-            }
-                var a3 = $(td).parent().parent().children().eq(currentRowindex).children().eq(col+1).children().eq(0).val();
-                $(td).children().eq(0).val(a3);
-            }
-    }
-    function expandList(instance, td, row, col, prop, value, cellProperties) {
-        var currentRowindex = $(".currentRow").eq(0).parent().index();
-        if($(td).parent().index() != currentRowindex){
-            if($(td).children().length==0) {
-                $(td).html("<button  onclick='ListButton(this)'>{0}</button>".format(prop));
-                $(td).children().eq(0).attr("data-colNamesList",JSON.stringify(Object.getOwnPropertyNames(ColumsAttr[0][2][prop])));
-                $(td).children().eq(0).attr("data-Rows", row);
-                $(td).children().eq(0).attr("data-Cols", col);
-                $(td).children().eq(0).attr("data-Prop", prop);
-                $(td).children().eq(0).attr("data-type","LIST");
-            }
-                var a3 = $(td).parent().parent().children().eq(currentRowindex).children().eq(col+1).children().eq(0).val();
-                $(td).children().eq(0).val(a3);
-            }
-    }
-    Handsontable.renderers.registerRenderer('expandMatrix', expandMatrix);
-    Handsontable.renderers.registerRenderer('expandList', expandList);
-    hot1 = new Handsontable(container1, {
-        data: ColumsAttr[0][2],
-        colHeaders: ColumsAttr[0][0],
-        columns:ColumsAttr[0][1],
-        manualColumnMove: true,
-        manualRowMove: true,
-        manualColumnResize: true,
-        manualRowResize: true,
-        rowHeaders:true,
-        colHeights:100,
-        //colHeaders: true,
-        //minSpareRows: 1,
-        startRows:1,
-        stretchH: 'all',
-        contextMenu: true,
-        currentRowClassName: 'currentRow',
-        currentColClassName: 'currentCol',
-        cells:function (row, col, prop) {
-            var cellProperties = {};
-            if (ColumsAttr[0][3][prop].Type === 'mat' || ColumsAttr[0][3][prop].Type === 'vec') {
-                cellProperties.renderer = "expandMatrix";
-            }
-            else if (ColumsAttr[0][3][prop].Type === "list") {
-                cellProperties.renderer = "expandList";
-            }
-            return cellProperties;
-        }
-    });
-    hot1.updateSettings({
-        contextMenu: {
-            callback: function (key, options) {
-                if (key === 'json') {
-                    var curRowDataDict = getCurrentRowData();
 
-                    app.load("TAB1","bodymodal");
-                    $('#myModal').modal('show');
-                    $(function () { $('#myModal').on('hide.bs.modal', savedata)});
-                    
-                }
-            },
-            items: {
-                "row_above": {},
-                "row_below": {},
-                "undo":{},
-                "redo":{},
-                "alignment":{},
-                "clear_column":{},
-                "remove_row":{
-                    name:"remove this row!",
-                    disabled:function () {
-                        return (hot1.getSelected() && hot1.getSelected()[0] === 0)
-                    }
-                },
-                "json":{
-                    name:"Trun row to Json"
-                    // disabled:function () {
-                    //     return ($(".currentRow").get(0))
-                    //  }
-                }
-            }
-
-        }
-    });
-}
-
-function GetColumsAttrs(structname) {
+function getColumsAttrs(structname) {
     var StrategyDict = JSON.parse($("#JsonDict").html())["REFERENCES"];
     var FieldsVar = StrategyDict[structname].Fields;
     var FieldsVarAttrs = {};
@@ -403,7 +432,7 @@ function get_TypesSelect_Result(TemplatesUnitIdPrefix,obj) {
 }
 
 
-function TypesTemplate(rowDataDict) {
+function TypesTemplate(TemplateUnitIdPrefix) {
     var html = "";
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
     html += "<div class='jsoneditor-selecttype' id='{0}TemplatesSelection' style='display: block'>{1}</div>".format(TemplateUnitIdPrefix,SelectTypeTemplate(TemplateUnitIdPrefix,StrategyList));
@@ -452,7 +481,7 @@ function get_chekbox_value(checkboxid,showcheckid) {
         document.getElementById(showcheckid+"boolval").innerHTML= 'false';
     }
 }
-function boolTemplate(structname,VarAttrs,TemplateUnitIdPrefix) {
+function boolTemplate(structname,VarAttrs,TemplateUnitIdPrefix,valueDict) {
     if(!VarAttrs.Default)
         VarAttrs.Default = false;
     var boolhtml = "";
@@ -462,13 +491,16 @@ function boolTemplate(structname,VarAttrs,TemplateUnitIdPrefix) {
         boolhtml +='<span style="color: red">*</span>';
     boolhtml += '</span>';
     boolhtml +='<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{0}</span>'.format(VarAttrs.Name);
-    boolhtml +='<span><input type="checkbox" value="0" id="m{0}{1}{2}" onclick="get_chekbox_value(\'m{0}{1}{2}\',\'{0}{1}{2}\')\"/>'.format(TemplateUnitIdPrefix,structname,VarAttrs.Name);
-    boolhtml +='<span style="color: deepskyblue" id="{0}{1}{2}"> {3}</span></span>'.format(TemplateUnitIdPrefix,structname,VarAttrs.Name,VarAttrs.Default);
-    boolhtml +='<span style="display: none" id="{0}{1}{2}boolval">{3}</span></li>'.format(TemplateUnitIdPrefix,structname,VarAttrs.name,VarAttrs.Default);
-    return boolhtml;
+    var Ischecked = valueDict[VarAttrs.Name]?"checked":"";
+    boolhtml +='<span><input type="checkbox" id="m{0}{1}{2}" onclick="get_chekbox_value(\'m{0}{1}{2}\',\'{0}{1}{2}\')\" {3}/>'.format(TemplateUnitIdPrefix,structname,VarAttrs.Name,Ischecked);
+
+    boolhtml +='<span style="color: deepskyblue" id="{0}{1}{2}"> {3}</span></span>'.format(TemplateUnitIdPrefix,structname,VarAttrs.Name,valueDict[VarAttrs.Name]);
+    boolhtml +='<span style="display: none" id="{0}{1}{2}boolval">{3}</span></li>'.format(TemplateUnitIdPrefix,structname,VarAttrs.name,valueDict[VarAttrs.Name]);
+    $("#loadlog").children().eq(-1).append(boolhtml)
+
 }
 
-function enumTemplate(structname,enumlist,VarAttrs,TemplatesUnitIdPrefix) {
+function enumTemplate(structname,enumlist,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
     var enumhtml = "";
     enumhtml = '<li id="{0}">'.format(TemplatesUnitIdPrefix+structname+VarAttrs.Name);
     enumhtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)" >';
@@ -476,8 +508,9 @@ function enumTemplate(structname,enumlist,VarAttrs,TemplatesUnitIdPrefix) {
         enumhtml += '<span style="color: red">*</span>'; 
     enumhtml +='<span >{0} </span>'.format(VarAttrs.Name);
     enumhtml +="<span class='dropdown'>";
-    enumhtml +="<button type='button' class='btn dropdown-toggle btn-large btn-primary' id='{0}enumSelect' data-toggle='dropdown'>".format(TemplatesUnitIdPrefix+structname+VarAttrs.Name);
-    enumhtml +="<span id=\"{0}{1}{2}buttonValue\">{2}</span><span class='caret'></span></button>".format(TemplatesUnitIdPrefix,structname,VarAttrs.Name);
+    enumhtml +="<button type='button' class='btn dropdown-toggle btn-large btn-primary' id='{0}enumSelect' data-toggle='dropdown' value='{1}'>".format(TemplatesUnitIdPrefix+structname+VarAttrs.Name,valueDict[VarAttrs.Name]);
+    valueDict[VarAttrs.Name] = valueDict[VarAttrs.Name]?valueDict[VarAttrs.Name]:"select";
+    enumhtml +="<span id=\"{0}{1}{2}buttonValue\">{3}</span><span class='caret'></span></button>".format(TemplatesUnitIdPrefix,structname,VarAttrs.Name,valueDict[VarAttrs.Name]);
     enumhtml +="<ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">";
     for(var i in enumlist){
         enumhtml += "<li role=\"presentation\">";
@@ -485,7 +518,7 @@ function enumTemplate(structname,enumlist,VarAttrs,TemplatesUnitIdPrefix) {
         enumhtml += "</li>"
     }
     enumhtml += "</ul></span></span><span id=\"m{0}{1}{2}\" style=\"display: none\">{2}</span></li>".format(TemplatesUnitIdPrefix,structname,VarAttrs.Name);
-    return enumhtml;
+    $("#loadlog").children().eq(-1).append(enumhtml);
 }
 function get_Drop_Select_value(ID,obj){
     var id1 = "{0}enumSelect".format(ID);
@@ -495,7 +528,7 @@ function get_Drop_Select_value(ID,obj){
 }
 
 
-function NumberandStringTemplate(structname,VarAttrs,TemplatesUnitIdPrefix) {
+function NumberandStringTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
     var NumStrhtml = "";
     NumStrhtml += '<li style="display: block" onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
     NumStrhtml += '<span style="display: none"></span><span style="display: none">{0}</span>'.format(VarAttrs.Name);
@@ -506,13 +539,14 @@ function NumberandStringTemplate(structname,VarAttrs,TemplatesUnitIdPrefix) {
     NumStrhtml += '</td>';
     NumStrhtml +="<td class=\"jsoneditor-readonly jsoneditor-value\" id=\"m{0}{1}{2}\">{2}</td>".format(TemplatesUnitIdPrefix,structname,VarAttrs.Name);
     NumStrhtml += "<td>:  </td>";
+    VarAttrs.Default = valueDict[VarAttrs.Name];
     if(VarAttrs.Default == null)
         VarAttrs.Default = "";
     NumStrhtml +='<td contenteditable="true" spellcheck="false" class="jsoneditor-number jsoneditor-value jsoneditor-listinput handleEnter" onkeypress="handleEnter(this,event)" onblur="NumberChecktips(this)" id="{0}{1}{2}">{3}</td></li>'.format(TemplatesUnitIdPrefix,structname,VarAttrs.Name,VarAttrs.Default);
     NumStrhtml += '</tr></table>';
-    return NumStrhtml;
+    $("#loadlog").children().eq(-1).append(NumStrhtml)
 }
-function listTamplate(structname,listTypeFieldsDict,VarAttrs,IsReference,preStructName,TemplatesUnitIdPrefix) {
+function listTamplate(structname,listTypeFieldsDict,VarAttrs,IsReference,preStructName,TemplatesUnitIdPrefix,valueDict) {
     var struct = "";
     var name = "";
     var listIdBase = "";
@@ -530,43 +564,30 @@ function listTamplate(structname,listTypeFieldsDict,VarAttrs,IsReference,preStru
     var listhtml = "<li id='{0}ListHeader'>".format(listIdBase);
     listhtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">';
     listhtml += '<button onclick="collapsewin(\'{0}\')">^</button>{1}'.format(listIdBase,name);
-    listhtml += '<button id="{3}{0}{1}GoJsonButton" onclick="csvTreeToJsonTree(\'{0}\',\'{1}\',\{2\},\'{4}\',\'{3}\')" style="width: 60px;">Json</button>'.format(struct,name,IsReference,TemplatesUnitIdPrefix,preStructName);
     listhtml += "</span>";
     listhtml += '<span style="display: none">{0}</span>'.format(name);
     listhtml += '</li>';
-    listhtml += '<li id="{0}" style="display: block">'.format(listIdBase);
-    listhtml += '<span id="{0}showCsv">'.format(listIdBase);
-    //listtable
-    listhtml += '<table style="margin-left: 30px" id="{0}csv">'.format(listIdBase);
-    listhtml += '<tbody>';
-    listhtml += '<tr style="display: none">';
-    var listheadername = "";
-    for(listheadername in listTypeFieldsDict)
-        listhtml += '<th>{0}</th>'.format(listheadername);
-    listhtml += '</tr>';
-    listhtml += '<tr style="height: 30px">';
-    for(listheadername in listTypeFieldsDict){
-        var listVars = listTypeFieldsDict[listheadername];
-        listhtml += '<th style="text-align: center">';
-        if(listVars.Requiredness )
-            listhtml += '<span style="color: red">*</span>{0}'.format(listheadername);
-        else
-            listhtml += '<span>{0}</span>'.format(listheadername);
-        listhtml += '</th>';
+    listhtml += '<li ><div id="{0}" style="display: block"></div></li>'.format(listIdBase);
+    $("#loadlog").children().eq(-1).append(listhtml);
+    var hot,container,data1;
+    container = document.getElementById('{0}'.format(listIdBase));
+    var colHeadsList = Object.getOwnPropertyNames(listTypeFieldsDict);
+    var columnsAttrsList = [];
+    for(var i in colHeadsList){
+        columnsAttrsList.push({data:colHeadsList[i],type:"numeric"})
     }
-    listhtml +='</tr>';
-    listhtml +='<tr>';
-    for(listheadername in listTypeFieldsDict)
-        listhtml += '<td class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter MouseSelectCopy" contenteditable="true" onkeypress="handleEnter(this,event)" onblur="NumberChecktips(this)" onmousedown="OnMouseDown(this,\'list\')"  spellcheck="false" ></td>'
-    listhtml += '<td style="display: none"></td>';
-    listhtml += '</tr>';
-    listhtml += '<tr>';
-    listhtml += '<td><button style="width: 75px;" onclick="csvAddrow(\'{0}\')" >Add</button></td>'.format(listIdBase+"csv");
-    listhtml += '</tr></tbody></table>';
-    listhtml += "</span>";
-    listhtml += '<span id="{0}showJson"></span>'.format(listIdBase);
-    listhtml += '</li>';
-    return listhtml;
+    hot = new Handsontable(container, {
+        data:valueDict[VarAttrs.Name],
+        rowHeaders:true,
+        colHeaders:colHeadsList,
+        columns:columnsAttrsList,
+        contextMenu: true,
+        currentRowClassName: 'currentRow',
+        currentColClassName: 'currentCol',
+        //minSpareRows: 1,
+        startRows:1
+        //autoWrapRow: true
+        });
 }
 function listRefTemplate(structname,VarAttrs,TemplatesUnitIdPrefix) {
     var listrefhtml ="<li onmouseover=\"shadowover(this)\" onmouseout=\"shadowout(this)\">";
@@ -597,8 +618,8 @@ function singleRefTemplate(structname,VarAttrs,TemplatesUnitIdPrefix) {
     return srefhtml;
 }
 
-function matrixTemplate(structname,VarAttrs,TemplatesUnitIdPrefix) {
-    var mathtml = "";
+function matrixTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
+    var mathtml = "",hot,container,data1;
     mathtml +="<li>";
     if(VarAttrs.Requiredness)
         mathtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)"><span style="color: red">*</span>{0} [{1}x{2}]</span>'.format(VarAttrs.Name,VarAttrs.DimensionY,VarAttrs.DimensionX);
@@ -606,19 +627,27 @@ function matrixTemplate(structname,VarAttrs,TemplatesUnitIdPrefix) {
         mathtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{0} [{1}x{2}]</span>'.format(VarAttrs.Name,VarAttrs.DimensionY,VarAttrs.DimensionX);
     mathtml +='<span style="display: none">{0}</span>'.format(VarAttrs.Name);
     mathtml +='</li>';
-    mathtml +='<li>';
-    mathtml +='<span>';
-    mathtml += '<table border="1" id="{0}{1}matrix" style="margin-left: 30px">'.format(TemplatesUnitIdPrefix+structname,VarAttrs.Name);
-    mathtml += '<tbody>';
-    for(var i=0;i<parseInt(VarAttrs.DimensionY);i++){
-        var backgroundcolor = RowsColor(i+1);
-        mathtml += '<tr style="height: 30px;">';
-        for(var j=0;j<parseInt(VarAttrs.DimensionX);j++){
-            mathtml += '<td class="jsoneditor-value jsoneditor-number jsoneditor-listinput handleEnter MouseSelectCopy" style="background-color: {0}"   onkeypress="handleEnter(this,event)" onblur="NumberChecktips(this)" onmousedown="OnMouseDown(this,\'mat\')"  spellcheck="false" contenteditable="true"></td>'.format(backgroundcolor);
-        }
-        mathtml += '</tr>';
+    mathtml +='<li><div id="{0}matrix" style="margin-left: 30px"></div></li>'.format(TemplatesUnitIdPrefix+structname+VarAttrs.Name);
+    $("#loadlog").children().eq(-1).append(mathtml);
+    container = document.getElementById('{0}matrix'.format(TemplatesUnitIdPrefix+structname+VarAttrs.Name));
+    var rowlen = parseInt(VarAttrs.DimensionY);
+    var collen = parseInt(VarAttrs.DimensionX);
+    var a = [];
+    for(var i in collen){
+        a.push({type:"numeric"})
     }
-    mathtml +='</tbody></table></span></li>';
-    return mathtml;
+    hot = new Handsontable(container, {
+        data:valueDict[VarAttrs.Name],
+        startRows:rowlen,
+        startCols:collen,
+        maxRows:rowlen,
+        rowHeaders:true,
+        colHeaders: true,
+        //columns:a,
+        contextMenu: true,
+        currentRowClassName: 'currentRow',
+        currentColClassName: 'currentCol',
+        autoWrapRow: true
+        });
 }
 
