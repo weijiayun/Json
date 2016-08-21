@@ -108,12 +108,19 @@
           <div class="am-g">
               <div  class="am-u-sm-10 am-scrollable-vertical" style="height: 900px;padding-top: 30px;" >
                   <div class="handsontable htRowHeaders htColumnHeaders" id="loadlog" ></div>
+                  <div id="jsonlog" ></div>
                   <p id="para">
-                      <button name="dump" data-dump="#example1" data-instance="hot1" onclick="saveBigTableData()">
+                      <button  onclick="saveBigTableData()">
                           Dump data to console
                       </button>
                   </p>
                   <div id="showhot1data"></div>
+                  <p id="para">
+                      <button  onclick="getDataFromJsonTree()">
+                          Dump json data to console
+                      </button>
+                  </p>
+                  <div id="showjsondata"></div>
               </div>
               <div class="am-u-sm-2 am-scrollable-vertical RightMenu" style="height: 900px; max-height: 900px; background-color: #f8f8f8;">
                   <h1>Datail</h1>

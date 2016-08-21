@@ -78,7 +78,7 @@ function HtmlExcelAll() {
         contextMenu: {
             callback: function (key, options) {
                 if (key === 'json') {
-                    var curRowDataDict = getCurrentRowData(StrategyList[0]);
+                    var curRowDataDict = turnRowToJson(StrategyList[0]);
 
                     // app.load("TAB1","bodymodal");
                     // $('#myModal').modal('show');
@@ -196,136 +196,6 @@ function ListButton(field) {
 
 }
 
-function saveBigTableData() {
-    var hot = window["mainTable"];
-    var tbl = hot.table;
-    var tbody = $(tbl).children().eq(2).get(0);
-    var rowlen = $(tbl).children().eq(2).children().size();
-    var collen = $(tbl).children().eq(2).children().eq(0).children().size();//start of row is 1
-    var i,j,td,theader,datalist = [],tempdict = {},listTest = /[\[\]\{\}]/i;
-    for(i=0;i<rowlen;i++){
-        tempdict = {};
-        for(j=1;j<collen;j++){
-            theader = $(tbl).children().eq(1).children().eq(0).children().eq(j).children().eq(0).children().eq(0).html();
-            td = $(tbody).children().eq(i).children().eq(j).get(0);
-            var a = $(td).children().size();
-            if($(td).children().size() != 0){
-            if($(td).children().eq(0).get(0).tagName == "BUTTON"){
-                if($(td).children().eq(0).attr("data-type") === "MATRIX") {
-                    if (listTest.test($(td).children().eq(0).val()))
-                        tempdict[theader] = JSON.parse($(td).children().eq(0).val()).map(function (s) {
-                            return s.map(function (se) {
-                                return JsonFormatConvt(se)
-                            })
-                        });
-                    else
-                        tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
-                }
-                else if($(td).children().eq(0).attr("data-type") === "LIST") {
-                    if (listTest.test($(td).children().eq(0).val()))
-                        tempdict[theader] = JSON.parse($(td).children().eq(0).val());
-                    else
-                        tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
-
-
-                }
-            }
-            else if($(td).children().eq(0).get(0).tagName == "INPUT"){
-                tempdict[theader] = $(td).children().eq(0).get(0).checked;
-            }
-            else if($(td).children().eq(0).get(0).tagName == "DIV"){
-                tempdict[theader] = JsonFormatConvt($(td).html().split('<div')[0]);
-            }
-        }
-        else
-            {
-                tempdict[theader] = JsonFormatConvt($(td).html());
-            }
-        }
-        datalist.push(tempdict);
-
-    }
-    var data = JSON.stringify(datalist,null,10);
-    $("#showhot1data").html(data)
-}
-
-
-function getCurrentRowData(structName) {
-    var i,j,tbl,tr,td,theader,tempdict = {},listTest = /[\[\]\{\}]/i,collen;
-    tr = $(".currentRow").parent().eq(1);
-    tbl = $(".currentRow").parent().parent().parent().eq(1);
-    collen = tr.children().size();
-    for(j=1;j<collen;j++){
-        theader = $(tbl).children().eq(1).children().eq(0).children().eq(j).children().eq(0).children().eq(0).html();
-        td = tr.children().eq(j).get(0);
-        var a = $(td).children().size();
-        if($(td).children().size() != 0){
-        if($(td).children().eq(0).get(0).tagName == "BUTTON"){
-            if($(td).children().eq(0).attr("data-type") === "MATRIX") {
-                if (listTest.test($(td).children().eq(0).val()))
-                    tempdict[theader] = JSON.parse($(td).children().eq(0).val()).map(function (s) {
-                        return s.map(function (se) {
-                            return JsonFormatConvt(se)
-                        })
-                    });
-                else
-                    tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
-            }
-            else if($(td).children().eq(0).attr("data-type") === "LIST") {
-                if (listTest.test($(td).children().eq(0).val()))
-                    tempdict[theader] = JSON.parse($(td).children().eq(0).val());
-                else
-                    tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
-            }
-        }
-        else if($(td).children().eq(0).get(0).tagName == "INPUT"){
-            tempdict[theader] = $(td).children().eq(0).get(0).checked;
-        }
-        else if($(td).children().eq(0).get(0).tagName == "DIV"){
-            tempdict[theader] = JsonFormatConvt($(td).html().split('<div')[0]);
-        }
-    }
-    else
-        {
-            tempdict[theader] = JsonFormatConvt($(td).html());
-        }
-    }
-    var data = JSON.stringify(tempdict,null,10);
-    $("#showhot1data").html(data);
-    var typehtml="";
-    var StrategyDict = JSON.parse($("#JsonDict").html())["REFERENCES"];
-    var TemplateUnitIdPrefix = "HandsontableMain";
-    typehtml += "<ul id=\"{0}{1}\"></ul>".format(TemplateUnitIdPrefix,structName);
-    $("#loadlog").append(typehtml);
-    var FieldsVar = StrategyDict[structName].Fields;
-    var FieldsVarAttrs = {};
-    for(var varName in FieldsVar){
-        FieldsVarAttrs = FieldsVar[varName];
-        FieldsVarAttrs["Name"] = varName;
-        if(!FieldsVarAttrs.Reference){
-            if(FieldsVarAttrs.Type == "sint_32" || FieldsVarAttrs.Type == "uint_32"||FieldsVarAttrs.Type == "string")
-                NumberandStringTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix,tempdict);
-            else if(FieldsVarAttrs.Type == "enum"){
-                var enumList = Object.getOwnPropertyNames(StrategyDict[FieldsVarAttrs.EleType].Fields);
-                enumTemplate(structName,enumList,FieldsVarAttrs,TemplateUnitIdPrefix,tempdict)
-            }
-            else if(FieldsVarAttrs.Type.match("mat") ||FieldsVarAttrs.Type.match("vec"))
-                matrixTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix,tempdict);
-            else if(FieldsVarAttrs.Type == "bool")
-                boolTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix,tempdict);
-            else if(FieldsVarAttrs.Type.match("list"))
-                listTamplate(structName,StrategyDict[FieldsVarAttrs.EleType].Fields,FieldsVarAttrs,false,structName,TemplateUnitIdPrefix,tempdict);
-        }
-        // else {
-        //     if(FieldsVarAttrs.Type.match("list"))
-        //      typehtml += listRefTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix);
-        //     else if(FieldsVarAttrs.Type == "sint_32" || FieldsVarAttrs.Type == "uint_32")
-        //         typehtml += singleRefTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix);
-        //  }
-    }
-
-}
-
 
 function getColumsAttrs(structname) {
     var StrategyDict = JSON.parse($("#JsonDict").html())["REFERENCES"];
@@ -392,6 +262,228 @@ function getColumsAttrs(structname) {
     return [colHeaders,ColumsAttrList,ColDataDict,FieldsVar];
 }
 
+function saveBigTableData() {
+    var hot = window["mainTable"];
+    var tbl = hot.table;
+    var tbody = $(tbl).children().eq(2).get(0);
+    var rowlen = $(tbl).children().eq(2).children().size();
+    var collen = $(tbl).children().eq(2).children().eq(0).children().size();//start of row is 1
+    var i,j,td,theader,datalist = [],tempdict = {},listTest = /[\[\]\{\}]/i;
+    for(i=0;i<rowlen;i++){
+        tempdict = {};
+        for(j=1;j<collen;j++){
+            theader = $(tbl).children().eq(1).children().eq(0).children().eq(j).children().eq(0).children().eq(0).html();
+            td = $(tbody).children().eq(i).children().eq(j).get(0);
+            var a = $(td).children().size();
+            if($(td).children().size() != 0){
+            if($(td).children().eq(0).get(0).tagName == "BUTTON"){
+                if($(td).children().eq(0).attr("data-type") === "MATRIX") {
+                    if (listTest.test($(td).children().eq(0).val()))
+                        tempdict[theader] = JSON.parse($(td).children().eq(0).val()).map(function (s) {
+                            return s.map(function (se) {
+                                return JsonFormatConvt(se)
+                            })
+                        });
+                    else
+                        tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
+                }
+                else if($(td).children().eq(0).attr("data-type") === "LIST") {
+                    if (listTest.test($(td).children().eq(0).val()))
+                        tempdict[theader] = JSON.parse($(td).children().eq(0).val());
+                    else
+                        tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
+
+
+                }
+            }
+            else if($(td).children().eq(0).get(0).tagName == "INPUT"){
+                tempdict[theader] = $(td).children().eq(0).get(0).checked;
+            }
+            else if($(td).children().eq(0).get(0).tagName == "DIV"){
+                tempdict[theader] = JsonFormatConvt($(td).html().split('<div')[0]);
+            }
+        }
+        else
+            {
+                tempdict[theader] = JsonFormatConvt($(td).html());
+            }
+        }
+        datalist.push(tempdict);
+
+    }
+    var data = JSON.stringify(datalist,null,10);
+    $("#showhot1data").html(data)
+}
+
+function turnRowToJson(structName) {
+    var i,j,tbl,tr,td,theader,tempdict = {},listTest = /[\[\]\{\}]/i,collen;
+    tr = $(".currentRow").parent().eq(1);
+    tbl = $(".currentRow").parent().parent().parent().eq(1);
+    collen = tr.children().size();
+    for(j=1;j<collen;j++){
+        theader = $(tbl).children().eq(1).children().eq(0).children().eq(j).children().eq(0).children().eq(0).html();
+        td = tr.children().eq(j).get(0);
+        var a = $(td).children().size();
+        if($(td).children().size() != 0){
+        if($(td).children().eq(0).get(0).tagName == "BUTTON"){
+            if($(td).children().eq(0).attr("data-type") === "MATRIX") {
+                if (listTest.test($(td).children().eq(0).val()))
+                    tempdict[theader] = JSON.parse($(td).children().eq(0).val()).map(function (s) {
+                        return s.map(function (se) {
+                            return JsonFormatConvt(se)
+                        })
+                    });
+                else
+                    tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
+            }
+            else if($(td).children().eq(0).attr("data-type") === "LIST") {
+                if (listTest.test($(td).children().eq(0).val()))
+                    tempdict[theader] = JSON.parse($(td).children().eq(0).val());
+                else
+                    tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
+            }
+        }
+        else if($(td).children().eq(0).get(0).tagName == "INPUT"){
+            tempdict[theader] = $(td).children().eq(0).get(0).checked;
+        }
+        else if($(td).children().eq(0).get(0).tagName == "DIV"){
+            tempdict[theader] = JsonFormatConvt($(td).html().split('<div')[0]);
+        }
+    }
+    else
+        {
+            tempdict[theader] = JsonFormatConvt($(td).html());
+        }
+    }
+    var data = JSON.stringify(tempdict,null,10);
+    $("#showhot1data").html(data);
+    var typehtml="";
+    var StrategyDict = JSON.parse($("#JsonDict").html())["REFERENCES"];
+    var TemplateUnitIdPrefix = "HandsontableMain";
+    typehtml += "<ul id=\"{0}{1}\"></ul>".format(TemplateUnitIdPrefix,structName);
+    $("#jsonlog").append(typehtml);
+    var FieldsVar = StrategyDict[structName].Fields;
+    var FieldsVarAttrs = {};
+    for(var varName in FieldsVar){
+        FieldsVarAttrs = FieldsVar[varName];
+        FieldsVarAttrs["Name"] = varName;
+        if(!FieldsVarAttrs.Reference){
+            if(FieldsVarAttrs.Type == "sint_32" || FieldsVarAttrs.Type == "uint_32"||FieldsVarAttrs.Type == "string")
+                NumberandStringTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix,tempdict);
+            else if(FieldsVarAttrs.Type == "enum"){
+                var enumList = Object.getOwnPropertyNames(StrategyDict[FieldsVarAttrs.EleType].Fields);
+                enumTemplate(structName,enumList,FieldsVarAttrs,TemplateUnitIdPrefix,tempdict)
+            }
+            else if(FieldsVarAttrs.Type.match("mat") ||FieldsVarAttrs.Type.match("vec"))
+                matrixTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix,tempdict);
+            else if(FieldsVarAttrs.Type == "bool")
+                boolTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix,tempdict);
+            else if(FieldsVarAttrs.Type.match("list"))
+                listTamplate(structName,StrategyDict[FieldsVarAttrs.EleType].Fields,FieldsVarAttrs,false,structName,TemplateUnitIdPrefix,tempdict);
+        }
+        // else {
+        //     if(FieldsVarAttrs.Type.match("list"))
+        //      typehtml += listRefTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix);
+        //     else if(FieldsVarAttrs.Type == "sint_32" || FieldsVarAttrs.Type == "uint_32")
+        //         typehtml += singleRefTemplate(structName,FieldsVarAttrs,TemplateUnitIdPrefix);
+        //  }
+    }
+
+}
+
+function getDataFromJsonTree() {
+    var TemplatesUnitIdPrefix = "HandsontableMain";
+    var valoption = "Annapurna";
+    var JSONDICT = document.getElementById("JsonDict").innerHTML;
+    var jsonDict = JSON.parse(JSONDICT)["REFERENCES"];
+    var ul = document.getElementById(TemplatesUnitIdPrefix+valoption);
+    var ullen = ul.childNodes.length;
+    var Jsoncode = Object();
+    for (var i = 0; i < ullen; i++) {
+        var ili = ul.childNodes[i];
+        var varName = ili.childNodes[1].innerHTML;
+        var varType = jsonDict[valoption].Fields[varName].Type;
+        var varEleType = jsonDict[valoption].Fields[varName].EleType;
+        var varReference = jsonDict[valoption]["Fields"][varName]["Reference"];
+        if (varReference == null) {
+            if (varType == "string" || varType == "double" || varType == "sint32" || varType == "uint32") {
+                Jsoncode[varName] = JsonFormatConvt(ili.childNodes[2].rows[0].cells[4].innerHTML);
+            }
+            else if (varType.match("list")) {
+                var table = $("#{0}".format(TemplatesUnitIdPrefix+valoption+varName)).find("table.htCore").eq(0);
+                var theader = table.children().eq(1);
+                var tbody = table.children().eq(2);
+                var headName="";
+                var bodyDict = {};
+                var bodyDataList = [];
+                var tdvalue = "";
+                var rowlen = tbody.eq(0).children().size();
+                var collen = tbody.eq(0).children().eq(0).children().size();
+                for(var ti=0;ti<rowlen;ti++ ){
+                    bodyDict = {};
+                    for (var tj=1;tj<collen;tj++){
+                        headName = theader.eq(0).children().eq(0).children().eq(tj).find("span.colHeader").eq(0).html();
+                        tdvalue = tbody.eq(0).children().eq(ti).children().eq(tj).eq(0).html();
+                        bodyDict[headName] = tdvalue;
+                    }
+                    bodyDataList.push(bodyDict);
+                }
+                Jsoncode[varName] = bodyDataList;
+            }
+            else if (varType == "bool") {
+                Jsoncode[varName] = JsonFormatConvt(ili.childNodes[3].innerHTML);
+            }
+            // else if (varType.match("mat") || varType.match("vec")) {
+            //     i = i + 1;
+            //     var matTbl = document.getElementById(TemplatesUnitIdPrefix+valoption + varName + "matrix");
+            //     var matBigArr = new Array();
+            //     if (matTbl.rows.length > 1) {
+            //         for (var mi = 0; mi < matTbl.rows.length; mi++) {
+            //             var matSmallArr = new Array();
+            //             for (var mj = 0; mj < matTbl.rows[mi].cells.length; mj++) {
+            //                 matSmallArr[mj] = JsonFormatConvt(matTbl.rows[mi].cells[mj].innerHTML)
+            //             }
+            //             matBigArr[mi] = matSmallArr;
+            //         }
+            //         Jsoncode[varName] = matBigArr;
+            //     }
+            //     else {
+            //         matSmallArr = new Array();
+            //         for (mj = 0; mj < matTbl.rows[0].cells.length; mj++) {
+            //             matSmallArr[mj] = JsonFormatConvt(matTbl.rows[0].cells[mj].innerHTML)
+            //         }
+            //         Jsoncode[varName] = matSmallArr;
+            //     }
+            // }
+            else if (varType.match("enum")) {
+                Jsoncode[varName] = JsonFormatConvt(document.getElementById(TemplatesUnitIdPrefix+valoption + varName + "enumSelect").value);
+            }
+        }
+        // else {
+        //     var refJsonDict = CombineReferenceData[TemplatesUnitIdPrefix+valoption+varName];
+        //     if (varType.match("list")) {
+        //         i += 1;
+        //         var multivalue = $("#{0}".format(TemplatesUnitIdPrefix+valoption + varName + "refSelect")).multiselect("MyValues").split(",");
+        //         var resultsref = {};
+        //         for(var i1 in multivalue){
+        //             multivalue[i1]=multivalue[i1].replace(/\s+/g,"");
+        //             resultsref[multivalue[i1]]=ReadCsvTableDict(refJsonDict,TemplatesUnitIdPrefix+valoption+multivalue[i1]+"csv",multivalue[i1]);
+        //         }
+        //         Jsoncode[varName] =resultsref;
+        //     }
+        //     else {
+        //         i += 1;
+        //         var singleRefResult = JsonFormatConvt(document.getElementById(TemplatesUnitIdPrefix+valoption + varName + "refSelect").value);
+        //         Jsoncode[varName] = ReadCsvTableDict(refJsonDict,TemplatesUnitIdPrefix+valoption+singleRefResult+"csv",singleRefResult);
+        //     }
+        // }
+    }
+    $("#showjsondata").html(JSON.stringify(Jsoncode));
+}
+function turnJsonToRow() {
+    
+    
+}
 
 function SelectTypeTemplate(TemplatesUnitIdPrefix,typeslist) {
     var typeshtml = "";
@@ -414,9 +506,9 @@ function get_TypesSelect_Result(TemplatesUnitIdPrefix,obj) {
     var IsNewTemplateContent = document.getElementById(TemplatesUnitIdPrefix+obj.name+"TemplateContent")?false:true;
     if(IsNewTemplateContent) {
         var html = "<div id='{0}{1}TemplateContent' style=\"display: none;\">{2}</div>".format(TemplatesUnitIdPrefix, obj.name, TypeUnitTemplate(obj.name, TemplatesUnitIdPrefix));
-        $("#loadlog").append(html);
+        $("#jsonlog").append(html);
     }
-    $("#loadlog").children().each(function () {
+    $("#jsonlog").children().each(function () {
         if(this.id.match(TemplatesUnitIdPrefix)) {
             if(this.id == (TemplatesUnitIdPrefix+obj.name+"TemplateContent"))
                 this.style.display = "block";
@@ -436,7 +528,7 @@ function TypesTemplate(TemplateUnitIdPrefix) {
     var html = "";
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
     html += "<div class='jsoneditor-selecttype' id='{0}TemplatesSelection' style='display: block'>{1}</div>".format(TemplateUnitIdPrefix,SelectTypeTemplate(TemplateUnitIdPrefix,StrategyList));
-    $("#loadlog").append(html);
+    $("#jsonlog").append(html);
 }
 function TypeUnitTemplate(structname,TemplateUnitIdPrefix){
     var typehtml="";
@@ -496,7 +588,7 @@ function boolTemplate(structname,VarAttrs,TemplateUnitIdPrefix,valueDict) {
 
     boolhtml +='<span style="color: deepskyblue" id="{0}{1}{2}"> {3}</span></span>'.format(TemplateUnitIdPrefix,structname,VarAttrs.Name,valueDict[VarAttrs.Name]);
     boolhtml +='<span style="display: none" id="{0}{1}{2}boolval">{3}</span></li>'.format(TemplateUnitIdPrefix,structname,VarAttrs.name,valueDict[VarAttrs.Name]);
-    $("#loadlog").children().eq(-1).append(boolhtml)
+    $("#jsonlog").children().eq(-1).append(boolhtml)
 
 }
 
@@ -518,7 +610,7 @@ function enumTemplate(structname,enumlist,VarAttrs,TemplatesUnitIdPrefix,valueDi
         enumhtml += "</li>"
     }
     enumhtml += "</ul></span></span><span id=\"m{0}{1}{2}\" style=\"display: none\">{2}</span></li>".format(TemplatesUnitIdPrefix,structname,VarAttrs.Name);
-    $("#loadlog").children().eq(-1).append(enumhtml);
+    $("#jsonlog").children().eq(-1).append(enumhtml);
 }
 function get_Drop_Select_value(ID,obj){
     var id1 = "{0}enumSelect".format(ID);
@@ -542,9 +634,9 @@ function NumberandStringTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,value
     VarAttrs.Default = valueDict[VarAttrs.Name];
     if(VarAttrs.Default == null)
         VarAttrs.Default = "";
-    NumStrhtml +='<td contenteditable="true" spellcheck="false" class="jsoneditor-number jsoneditor-value jsoneditor-listinput handleEnter" onkeypress="handleEnter(this,event)" onblur="NumberChecktips(this)" id="{0}{1}{2}">{3}</td></li>'.format(TemplatesUnitIdPrefix,structname,VarAttrs.Name,VarAttrs.Default);
-    NumStrhtml += '</tr></table>';
-    $("#loadlog").children().eq(-1).append(NumStrhtml)
+    NumStrhtml +='<td contenteditable="true" spellcheck="false" class="jsoneditor-number jsoneditor-value jsoneditor-listinput handleEnter" onkeypress="handleEnter(this,event)" onblur="NumberChecktips(this)" id="{0}{1}{2}">{3}</td>'.format(TemplatesUnitIdPrefix,structname,VarAttrs.Name,VarAttrs.Default);
+    NumStrhtml += '</tr></table></li>';
+    $("#jsonlog").children().eq(-1).append(NumStrhtml)
 }
 function listTamplate(structname,listTypeFieldsDict,VarAttrs,IsReference,preStructName,TemplatesUnitIdPrefix,valueDict) {
     var struct = "";
@@ -566,9 +658,8 @@ function listTamplate(structname,listTypeFieldsDict,VarAttrs,IsReference,preStru
     listhtml += '<button onclick="collapsewin(\'{0}\')">^</button>{1}'.format(listIdBase,name);
     listhtml += "</span>";
     listhtml += '<span style="display: none">{0}</span>'.format(name);
-    listhtml += '</li>';
-    listhtml += '<li ><div id="{0}" style="display: block"></div></li>'.format(listIdBase);
-    $("#loadlog").children().eq(-1).append(listhtml);
+    listhtml += '<div id="{0}" style="display: block;margin-left: 30px" ></div></li>'.format(listIdBase);
+    $("#jsonlog").children().eq(-1).append(listhtml);
     var hot,container,data1;
     container = document.getElementById('{0}'.format(listIdBase));
     var colHeadsList = Object.getOwnPropertyNames(listTypeFieldsDict);
@@ -626,16 +717,11 @@ function matrixTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
     else
         mathtml += '<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{0} [{1}x{2}]</span>'.format(VarAttrs.Name,VarAttrs.DimensionY,VarAttrs.DimensionX);
     mathtml +='<span style="display: none">{0}</span>'.format(VarAttrs.Name);
-    mathtml +='</li>';
-    mathtml +='<li><div id="{0}matrix" style="margin-left: 30px"></div></li>'.format(TemplatesUnitIdPrefix+structname+VarAttrs.Name);
-    $("#loadlog").children().eq(-1).append(mathtml);
+    mathtml +='<div id="{0}matrix" style="margin-left: 30px"></div></li>'.format(TemplatesUnitIdPrefix+structname+VarAttrs.Name);
+    $("#jsonlog").children().eq(-1).append(mathtml);
     container = document.getElementById('{0}matrix'.format(TemplatesUnitIdPrefix+structname+VarAttrs.Name));
     var rowlen = parseInt(VarAttrs.DimensionY);
     var collen = parseInt(VarAttrs.DimensionX);
-    var a = [];
-    for(var i in collen){
-        a.push({type:"numeric"})
-    }
     hot = new Handsontable(container, {
         data:valueDict[VarAttrs.Name],
         startRows:rowlen,
