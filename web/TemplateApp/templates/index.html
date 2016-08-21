@@ -107,7 +107,12 @@
       <div class="am-u-sm-10 RightArea" style="height: 900px">
           <div class="am-g">
               <div  class="am-u-sm-10 am-scrollable-vertical" style="height: 900px;padding-top: 30px;" >
-                  <div class="handsontable htRowHeaders htColumnHeaders" id="loadlog" ></div>
+                  <input id="search_field" placeholder="Search" type="search"> <span id="resultCount">0</span> results
+                  <div class="handsontable htRowHeaders htColumnHeaders handsontable-container"
+                       data-originalstyle="width: 400px; height: 300px; overflow: hidden;"
+                       data-initialstyle="width: 400px; height: 300px; overflow: hidden;"
+                       id="loadlog"
+                       style="width: 1200px; height: 700px; overflow: hidden;"></div>
                   <div id="jsonlog" ></div>
                   <p id="para">
                       <button  onclick="saveBigTableData()">

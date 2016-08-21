@@ -5,12 +5,17 @@ var app = {
     load:TypesTemplate,
     load2:HtmlExcelAll
 };
-var mainTable;
+
 function HtmlExcelAll() {
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
+    var mainTableId = "loadlog";
+    $("#loadlog").eq(0).attr("handsontable-container-id",mainTableId);
     var ColumsAttr = [];
     var container1;
+    var searchFiled = document.getElementById('search_field');
+    var resultCount = document.getElementById('resultCount');
     ColumsAttr=getColumsAttrs(StrategyList[0]);
+
     container1 = document.getElementById('loadlog');
     function expandMatrix(instance, td, row, col, prop, value, cellProperties) {
         //Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -46,7 +51,7 @@ function HtmlExcelAll() {
     }
     Handsontable.renderers.registerRenderer('expandMatrix', expandMatrix);
     Handsontable.renderers.registerRenderer('expandList', expandList);
-    mainTable = new Handsontable(container1, {
+    app[mainTableId] = new Handsontable(container1, {
         data: ColumsAttr[2],
         colHeaders: ColumsAttr[0],
         columns:ColumsAttr[1],
@@ -56,13 +61,12 @@ function HtmlExcelAll() {
         manualRowResize: true,
         rowHeaders:true,
         colHeights:100,
+        currentRowClassName: 'currentRow',
+        currentColClassName: 'currentCol',
         //colHeaders: true,
         //minSpareRows: 1,
         startRows:1,
         stretchH: 'all',
-        contextMenu: true,
-        currentRowClassName: 'currentRow',
-        currentColClassName: 'currentCol',
         cells:function (row, col, prop) {
             var cellProperties = {};
             if (ColumsAttr[3][prop].Type === 'mat' || ColumsAttr[3][prop].Type === 'vec') {
@@ -74,41 +78,54 @@ function HtmlExcelAll() {
             return cellProperties;
         }
     });
-    mainTable.updateSettings({
+  var searchResultCount = 0;
+
+  var searchResultCounter = function (instance, row, col, value, result) {
+
+      Handsontable.Search.DEFAULT_CALLBACK.apply(this, arguments);
+      if (result) {
+          searchResultCount++;
+      }
+  };
+    app[mainTableId].updateSettings({
+        search:{
+            callback:searchResultCounter
+        },
         contextMenu: {
             callback: function (key, options) {
                 if (key === 'json') {
                     var curRowDataDict = turnRowToJson(StrategyList[0]);
-
-                    // app.load("TAB1","bodymodal");
-                    // $('#myModal').modal('show');
-                    // $(function () { $('#myModal').on('hide.bs.modal', savedata)});
-                    
                 }
             },
             items: {
                 "row_above": {},
                 "row_below": {},
+                "hsep1":"---------",
                 "undo":{},
                 "redo":{},
+                "hsep2":"---------",
                 "alignment":{},
                 "clear_column":{},
                 "remove_row":{
                     name:"remove this row!",
                     disabled:function () {
-                        return (mainTable.getSelected() && mainTable.getSelected()[0] === 0)
+                        return (app[mainTableId].getSelected() && app[mainTableId].getSelected()[0] === 0)
                     }
                 },
-                "json":{
-                    name:"Trun row to Json"
-                    // disabled:function () {
-                    //     return ($(".currentRow").get(0))
-                    //  }
-                }
+                "hsep3":"---------",
+                "json":{name:"Trun row to Json"}
             }
 
         }
     });
+
+    Handsontable.Dom.addEvent(searchFiled, 'keyup', function (event) {
+        searchResultCount = 0;
+        var queryResult = app[mainTableId].search.query(this.value);
+        resultCount.innerHTML = searchResultCount.toString();
+        app[mainTableId].render();
+    });
+
 }
 
 function MatButton(field) {
@@ -261,9 +278,8 @@ function getColumsAttrs(structname) {
     }
     return [colHeaders,ColumsAttrList,ColDataDict,FieldsVar];
 }
-
 function saveBigTableData() {
-    var hot = window["mainTable"];
+    var hot = window["app"]["loadlog"];
     var tbl = hot.table;
     var tbody = $(tbl).children().eq(2).get(0);
     var rowlen = $(tbl).children().eq(2).children().size();
@@ -292,8 +308,6 @@ function saveBigTableData() {
                         tempdict[theader] = JSON.parse($(td).children().eq(0).val());
                     else
                         tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
-
-
                 }
             }
             else if($(td).children().eq(0).get(0).tagName == "INPUT"){
@@ -317,7 +331,7 @@ function saveBigTableData() {
 
 function turnRowToJson(structName) {
     var i,j,tbl,tr,td,theader,tempdict = {},listTest = /[\[\]\{\}]/i,collen;
-    tr = $(".currentRow").parent().eq(1);
+    tr = $(".currentRow").parent().eq(1)
     tbl = $(".currentRow").parent().parent().parent().eq(1);
     collen = tr.children().size();
     for(j=1;j<collen;j++){
@@ -362,6 +376,8 @@ function turnRowToJson(structName) {
     var TemplateUnitIdPrefix = "HandsontableMain";
     typehtml += "<ul id=\"{0}{1}\"></ul>".format(TemplateUnitIdPrefix,structName);
     $("#jsonlog").append(typehtml);
+    $("#{0}".format(TemplateUnitIdPrefix+structName)).eq(0).attr("index-currentRow",$(".currentRow").parent().eq(1).index());
+    $("#{0}".format(TemplateUnitIdPrefix+structName)).eq(0).attr("handsontable-container-id",$(".currentRow").parents("div.handsontable-container").eq(0).attr("id"));
     var FieldsVar = StrategyDict[structName].Fields;
     var FieldsVarAttrs = {};
     for(var varName in FieldsVar){
@@ -406,8 +422,8 @@ function getDataFromJsonTree() {
         var varEleType = jsonDict[valoption].Fields[varName].EleType;
         var varReference = jsonDict[valoption]["Fields"][varName]["Reference"];
         if (varReference == null) {
-            if (varType == "string" || varType == "double" || varType == "sint32" || varType == "uint32") {
-                Jsoncode[varName] = JsonFormatConvt(ili.childNodes[2].rows[0].cells[4].innerHTML);
+            if (varType == "string" || varType == "double" || varType == "sint_32" || varType == "uint_32") {
+                Jsoncode[varName] =JsonFormatConvt(ili.childNodes[2].rows[0].cells[4].innerHTML);
             }
             else if (varType.match("list")) {
                 var table = $("#{0}".format(TemplatesUnitIdPrefix+valoption+varName)).find("table.htCore").eq(0);
@@ -431,30 +447,26 @@ function getDataFromJsonTree() {
                 Jsoncode[varName] = bodyDataList;
             }
             else if (varType == "bool") {
-                Jsoncode[varName] = JsonFormatConvt(ili.childNodes[3].innerHTML);
+                Jsoncode[varName] = $(ili).eq(0).children().eq(-1).html();
+                
             }
-            // else if (varType.match("mat") || varType.match("vec")) {
-            //     i = i + 1;
-            //     var matTbl = document.getElementById(TemplatesUnitIdPrefix+valoption + varName + "matrix");
-            //     var matBigArr = new Array();
-            //     if (matTbl.rows.length > 1) {
-            //         for (var mi = 0; mi < matTbl.rows.length; mi++) {
-            //             var matSmallArr = new Array();
-            //             for (var mj = 0; mj < matTbl.rows[mi].cells.length; mj++) {
-            //                 matSmallArr[mj] = JsonFormatConvt(matTbl.rows[mi].cells[mj].innerHTML)
-            //             }
-            //             matBigArr[mi] = matSmallArr;
-            //         }
-            //         Jsoncode[varName] = matBigArr;
-            //     }
-            //     else {
-            //         matSmallArr = new Array();
-            //         for (mj = 0; mj < matTbl.rows[0].cells.length; mj++) {
-            //             matSmallArr[mj] = JsonFormatConvt(matTbl.rows[0].cells[mj].innerHTML)
-            //         }
-            //         Jsoncode[varName] = matSmallArr;
-            //     }
-            // }
+            else if (varType.match("mat") || varType.match("vec")) {
+                table = $("#{0}matrix".format(TemplatesUnitIdPrefix+valoption+varName)).find("table.htCore").eq(0);
+                tbody = table.children().eq(2);
+                var tmplist = [];
+                bodyDataList = [];
+                tdvalue = "";
+                rowlen = tbody.eq(0).children().size();
+                collen = tbody.eq(0).children().eq(0).children().size();
+                for( ti=0;ti<rowlen;ti++ ){
+                    tmplist = [];
+                    for ( tj=1;tj<collen;tj++){
+                        tmplist.push( tbody.eq(0).children().eq(ti).children().eq(tj).eq(0).html());
+                    }
+                    bodyDataList.push(tmplist);
+                }
+                Jsoncode[varName] = bodyDataList;
+            }
             else if (varType.match("enum")) {
                 Jsoncode[varName] = JsonFormatConvt(document.getElementById(TemplatesUnitIdPrefix+valoption + varName + "enumSelect").value);
             }
@@ -477,6 +489,29 @@ function getDataFromJsonTree() {
         //         Jsoncode[varName] = ReadCsvTableDict(refJsonDict,TemplatesUnitIdPrefix+valoption+singleRefResult+"csv",singleRefResult);
         //     }
         // }
+    }
+    var currentRowIndex = $("#{0}".format(TemplatesUnitIdPrefix+valoption)).eq(0).attr("index-currentRow");
+    var currentContainerId = $("#{0}".format(TemplatesUnitIdPrefix+valoption)).eq(0).attr("handsontable-container-id");
+    var j,tr,td;
+    table = $("#{0}".format(currentContainerId)).find("table.htCore").eq(0);
+    tr = table.find("tbody").children().eq(currentRowIndex);
+    collen = tr.children().size();
+    var hot = window["app"][currentContainerId];
+    for(j=1;j<collen;j++){
+        theader = table.eq(0).children().eq(1).children().eq(0).children().eq(j).find("span.colHeader").eq(0).html();
+        td = tr.children().eq(j).get(0);
+        if($(td).children().size() != 0){
+            if($(td).children().eq(0).get(0).tagName == "BUTTON")
+                $(td).children().eq(0).val(JSON.stringify(Jsoncode[theader]));
+            else if($(td).children().eq(0).get(0).tagName == "INPUT")
+                hot.setDataAtCell(currentRowIndex,j-1,Jsoncode[theader]);
+            else if($(td).children().eq(0).get(0).tagName == "DIV")
+                hot.setDataAtCell(currentRowIndex,j-1,Jsoncode[theader]);
+        }
+        else
+        {
+            hot.setDataAtCell(currentRowIndex,j-1,Jsoncode[theader]);
+        }
     }
     $("#showjsondata").html(JSON.stringify(Jsoncode));
 }
@@ -565,29 +600,24 @@ function TypeUnitTemplate(structname,TemplateUnitIdPrefix){
 }
 function get_chekbox_value(checkboxid,showcheckid) {
     if(document.getElementById(checkboxid).checked){
-        document.getElementById(showcheckid).innerHTML= 'true';
         document.getElementById(showcheckid+"boolval").innerHTML= 'true';
     }
     else {
-        document.getElementById(showcheckid).innerHTML= 'false';
         document.getElementById(showcheckid+"boolval").innerHTML= 'false';
     }
 }
 function boolTemplate(structname,VarAttrs,TemplateUnitIdPrefix,valueDict) {
-    if(!VarAttrs.Default)
-        VarAttrs.Default = false;
+    var Ischecked = valueDict[VarAttrs.Name]?"checked":"";
     var boolhtml = "";
     boolhtml += "<li id=\"{0}{1}{2}bool\" style=\"display: block\">".format(TemplateUnitIdPrefix,structname,VarAttrs.Name);
-    boolhtml += "<span>";
     if(VarAttrs.Requiredness == "bool")
         boolhtml +='<span style="color: red">*</span>';
-    boolhtml += '</span>';
+    else
+        boolhtml +='<span></span>';
     boolhtml +='<span class="jsoneditor-readonly jsoneditor-value" onmouseover="shadowover(this)" onmouseout="shadowout(this)">{0}</span>'.format(VarAttrs.Name);
-    var Ischecked = valueDict[VarAttrs.Name]?"checked":"";
-    boolhtml +='<span><input type="checkbox" id="m{0}{1}{2}" onclick="get_chekbox_value(\'m{0}{1}{2}\',\'{0}{1}{2}\')\" {3}/>'.format(TemplateUnitIdPrefix,structname,VarAttrs.Name,Ischecked);
-
-    boolhtml +='<span style="color: deepskyblue" id="{0}{1}{2}"> {3}</span></span>'.format(TemplateUnitIdPrefix,structname,VarAttrs.Name,valueDict[VarAttrs.Name]);
-    boolhtml +='<span style="display: none" id="{0}{1}{2}boolval">{3}</span></li>'.format(TemplateUnitIdPrefix,structname,VarAttrs.name,valueDict[VarAttrs.Name]);
+    boolhtml +='<input type="checkbox" id="m{0}{1}{2}" onclick="get_chekbox_value(\'m{0}{1}{2}\',\'{0}{1}{2}\')\" \{3\}/>'.format(TemplateUnitIdPrefix,structname,VarAttrs.Name,Ischecked);
+    boolhtml += '<span>  </span>';
+    boolhtml +='<span style="color: deepskyblue" id="{0}{1}{2}boolval">{3}</span></li>'.format(TemplateUnitIdPrefix,structname,VarAttrs.Name,valueDict[VarAttrs.Name]);
     $("#jsonlog").children().eq(-1).append(boolhtml)
 
 }
