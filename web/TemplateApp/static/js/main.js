@@ -60,6 +60,7 @@ function HtmlExcelAll() {
         manualColumnResize: true,
         manualRowResize: true,
         rowHeaders:true,
+        //fixedColumnsLeft: 2,
         colHeights:100,
         currentRowClassName: 'currentRow',
         currentColClassName: 'currentCol',
@@ -375,7 +376,7 @@ function turnRowToJson(structName) {
     var StrategyDict = JSON.parse($("#JsonDict").html())["REFERENCES"];
     var TemplateUnitIdPrefix = "HandsontableMain";
     typehtml += "<ul id=\"{0}{1}\"></ul>".format(TemplateUnitIdPrefix,structName);
-    $("#jsonlog").append(typehtml);
+    $("#jsonlog").eq(0).html(typehtml);
     $("#{0}".format(TemplateUnitIdPrefix+structName)).eq(0).attr("index-currentRow",$(".currentRow").parent().eq(1).index());
     $("#{0}".format(TemplateUnitIdPrefix+structName)).eq(0).attr("handsontable-container-id",$(".currentRow").parents("div.handsontable-container").eq(0).attr("id"));
     var FieldsVar = StrategyDict[structName].Fields;
@@ -761,8 +762,8 @@ function matrixTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
         colHeaders: true,
         //columns:a,
         contextMenu: true,
-        currentRowClassName: 'currentRow',
-        currentColClassName: 'currentCol',
+        // currentRowClassName: 'currentRow',
+        // currentColClassName: 'currentCol',
         autoWrapRow: true
         });
 }
