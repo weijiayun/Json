@@ -28,7 +28,7 @@ ul li{
 	list-style-type:none;
 	min-height: 25px;
 	padding: 3px;
-	margin: 2px;
+	/*margin: 2px;*/
 	font-size: 16px;
 
 }
@@ -73,8 +73,7 @@ td.jsoneditor-value{
 	padding:1px;
 	margin:1px;
 	word-wrap:break-word;
-	height: 30px;
-	border-radius:5px;
+	border-radius:2px;
 }
 span.jsoneditor-value{
 	white-space: nowrap;
@@ -82,7 +81,7 @@ span.jsoneditor-value{
 	padding:1px;
 	margin:1px;
 	word-wrap:break-word;
-	height: 30px;
+	height: 23px;
 	border-radius:2px;
 }
 

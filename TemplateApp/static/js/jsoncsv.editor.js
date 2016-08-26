@@ -38,10 +38,7 @@ function shadowover(x) {
     x.style.borderRadius="2px";
 }
 function shadowout(x) {
-    if(x.tagName == "A")
-        x.style.backgroundColor = "white";
-    else
-        x.style.backgroundColor = "#636363";
+    x.style.backgroundColor = "#f2f2f2";
 }
 function overbutton(obj) {
     obj.childNodes.style.display="block";

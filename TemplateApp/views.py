@@ -12,18 +12,21 @@ JsonDict=json.dumps({"REFLIST":["Annapurna","Annapurnatest"],"REFERENCES":newInp
 @app.route('/',methods=["GET","POST"])
 @app.route('/<StructName>',methods=["GET","POST"])
 def index(StructName=""):
-    if request.method == "POST":
-        if len(StructName) == 0:
-            print request.form["SubmitAllInput"]
-        else:
-            print request.form["{0}input".format(StructName)]
-        return redirect(url_for('index'))
-    return render_template('index.html',
-                           JsonDict=JsonDict,
-                           )
+    # if request.method == "POST":
+    #     if len(StructName) == 0:
+    #         print request.form["SubmitAllInput"]
+    #     else:
+    #         print request.form["{0}input".format(StructName)]
+    #     return redirect(url_for('index'))
+    return render_template('index.html', JsonDict=JsonDict,)
 
 @app.route("/reference/<type>",methods=["GET","POST"])
 def ref(type):
-    if type == "market":
-        refdata = ConvertTowebFormatJson(INPUTOBJECT3)
-        return json.dumps(refdata)
+    refdata = {"market":["market1","market2","market3"],"strategy":["stagety1","stagety2","stagety3"]}
+    return json.dumps(refdata[type])
+
+@app.route("/objects/<type>",methods=["GET","POST"])
+def obj(type):
+    print type
+    refdata = {"myObjectList":["obj1","obj2","obj3","stagety1","stagety2","stagety3"]}
+    return json.dumps(refdata[type])
