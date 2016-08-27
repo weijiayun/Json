@@ -64,6 +64,10 @@ function HtmlExcelAll() {
                     checkAllText: "all",
                     uncheckAllText: 'none',
                     selectedList:1
+                }).multiselectfilter({
+                    label:"Search: ",
+                    width:130,
+                    height:25
                 }).on("multiselectclick",function (event, ui) {
                     var result = $(this).multiselect("getChecked").map(function () {
                         return this.value;
@@ -323,8 +327,8 @@ function getColumsAttrs(structname) {
                     dataType: 'json',
                     async:false
                 }).done(function (data) {
-                    colAttrDict.editor= "select";
-                    colAttrDict.selectOptions = data;
+                    colAttrDict.type= "dropdown";
+                    colAttrDict.source = data;
                     ColumsAttrList.push(colAttrDict);
                     colHeaders.push(FieldsVarAttrs.Name);
                     ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
@@ -367,12 +371,14 @@ function saveBigTableData() {
             if($(td).children().size() != 0){
             if($(td).children().eq(0).get(0).tagName == "BUTTON"){
                 if($(td).children().eq(0).attr("data-type") === "MATRIX") {
-                    if (listTest.test($(td).children().eq(0).val()))
+                    if (listTest.test($(td).children().eq(0).val())) {
+                        var aaaa =  $(td).children().eq(0).val();
                         tempdict[theader] = JSON.parse($(td).children().eq(0).val()).map(function (s) {
                             return s.map(function (se) {
                                 return JsonFormatConvt(se)
                             })
                         });
+                    }
                     else
                         tempdict[theader] = JsonFormatConvt($(td).children().eq(0).val())
                 }
@@ -711,7 +717,7 @@ function boolTemplate(structname,VarAttrs,TemplateUnitIdPrefix,valueDict) {
     else
         boolhtml += '<span></span>';
     boolhtml += '<span style="display: none">{0}</span>'.format(VarAttrs.Name);
-    boolhtml += '<span><span class="glyphicon glyphicon-check"></span><span class="badge jsoneditor-readonly jsoneditor-value" style="background-color: #00a1cb;color: white">{0}</span></span>'.format(VarAttrs.Name);
+    boolhtml += '<span><span class="glyphicon glyphicon-check"></span><span class=" jsoneditor-readonly jsoneditor-value" ;color: white">{0}</span></span>'.format(VarAttrs.Name);
     boolhtml += '<input type="checkbox" id="m{0}{1}{2}" onclick="get_chekbox_value(\'m{0}{1}{2}\',\'{0}{1}{2}\')\" \{3\}/>'.format(TemplateUnitIdPrefix,structname,VarAttrs.Name,Ischecked);
     boolhtml += '<span>  </span>';
     boolhtml +='<span style="color: deepskyblue" id="{0}{1}{2}boolval">{3}</span></li>'.format(TemplateUnitIdPrefix,structname,VarAttrs.Name,valueDict[VarAttrs.Name]);
@@ -727,7 +733,7 @@ function enumTemplate(structname,enumlist,VarAttrs,TemplatesUnitIdPrefix,valueDi
         enumhtml += '<span style="color: red">*</span>'; 
     enumhtml +='<span >{0} </span>'.format(VarAttrs.Name);
     enumhtml +="<span class='dropdown'>";
-    enumhtml +="<button type='button' class='btn dropdown-toggle btn-large btn-primary' id='{0}enumSelect' data-toggle='dropdown' value='{1}'>".format(TemplatesUnitIdPrefix+structname+VarAttrs.Name,valueDict[VarAttrs.Name]);
+    enumhtml +="<button type='button' class='btn dropdown-toggle btn-large btn-primary' style='background-color: lightslategray;height: 28px' id='{0}enumSelect' data-toggle='dropdown' value='{1}'>".format(TemplatesUnitIdPrefix+structname+VarAttrs.Name,valueDict[VarAttrs.Name]);
     valueDict[VarAttrs.Name] = valueDict[VarAttrs.Name]?valueDict[VarAttrs.Name]:"select";
     enumhtml +="<span id=\"{0}{1}{2}buttonValue\">{3}</span><span class='caret'></span></button>".format(TemplatesUnitIdPrefix,structname,VarAttrs.Name,valueDict[VarAttrs.Name]);
     enumhtml +="<ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">";
@@ -756,7 +762,7 @@ function NumberandStringTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,value
         NumStrhtml +='<td style="color: red">*</td>';
     NumStrhtml += '</td>';
     NumStrhtml +="<td class=\"jsoneditor-readonly jsoneditor-value\" id=\"m{0}{1}{2}\">{2}</td>".format(TemplatesUnitIdPrefix,structname,VarAttrs.Name);
-    NumStrhtml += "<td>:  </td>";
+    NumStrhtml += "<td style='width: 8px'>:</td>";
     VarAttrs.Default = valueDict[VarAttrs.Name];
     if(VarAttrs.Default == null)
         VarAttrs.Default = "";
@@ -785,7 +791,7 @@ function listTamplate(structname,listTypeFieldsDict,VarAttrs,IsReference,preStru
     else
         listhtml += '<span></span>';
     listhtml += '<span style="display: none">{0}</span>'.format(name);
-    listhtml += '<span><span class="glyphicon glyphicon-list" style="height: 30px"></span><span data-toggle="collapse" data-target="#{0}" class="badge jsoneditor-readonly jsoneditor-value " style="background-color: #00a1cb;color: white">{1}</span></span>'.format(listIdBase,name);
+    listhtml += '<span><span class="glyphicon glyphicon-list" style="height: 30px"></span><span data-toggle="collapse" data-target="#{0}" class=" jsoneditor-readonly jsoneditor-value " ;color: white">{1}</span></span>'.format(listIdBase,name);
     listhtml += '<span><div id="{0}" style="margin-left: 30px" class="handsontable htRowHeaders htColumnHeaders collapse in" ></div></span></li>'.format(listIdBase);
     $("#jsonlog").children().eq(-1).append(listhtml);
     var hot,container,data1;
@@ -841,10 +847,15 @@ function listRefTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
         // checkAllText: "all",
         // uncheckAllText: 'none',
         // selectedList:1
+    }).multiselectfilter({
+                label:"Search: ",
+                width:130,
+                height:25
     }).on("multiselectclick",function (event,ui) {
         var result = $(this).multiselect("getChecked").map(function () {
             return this.value;
         }).get();
+
         var elt1 =$(this).parent().find("input.collection-elements-tagsinput");
         elt1.tagsinput("removeAll");
         result.unshift(0);
@@ -855,6 +866,8 @@ function listRefTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
         }
         elt1.tagsinput("refresh");
         var that = this;//select
+        $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+        $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
         $(this).multiselect("setChecked");
         elt1.on("itemRemoved",function () {
             $(that).multiselect("setChecked");
@@ -872,6 +885,8 @@ function listRefTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
             }
         }
         elt1.tagsinput("refresh");
+        $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+        $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
         var that = this;//select
         $(this).multiselect("setChecked");
         elt1.on("itemRemoved", function () {
@@ -881,6 +896,8 @@ function listRefTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
     ).bind("multiselectuncheckall",function () {
         var elt1 = $(this).parent().find("input.collection-elements-tagsinput");
         elt1.tagsinput("removeAll");
+        $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+        $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
         $(this).multiselect("setChecked");
 
     }).bind("multiselectcheckall",function () {
@@ -896,6 +913,8 @@ function listRefTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
             }
         }
         elt1.tagsinput("refresh");
+        $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+        $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
         var that = this;//select
         $(this).multiselect("setChecked");
         elt1.on("itemRemoved", function () {
@@ -912,6 +931,7 @@ function listRefTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
                 elt.tagsinput('add',initDataSelectList[i]);
             }
             $(this).multiselect("setChecked");
+
         }
     });
 
@@ -926,7 +946,7 @@ function matrixTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
     else
         mathtml += '<span></span>';
     mathtml += '<span style="display: none">{0}</span>'.format(VarAttrs.Name);
-    mathtml += '<span><span class="glyphicon glyphicon-th" style="height: 30px"></span><span data-toggle="collapse" data-target="#{0}matrix" class="badge jsoneditor-readonly jsoneditor-value " style="background-color: #00a1cb;color: white">{1}[{2}x{3}]</span></span>'.format(TemplatesUnitIdPrefix+structname+VarAttrs.Name,VarAttrs.Name,VarAttrs.DimensionY,VarAttrs.DimensionX);
+    mathtml += '<span><span class="glyphicon glyphicon-th" style="height: 30px"></span><span data-toggle="collapse" data-target="#{0}matrix" class=" jsoneditor-readonly jsoneditor-value " ;color: white">{1}[{2}x{3}]</span></span>'.format(TemplatesUnitIdPrefix+structname+VarAttrs.Name,VarAttrs.Name,VarAttrs.DimensionY,VarAttrs.DimensionX);
     mathtml += '<span><div id="{0}matrix" style="margin-left: 30px" class="handsontable htRowHeaders htColumnHeaders collapse in"></span></div></li>'.format(TemplatesUnitIdPrefix+structname+VarAttrs.Name);
     $("#jsonlog").children().eq(-1).append(mathtml);
     container = document.getElementById('{0}matrix'.format(TemplatesUnitIdPrefix+structname+VarAttrs.Name));
@@ -951,9 +971,9 @@ function checkCollectionName(name) {
     return name
 }
 function saveCollection(field) {
-    var elt = $(field).next().find("input.collection-elements-tagsinput"),result;
-    if(elt){
-        result = elt.tagsinput("items");
+    if($(field).parent().find(".Object-multiselect").find(".bootstrap-tagsinput").children().size()>1){
+        var elt = $(field).parent().find(".Object-multiselect").find("input.collection-elements-tagsinput");
+        var result = elt.tagsinput("items");
         alert(JSON.stringify(result));
         //异步保存
 
@@ -978,9 +998,12 @@ function createCollection(field) {
             $(field).parent().append(colhtml);
 
             colhtml = "<div style='margin-left: 6px' class='Object-multiselect'><select class='selectResult' multiple='multiple' size='2'>";
-         
             for (var e in data) {
-                colhtml += "<option value='{0}'>{0}</option>".format(data[e])
+                colhtml += "<optgroup label='{0}'>".format(data[e][0]);
+                for(var i in data[e][1]) {
+                    colhtml += "<option value='{0}'>{0}</option>".format(data[e][1][i])
+                }
+                colhtml += "</optgroup>";
             }
             colhtml += "</select>";
             colhtml += "<input type='text' class='collection-elements-tagsinput' data-role='tagsinput'  style='display: none'/></div>";
@@ -996,6 +1019,7 @@ function createCollection(field) {
                 width:130,
                 height:25
             }).on("multiselectclick",function (event,ui) {
+
                 var result = $(this).multiselect("getChecked").map(function () {
                     return this.value;
                 }).get();
@@ -1008,6 +1032,8 @@ function createCollection(field) {
                     }
                 }
                 elt1.tagsinput("refresh");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
                 var that = this;//select
                 elt1.on("itemRemoved",function () {
                     $(that).multiselect("setChecked");
@@ -1025,14 +1051,20 @@ function createCollection(field) {
                     }
                 }
                 elt1.tagsinput("refresh");
-                var that = this;//select
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
+                var that = this;//select$(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
                 elt1.on("itemRemoved", function () {
                     $(that).multiselect("setChecked");
                 });
             }
             ).bind("multiselectuncheckall",function () {
+
                 var elt1 = $(this).parent().find("input.collection-elements-tagsinput");
                 elt1.tagsinput("removeAll");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
 
             }).bind("multiselectcheckall",function () {
                 var result = $(this).multiselect("getChecked").map(function () {
@@ -1047,15 +1079,17 @@ function createCollection(field) {
                     }
                 }
                 elt1.tagsinput("refresh");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
                 var that = this;//select
                 elt1.on("itemRemoved", function () {
                     $(that).multiselect("setChecked");
                 });
 
             });
-            colhtml = '<span class="newCollection"><button style="width: 30px; border: transparent;font-size: 25px;" onclick="createCollection(this)"><span class="glyphicon glyphicon-plus-sign" style="color:lightgreen;top: 6px;" ></span></button><input class="collectionTags label label-success" type="text"  data-role="tagsinput" /></span>';
-
+            colhtml = '<span class="newCollection"><button style="width: 30px; border: transparent;font-size: 25px;" onclick="createCollection(this)"><span class="glyphicon glyphicon-plus-sign" style="color:lightgreen;top: 3px;" ></span></button><input class="collectionTags label label-success" type="text"  data-role="tagsinput" /></span>';
             $(field).parent().find("div.Object-multiselect").find("select").next().css("vertical-align","top");
+            $(field).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
             $(field).parent().parent().append(colhtml);
             $(field).remove();
 
@@ -1064,6 +1098,258 @@ function createCollection(field) {
                 tagClass:'label label-primary'
             });
             $(".collectionTags").prev().css("border","transparent");
+
+        }).fail(function (xhr, status) {
+            alert("Failed: {0}\n Reason: {1}\n".format(xhr.status, status));
+        });
+    }
+}
+function createConfigure(field) {
+    var colhtml = "",elt;
+    var labelName = $(field).next().children().text();
+    if(checkCollectionName(labelName)) {
+        var myObjectList = "myObjectList";
+        var refFeedback = $.ajax("/objects/{0}".format(myObjectList), {
+            dataType: 'json',
+            async: false
+        }).done(function (data) {
+            elt = $(field).parent().find(".configureTags");
+            if($(field).next().parent().attr("class") === "newCollection") {
+                elt.on('itemRemoved', function (event) {
+                    $(this).parent().remove();
+                });
+            }
+
+            $(field).parent().next()
+            colhtml = '<button style="position: absolute;right: 62.5%" onclick="saveCollection(this)"><span class="glyphicon glyphicon-send" ></span></button>';
+            $(field).parent().append(colhtml);
+
+            colhtml = "<div style='margin-left: 6px' class='Object-multiselect'><select class='selectResult' multiple='multiple' size='2'>";
+
+            for (var e in data) {
+                colhtml += "<optgroup label='{0}'>".format(data[e][0]);
+                for(var i in data[e][1]) {
+                    colhtml += "<option value='{0}'>{0}</option>".format(data[e][1][i])
+                }
+                colhtml += "</optgroup>";
+            }
+            colhtml += "</select>";
+            colhtml += "<input type='text' class='collection-elements-tagsinput' data-role='tagsinput'  style='display: none'/></div>";
+            $(field).parent().append(colhtml);
+            $(field).parent().find("div.Object-multiselect").find("select").multiselect({
+                // noneSelectedText: "---select---",
+                // checkAllText: "all",
+                // uncheckAllText: 'none',
+                // selectedList: 1,
+            }
+            ).multiselectfilter({
+                label:"Search: ",
+                width:130,
+                height:25
+            }).on("multiselectclick",function (event,ui) {
+
+                var result = $(this).multiselect("getChecked").map(function () {
+                    return this.value;
+                }).get();
+                var elt1 =$(this).parent().find("input.collection-elements-tagsinput");
+                elt1.tagsinput("removeAll");
+                result.unshift(0);
+                if(result.length > 1){
+                    for(var i in result){
+                        elt1.tagsinput('add',result[i]);
+                    }
+                }
+                elt1.tagsinput("refresh");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
+                var that = this;//select
+                elt1.on("itemRemoved",function () {
+                    $(that).multiselect("setChecked");
+                });
+            }).bind("multiselectoptgrouptoggle",function (event,ui) {
+                var result = $(this).multiselect("getChecked").map(function () {
+                    return this.value;
+                }).get();
+                var elt1 = $(this).parent().find("input.collection-elements-tagsinput");
+                elt1.tagsinput("removeAll");
+                result.unshift(0);
+                if (result.length > 1) {
+                    for (var i in result) {
+                        elt1.tagsinput('add', result[i]);
+                    }
+                }
+                elt1.tagsinput("refresh");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
+                var that = this;//select$(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
+                elt1.on("itemRemoved", function () {
+                    $(that).multiselect("setChecked");
+                });
+            }
+            ).bind("multiselectuncheckall",function () {
+
+                var elt1 = $(this).parent().find("input.collection-elements-tagsinput");
+                elt1.tagsinput("removeAll");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
+
+            }).bind("multiselectcheckall",function () {
+                var result = $(this).multiselect("getChecked").map(function () {
+                    return this.value;
+                }).get();
+                var elt1 = $(this).parent().find("input.collection-elements-tagsinput");
+                elt1.tagsinput("removeAll");
+                result.unshift(0);
+                if (result.length > 1) {
+                    for (var i in result) {
+                        elt1.tagsinput('add', result[i]);
+                    }
+                }
+                elt1.tagsinput("refresh");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
+                var that = this;//select
+                elt1.on("itemRemoved", function () {
+                    $(that).multiselect("setChecked");
+                });
+
+            });
+            colhtml = '<span class="newCollection"><button style="width: 30px; border: transparent;font-size: 25px;" onclick="createConfigure(this)"><span class="glyphicon glyphicon-plus-sign" style="color:lightgreen;top: 3px;" ></span></button><input class="configureTags" type="text"  data-role="tagsinput" /></span>';
+            $(field).parent().find("div.Object-multiselect").find("select").next().css("vertical-align","top");
+            $(field).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+            $(field).parent().parent().append(colhtml);
+            $(field).remove();
+            $("input.configureTags").tagsinput({
+                maxTags:1,
+                tagClass:'label label-success'
+            });
+            $("input.configureTags").prev().css("border","transparent");
+
+
+        }).fail(function (xhr, status) {
+            alert("Failed: {0}\n Reason: {1}\n".format(xhr.status, status));
+        });
+    }
+}
+
+function createGrid(field) {
+    var colhtml = "",elt;
+    var labelName = $(field).next().children().text();
+    if(checkCollectionName(labelName)) {
+        var myObjectList = "myObjectList";
+        var refFeedback = $.ajax("/objects/{0}".format(myObjectList), {
+            dataType: 'json',
+            async: false
+        }).done(function (data) {
+            elt = $(field).parent().find(".gridTags");
+            if($(field).next().parent().attr("class") === "newCollection") {
+                elt.on('itemRemoved', function (event) {
+                    $(this).parent().remove();
+                });
+            }
+
+            $(field).parent().next()
+            colhtml = '<button style="position: absolute;right: 62.5%" onclick="saveCollection(this)"><span class="glyphicon glyphicon-send" ></span></button>';
+            $(field).parent().append(colhtml);
+
+            colhtml = "<div style='margin-left: 6px' class='Object-multiselect'><select class='selectResult' multiple='multiple' size='2'>";
+
+            for (var e in data) {
+                colhtml += "<option value='{0}'>{0}</option>".format(data[e])
+            }
+            colhtml += "</select>";
+            colhtml += "<input type='text' class='collection-elements-tagsinput' data-role='tagsinput'  style='display: none'/></div>";
+            $(field).parent().append(colhtml);
+            $(field).parent().find("div.Object-multiselect").find("select").multiselect({
+                // noneSelectedText: "---select---",
+                // checkAllText: "all",
+                // uncheckAllText: 'none',
+                // selectedList: 1,
+            }
+            ).multiselectfilter({
+                label:"Search: ",
+                width:130,
+                height:25
+            }).on("multiselectclick",function (event,ui) {
+
+                var result = $(this).multiselect("getChecked").map(function () {
+                    return this.value;
+                }).get();
+                var elt1 =$(this).parent().find("input.collection-elements-tagsinput");
+                elt1.tagsinput("removeAll");
+                result.unshift(0);
+                if(result.length > 1){
+                    for(var i in result){
+                        elt1.tagsinput('add',result[i]);
+                    }
+                }
+                elt1.tagsinput("refresh");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
+                var that = this;//select
+                elt1.on("itemRemoved",function () {
+                    $(that).multiselect("setChecked");
+                });
+            }).bind("multiselectoptgrouptoggle",function (event,ui) {
+                var result = $(this).multiselect("getChecked").map(function () {
+                    return this.value;
+                }).get();
+                var elt1 = $(this).parent().find("input.collection-elements-tagsinput");
+                elt1.tagsinput("removeAll");
+                result.unshift(0);
+                if (result.length > 1) {
+                    for (var i in result) {
+                        elt1.tagsinput('add', result[i]);
+                    }
+                }
+                elt1.tagsinput("refresh");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
+                var that = this;//select$(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
+                elt1.on("itemRemoved", function () {
+                    $(that).multiselect("setChecked");
+                });
+            }
+            ).bind("multiselectuncheckall",function () {
+
+                var elt1 = $(this).parent().find("input.collection-elements-tagsinput");
+                elt1.tagsinput("removeAll");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
+
+            }).bind("multiselectcheckall",function () {
+                var result = $(this).multiselect("getChecked").map(function () {
+                    return this.value;
+                }).get();
+                var elt1 = $(this).parent().find("input.collection-elements-tagsinput");
+                elt1.tagsinput("removeAll");
+                result.unshift(0);
+                if (result.length > 1) {
+                    for (var i in result) {
+                        elt1.tagsinput('add', result[i]);
+                    }
+                }
+                elt1.tagsinput("refresh");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+                $(this).parent().find("div.bootstrap-tagsinput").find("input").css("width","2px");
+                var that = this;//select
+                elt1.on("itemRemoved", function () {
+                    $(that).multiselect("setChecked");
+                });
+
+            });
+            colhtml = '<span class="newCollection"><button style="width: 30px; border: transparent;font-size: 25px;" onclick="createGrid(this)"><span class="glyphicon glyphicon-plus-sign" style="color:lightgreen;top: 3px;" ></span></button><input class="gridTags" type="text"  data-role="tagsinput" /></span>';
+            $(field).parent().find("div.Object-multiselect").find("select").next().css("vertical-align","top");
+            $(field).parent().find("div.bootstrap-tagsinput").find("input").css("background-color","transparent");
+            $(field).parent().parent().append(colhtml);
+            $(field).remove();
+            $("input.gridTags").tagsinput({
+                maxTags:1,
+                tagClass:'label label-warning'
+            });
+            $("input.gridTags").prev().css("border","transparent");
 
         }).fail(function (xhr, status) {
             alert("Failed: {0}\n Reason: {1}\n".format(xhr.status, status));

@@ -123,7 +123,7 @@
                        data-originalstyle="width: 400px; height: 300px; overflow: hidden;"
                        data-initialstyle="width: 400px; height: 300px; overflow: hidden;"
                        id="loadlog"
-                       style="width: 970px; height: 400px; overflow: hidden;"></div>
+                       style="width: 960px; height: 400px; overflow: hidden;"></div>
                   <div id="jsonlog" ></div>
                   <p id="para1">
                       <button  onclick="saveBigTableData()">
@@ -145,11 +145,12 @@
                               <li class="tabBlock-tab is-active">Collection</li>
                               <li class="tabBlock-tab ">Configure</li>
                               <li class="tabBlock-tab">Grid</li>
+                              <li class="tabBlock-tab">Grant Authority</li>
                           </ul>
                           <div class="tabBlock-content">
                               <div class="tabBlock-pane" id="collectlog">
                                   <div>
-                                      <span><button style="width: 30px; border: transparent;font-size: 25px;" onclick="createCollection(this,'HandsontableMain')"><span class="glyphicon glyphicon-plus-sign" style="color:lightgreen;top: 6px;" ></span></button><input class="collectionTags" type="text"  data-role="tagsinput" /></span>
+                                      <span><button style="width: 30px; border: transparent;font-size: 25px;" onclick="createCollection(this)"><span class="glyphicon glyphicon-plus-sign" style="color:lightgreen;top: 3px;" ></span></button><input class="collectionTags" type="text"  data-role="tagsinput" /></span>
                                   </div>
                                   <script>
                                       $('.collectionTags').tagsinput({
@@ -157,29 +158,42 @@
                                           tagClass:'label label-primary'
                                       });
                                       $(".collectionTags").prev().css("border","transparent");
-//                                      var textWidth = function(text){
-//                                          var sensor = $('<pre>'+ text +'</pre>').css({display: 'none'});
-//                                          $('body').append(sensor);
-//                                          var width = sensor.width();
-//                                          sensor.remove();
-//                                          return width;
-//                                      };
-//                                      $("input").unbind('keydown').bind('keydown', function(){
-//                                          $(this).width(textWidth($(this).val()));
-//                                      });
+                                      $(".collectionTags").tagsinput("removeAll")
+
+
                                   </script>
                               </div>
                               <div class="tabBlock-pane" id="configurelog">
-                                  <ul>
-                                      <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptas rem.</li>
-                                      <li>Id atque earum similique repellat nesciunt odio veniam commodi reprehenderit.</li>
-                                      <li>Est placeat voluptatibus id impedit perspiciatis repellat libero sequi rerum?</li>
-                                      <li>Tempora impedit dolorum illum rem fuga voluptas molestias maiores vitae.</li>
-                                      <li>Facilis adipisci vel atque consequuntur mollitia iusto saepe optio placeat.</li>
-                                      <li>Et culpa molestias laboriosam aperiam alias nihil fugit ad illum.</li>
-                                  </ul>
+                                 <div>
+                                      <span><button style="width: 30px; border: transparent;font-size: 25px;" onclick="createConfigure(this)"><span class="glyphicon glyphicon-plus-sign" style="color:lightgreen;top: 3px;" ></span></button><input class="configureTags" type="text"  data-role="tagsinput" /></span>
+                                  </div>
+                                  <script>
+                                      $('.configureTags').tagsinput({
+                                          maxTags:1,
+                                          tagClass:'label label-success'
+                                      });
+                                      $(".configureTags").prev().css("border","transparent");
+                                      $(".configureTags").tagsinput("removeAll")
+
+
+                                  </script>
                               </div>
-                              <div class="tabBlock-pane">
+                              <div class="tabBlock-pane" id="gridlog">
+
+                                  <div>
+                                      <span><button style="width: 30px; border: transparent;font-size: 25px;" onclick="createGrid(this)"><span class="glyphicon glyphicon-plus-sign" style="color:lightgreen;top: 3px;" ></span></button><input class="gridTags" type="text"  data-role="tagsinput" /></span>
+                                  </div>
+                                  <script>
+                                      $("input.gridTags").tagsinput({
+                                          maxTags:1,
+                                          tagClass:'label label-warning'
+                                      });
+                                      $("input.gridTags").prev().css("border","transparent");
+                                      $(".gridTags").tagsinput("removeAll")
+
+                                  </script>
+                              </div>
+                               <div class="tabBlock-pane" id="authoritylog">
                                   <ul>
                                       <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptas rem.</li>
                                       <li>Id atque earum similique repellat nesciunt odio veniam commodi reprehenderit.</li>

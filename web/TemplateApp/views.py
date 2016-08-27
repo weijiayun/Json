@@ -28,5 +28,6 @@ def ref(type):
 @app.route("/objects/<type>",methods=["GET","POST"])
 def obj(type):
     print type
-    refdata = {"myObjectList":["obj1","obj2","obj3","stagety1","stagety2","stagety3"]}
-    return json.dumps(refdata[type])
+    refdata = {"myObjectList":{"collection1":["obj1","obj2","obj3"],"collection2":["stagety1","stagety2","stagety3"],"other":["other1","other2"]}}
+    a = sorted(refdata[type].iteritems(), key=lambda asd: asd[0],reverse=False)
+    return json.dumps(a)

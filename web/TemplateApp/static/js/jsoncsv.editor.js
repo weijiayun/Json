@@ -8,6 +8,8 @@ function JsonFormatConvt(strNum) {
     var falseTest = /^False$/i;
     var trueTest = /^True$/i;
     var nulltest = /^null$/i;
+    if(strNum == null)
+        return strNum;
     strNum = strNum.replace(new RegExp("\\<br\\>","g"),"");
     var tempvalue;
     if(doubleTest.test(strNum))

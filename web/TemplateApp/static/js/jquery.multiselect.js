@@ -83,7 +83,7 @@
           .addClass('ui-helper-reset')
           .html(function() {
             if(o.header === true) {
-              return '<li><a class="ui-multiselect-all" href="#"><span class="ui-icon ui-icon-check"></span><span>' + o.checkAllText + '</span></a></li><li><a class="ui-multiselect-none" href="#"><span class="ui-icon ui-icon-closethick"></span><span>' + o.uncheckAllText + '</span></a></li>';
+              return '<li><a class="ui-multiselect-all" href="#"><span>' + o.checkAllText + '</span></a></li><li><a class="ui-multiselect-none" href="#"><span>' + o.uncheckAllText + '</span></a></li>';
             } else if(typeof o.header === "string") {
               return '<li>' + o.header + '</li>';
             } else {
@@ -164,7 +164,7 @@
         var $item = $("<li/>").addClass(liClasses.join(' '));
         var $label = $("<label/>").attr({
           "for": inputID,
-          "title": title
+          "title": title,
         }).addClass(labelClasses.join(' ')).appendTo($item);
         var $input = $("<input/>").attr({
           "name": "multiselect_" + id,
@@ -528,6 +528,7 @@
           var csvselectid = $(this.element).attr("id").replace(/Json/g,"");
           $("#"+csvselectid).attr("data-select",JSON.stringify(checkedList))
         }
+        
         flag = true;
       }
 
