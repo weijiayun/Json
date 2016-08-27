@@ -520,24 +520,40 @@
       };
     },
     setChecked:function () {
-      var checkedList = $(this.element).parent().find("input.collection-elements-tagsinput").tagsinput("items");
-
-      var $inputs = this.inputs;
-      var self = this;
-      var values = {};
-      $inputs.each(function () {
-        if(Set(checkedList).has($(this).val())){
-          this.checked = true;
+      var checkedList;
+      var flag = false;
+      if($(this.element).parent().find("input.collection-elements-tagsinput").length>0){
+        checkedList = $(this.element).parent().find("input.collection-elements-tagsinput").tagsinput("items");
+        if($(this.element).attr("id") && $(this.element).attr("id").match("Json")){
+          var csvselectid = $(this.element).attr("id").replace(/Json/g,"");
+          $("#"+csvselectid).attr("data-select",JSON.stringify(checkedList))
         }
-        else {
-          this.checked = false;
-        }
-      });
-      // update button text
-      this.update();
+        flag = true;
+      }
 
-      if($inputs.length) {
-        this.element.trigger("change");
+      else if($(this.element).attr("data-select")) {
+        checkedList =JSON.parse( $(this.element).attr("data-select"));
+        flag = true;
+      }
+      if(flag) {
+        var $inputs = this.inputs;
+        var self = this;
+        var values = {};
+        $inputs.each(function () {
+          var setCheckedList = new Set(checkedList);
+          if (setCheckedList.has($(this).val())) {
+            this.checked = true;
+          }
+          else {
+            this.checked = false;
+          }
+        });
+        // update button text
+        this.update();
+
+        if ($inputs.length) {
+          this.element.trigger("change");
+        }
       }
     },
     _toggleChecked: function(flag, group) {

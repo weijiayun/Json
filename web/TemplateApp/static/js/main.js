@@ -68,10 +68,11 @@ function HtmlExcelAll() {
                     var result = $(this).multiselect("getChecked").map(function () {
                         return this.value;
                     }).get();
-                    $("#{0}refSelect".format(TemplatesUnitIdPrefix+row+col)).eq(0).attr("data-select",JSON.stringify(result));
-
+                    $(this).attr("data-select",JSON.stringify(result));
+                    
+                }).bind("multiselectbeforeopen",function () {
+                    $(this).multiselect("setChecked");
                 });
-
                 $(td).children().eq(0).attr("data-Rows", row);
                 $(td).children().eq(0).attr("data-Cols", col);
                 $(td).children().eq(0).attr("data-Prop", prop);
@@ -79,12 +80,8 @@ function HtmlExcelAll() {
                 $(td).children().eq(0).attr("data-type","REFLIST");
             }
             if($(td).parent().parent().children().eq(currentRowindex).children().eq(col+1).children().eq(0).attr("data-select")) {
-                var dataSelected = JSON.parse($(td).parent().parent().children().eq(currentRowindex).children().eq(col + 1).children().eq(0).attr("data-select"));
-                for (var i in ColumsAttr[2][prop]){
-                    if (Set(dataSelected).has(ColumsAttr[2][prop][i])){
-                        document.getElementById("ui-multiselect-{0}{1}{2}refSelect-option-{3}".format(TemplatesUnitIdPrefix,row,col,i)).checked = true;
-                    }
-                }
+                var temp = $(td).parent().parent().children().eq(currentRowindex).children().eq(col+1).children().eq(0).attr("data-select")
+                $(td).find("select").attr("data-select",temp)
             }
         }
     }
@@ -858,6 +855,7 @@ function listRefTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
         }
         elt1.tagsinput("refresh");
         var that = this;//select
+        $(this).multiselect("setChecked");
         elt1.on("itemRemoved",function () {
             $(that).multiselect("setChecked");
         });
@@ -875,6 +873,7 @@ function listRefTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
         }
         elt1.tagsinput("refresh");
         var that = this;//select
+        $(this).multiselect("setChecked");
         elt1.on("itemRemoved", function () {
             $(that).multiselect("setChecked");
         });
@@ -882,6 +881,7 @@ function listRefTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
     ).bind("multiselectuncheckall",function () {
         var elt1 = $(this).parent().find("input.collection-elements-tagsinput");
         elt1.tagsinput("removeAll");
+        $(this).multiselect("setChecked");
 
     }).bind("multiselectcheckall",function () {
         var result = $(this).multiselect("getChecked").map(function () {
@@ -897,6 +897,7 @@ function listRefTemplate(structname,VarAttrs,TemplatesUnitIdPrefix,valueDict) {
         }
         elt1.tagsinput("refresh");
         var that = this;//select
+        $(this).multiselect("setChecked");
         elt1.on("itemRemoved", function () {
             $(that).multiselect("setChecked");
         });
