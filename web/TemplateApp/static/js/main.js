@@ -6,7 +6,8 @@ var app = {
     load2:HtmlExcelAll
 };
 
-function HtmlExcelAll() {
+function HtmlExcelAll(TemplatesUnitIdPrefix) {
+    TemplatesUnitIdPrefix = "HandsontableMain";
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
     var mainTableId = "loadlog";
     $("#loadlog").eq(0).attr("handsontable-container-id",mainTableId);
@@ -15,7 +16,6 @@ function HtmlExcelAll() {
     var searchFiled = document.getElementById('search_field');
     var resultCount = document.getElementById('resultCount');
     ColumsAttr=getColumsAttrs(StrategyList[0]);
-    var TemplatesUnitIdPrefix = "HandsontableMain";
     container1 = document.getElementById('loadlog');
     function expandMatrix(instance, td, row, col, prop, value, cellProperties) {
         //Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -349,7 +349,6 @@ function getColumsAttrs(structname) {
                 }).fail(function (xhr,status) {
                     alert("Failed: {0}\n Reason: {1}\n".format(xhr.status,status));
                 });
-
             }
         }
     }
@@ -972,10 +971,20 @@ function checkCollectionName(name) {
 }
 function saveCollection(field) {
     if($(field).parent().find(".Object-multiselect").find(".bootstrap-tagsinput").children().size()>1){
-        var elt = $(field).parent().find(".Object-multiselect").find("input.collection-elements-tagsinput");
-        var result = elt.tagsinput("items");
-        alert(JSON.stringify(result));
-        //异步保存
+        var elt1 = $(field).parent().find(".Object-multiselect").find("input.collection-elements-tagsinput");
+        var result = elt1.tagsinput("items");
+        var elt2 = $(field).parent().find(".collectionTags");
+        var collectionName = elt2.tagsinput("items");
+        var aj = $.ajax("/saveCollection/{0}".format(JSON.stringify([collectionName[0],result])),{
+            dataType:"text",
+            type:"POST"
+        }).done(function (data) {
+            alert(data)
+
+        }).fail(function (xhr,status) {
+            alert("Failed: {0}\n Reason: {1}\n".format(xhr.status, status));
+        });
+
 
     }
 }
@@ -986,7 +995,7 @@ function createCollection(field) {
         var myObjectList = "myObjectList";
         var refFeedback = $.ajax("/objects/{0}".format(myObjectList), {
             dataType: 'json',
-            async: false
+            //async: false
         }).done(function (data) {
             elt = $(field).next().parent().find(".collectionTags");
             if($(field).next().parent().attr("class") === "newCollection") {
@@ -1111,7 +1120,6 @@ function createConfigure(field) {
         var myObjectList = "myObjectList";
         var refFeedback = $.ajax("/objects/{0}".format(myObjectList), {
             dataType: 'json',
-            async: false
         }).done(function (data) {
             elt = $(field).parent().find(".configureTags");
             if($(field).next().parent().attr("class") === "newCollection") {
@@ -1240,7 +1248,6 @@ function createGrid(field) {
         var myObjectList = "myObjectList";
         var refFeedback = $.ajax("/objects/{0}".format(myObjectList), {
             dataType: 'json',
-            async: false
         }).done(function (data) {
             elt = $(field).parent().find(".gridTags");
             if($(field).next().parent().attr("class") === "newCollection") {
@@ -1355,4 +1362,25 @@ function createGrid(field) {
             alert("Failed: {0}\n Reason: {1}\n".format(xhr.status, status));
         });
     }
+}
+function ajaxtest() {
+    var selRollBack = 1;
+    var selOperatorsCode = 2;
+    var PROVINCECODE = "0859";
+    var pass2 = "passcode";
+    var senddata={
+        selRollBack : selRollBack,
+        selOperatorsCode : selOperatorsCode,
+        PROVINCECODE : PROVINCECODE,
+        pass2 : pass2
+        };
+    var aj = $.ajax("/testajax/{0}".format(JSON.stringify(senddata)),{
+        dataType:"json",
+        type:"POST",
+
+    }).done(function (data) {
+        alert(JSON.stringify(data))
+    }).fail(function (xhr,status) {
+        alert("Failed: {0}\n Reason: {1}\n".format(xhr.status, status));
+    });
 }

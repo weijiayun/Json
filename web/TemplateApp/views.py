@@ -26,8 +26,43 @@ def ref(type):
     return json.dumps(refdata[type])
 
 @app.route("/objects/<type>",methods=["GET","POST"])
-def obj(type):
+def getobjects(type):
     print type
     refdata = {"myObjectList":{"collection1":["obj1","obj2","obj3"],"collection2":["stagety1","stagety2","stagety3"],"other":["other1","other2"]}}
     a = sorted(refdata[type].iteritems(), key=lambda asd: asd[0],reverse=False)
     return json.dumps(a)
+
+
+@app.route("/saveObject/<data>",methods=["POST"])
+def saveObject(data):
+    objectName = data[0]
+    #need to know about api from Yang
+    print data
+    return "True"
+
+@app.route("/saveCollection/<data>",methods=["POST"])
+def saveCollection(data):
+    collectionName = data[0]
+    objectNameList = data[1]
+    print data
+    return "True"
+
+@app.route("/saveConfigure/<data>",methods=["POST"])
+def saveConfigure(data):
+    createDate = data[0]
+    version = data[1]
+    objectNameList = data[2]
+    print data
+    return "True"
+
+@app.route("/saveGrid/<data>",methods=["POST"])
+def saveGrid(data):
+    gridName = data[0]
+    configureList = data[1]
+    print data
+    return "True"
+
+
+
+
+
