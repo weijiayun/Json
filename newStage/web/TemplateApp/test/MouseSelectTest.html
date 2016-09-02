@@ -1,0 +1,118 @@
+<!DOCTYPE HTML>
+<HTML>
+    <head>
+        <TITLE>The document title</TITLE>
+        <meta charset=utf-8>
+        <script src="../static/js/jquery.min.js" type="text/javascript"></script>
+        <style type="text/css">
+        table{
+        border-spacing: 0;
+        }
+        td{
+        height: 50px;
+        width: 50px;
+        border-spacing: 0;
+        }
+        .hidden{
+        display: none;
+        }
+        </style>
+    </head>
+
+    <body>
+        <table border="1">
+            <tr id ="r1">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr id ="r2">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+        <p id ='log'></p>
+        <button type="button" onclick="combine()">hebing</button>
+        <script type="text/javascript">
+        var selectecdlog = [];
+        var resultLen = 0;
+        var resultBegin = 0;
+        var backColor = ['red','green','blue']; // assume 3 rows 1 -red 2 - green 3 - blue
+        var resultColor =0;
+        $("td").mousedown(function() {
+        selectecdlog = [];
+        resultColor = backColor[$(this).parent().attr('id').substr(1)-1];
+        $('td').css('background-color', 'white');
+        // ID for tr tag
+        //alert($(this).parent().attr('id'));
+        //get the column No.
+        //alert($(this).index()+1);
+        $(this).css('background-color', resultColor);
+        selectecdlog.push($(this).attr('id'));
+        $("td").mouseup(onMouseUp);
+        $("td").mouseover(onMouseOver);
+        })
+        function onMouseUp(){
+        /* Act on the event */
+        var len =resultLen= Math.abs(parseInt(selectecdlog[0].substr(selectecdlog[0].indexOf('c')+1)) - parseInt($(this).attr('id').substr(($(this).attr('id').indexOf('c'))+1)))+1;
+        var begin =resultBegin= parseInt(selectecdlog[0].substr(selectecdlog[0].indexOf('c')+1)) >parseInt($(this).attr('id').substr(($(this).attr('id').indexOf('c'))+1)) ? parseInt($(this).attr('id').substr(($(this).attr('id').indexOf('c'))+1)):parseInt(selectecdlog[0].substr(selectecdlog[0].indexOf('c')+1));
+        for(var i =0; i<resultLen;i++)
+        {
+        selectecdlog.push(selectecdlog[0].substr(0,2)+"c"+(resultBegin+i));
+
+        }
+        selectecdlog.shift();
+        $('#log').text(selectecdlog.toString());
+
+        $("td").unbind('mouseover',onMouseOver);
+        $("td").unbind('mouseup',onMouseUp);
+        }
+        function onMouseOver (argument) {
+        var len =resultLen= Math.abs(parseInt(selectecdlog[0].substr(selectecdlog[0].indexOf('c')+1)) - parseInt($(this).attr('id').substr(($(this).attr('id').indexOf('c'))+1)))+1;
+        var begin =resultBegin= parseInt(selectecdlog[0].substr(selectecdlog[0].indexOf('c')+1)) >parseInt($(this).attr('id').substr(($(this).attr('id').indexOf('c'))+1)) ? parseInt($(this).attr('id').substr(($(this).attr('id').indexOf('c'))+1)):parseInt(selectecdlog[0].substr(selectecdlog[0].indexOf('c')+1));
+        $('td').css('background-color', 'white');
+        for(var i =0; i<len;i++)
+        {
+        $('#'+selectecdlog[0].substr(0,2)+"c"+(begin+i)).css('background-color', resultColor);
+        }
+        //alert( $(this).attr('id').substr(($(this).attr('id').indexOf('c'))+1));
+        //$('#'+tdId).css('background-color', 'red');
+        }
+        // set id attr for each td
+        $("td").each(function(index, val){
+        /* iterate through array or object */
+        $(this).attr('id', $(this).parent().attr('id')+"c"+($(this).index()+1))});
+        //combine cells
+        function combine (argument) {
+        // body...
+        for (var m in selectecdlog)
+        {
+        if(m==0)
+        {
+        $('#'+selectecdlog[m]).attr('colspan', resultLen);
+        $('#'+selectecdlog[m]).css('width',resultLen*50+"px");
+        //$('#'+selectecdlog[m]).css('background-color', 'bule');
+        }
+        else{
+        $('#'+selectecdlog[m]).addClass('hidden');
+        }
+        }
+        }
+        </script>
+    </body>
+</HTML>
