@@ -20,11 +20,6 @@ class ConfigureObjectServer(MessagePlugin):
 
         self.handle('createconfigure:configureobjectproto', True, self.onCreateConfigure)
         self.handle('deleteconfigure:configureobjectproto', True, self.onDeleteConfigure)
-
-        self.handle('deletecollection:configureobjectproto', True, self.onDeleteCollection)
-        self.handle('addobjectlisttocollection:configureobjectproto', True, self.onAddObjectListToCollection)
-        self.handle('deleteobjectlistincollection:configureobjectproto', True, self.onDeleteObjectListInCollection)
-        self.handle('getcollection:configureobjectproto', True, self.onGetCollection)
         self.handle('createobject:configureobjectproto', True, self.onCreateObject)
         self.handle('deleteobject:configureobjectproto', True, self.onDeleteObject)
         self.handle('getconfigure:configureobjectproto', True, self.onGetConfigure)
@@ -35,7 +30,6 @@ class ConfigureObjectServer(MessagePlugin):
         self.handle('ungrantconfigureofothers:configureobjectproto', True, self.onUnGrantConfigureOfOthers)
         self.handle('listobjects:configureobjectproto', True, self.onListObjects)
         self.handle('getauthoritysharers:configureobjectproto', True, self.onGetAuthoritySharers)
-        self.handle('listcollections:configureobjectproto', True, self.onListCollections)
 
     def onConnectionOpened(self, proto):
         print '----begin login-----'
@@ -65,7 +59,12 @@ class ConfigureObjectServer(MessagePlugin):
             print 'Configure: {0}'.format(body.Configure)
             print 'Object: {0}'.format(body.ObjectList)
 
-            secIdList = [self.configsql3.getObject(elem.Name, elem.Date, elem.Version)[0] for elem in body.ObjectList]
+            secIdList = [self.configsql3.getObject(elem.Name,
+                                                   elem.Date,
+                                                   elem.Version,
+                                                   elem.TemplateName,
+                                                   elem.CollectionName,
+                                                   elem.Category)[0] for elem in body.ObjectList]
 
             IsCreateConfigureInstance = self.configsql3.createConfigure(json.dumps(secIdList),
                                                                         body.Configure.Name,
@@ -108,79 +107,6 @@ class ConfigureObjectServer(MessagePlugin):
         except Exception as e:
             print e
 
-    def onDeleteCollection(self, proto, spec, message, body):
-
-        print '-------------begin Delete Configure Collection---------------'
-        print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-        print 'Delete Configure Collection: {0}'.format(body.Collection)
-
-        try:
-            IsDeleteConfigureCollection = self.configsql3.deleteCollection(body.Collection.Name, body.Collection.Category)
-            if IsDeleteConfigureCollection[0]:
-                (responseSpec, successResponse) = self.create("deletecollection:configureobjectproto", False)
-                successResponse.status = 0
-                successResponse.message = IsDeleteConfigureCollection[1]
-                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-            else:
-                (responseSpec, failedResponse) = self.create("deletecollection:configureobjectproto", False)
-                failedResponse.status = 1
-                failedResponse.message = IsDeleteConfigureCollection[1]
-                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-            print '---------------end Delete Configure Collection---------------'
-        except Exception as e:
-            print 'Error: {0}'.format(e)
-
-    def onAddObjectListToCollection(self, proto, spec, message, body):
-        try:
-            print '-------------begin Create Configure Collection---------------'
-            print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Configure Collection: {0}'.format(body.Collection)
-            print 'Object Name: {0}'.format(body.ObjectList)
-
-            secIdList = [self.configsql3.getObject(elem.Name, elem.Date, elem.Version)[0] for elem in body.ObjectList]
-
-            IsBuildCollectionToMappingSuccess = self.configsql3.addObjectListToCollection(secIdList,
-                                                                                          body.Collection.Name,
-                                                                                          body.Collection.Category)
-            if IsBuildCollectionToMappingSuccess[0]:
-                (responseSpec, successResponse) = self.create("addobjectlisttocollection:configureobjectproto", False)
-                successResponse.status = 0
-                successResponse.message = IsBuildCollectionToMappingSuccess[1]
-                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-            else:
-                (responseSpec, failedResponse) = self.create("addobjectlisttocollection:configureobjectproto", False)
-                failedResponse.status = 1
-                failedResponse.message = IsBuildCollectionToMappingSuccess[1]
-                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-            print '-------------end Create Configure Collection------------------'
-        except Exception as e:
-            print 'error: {0}'.format(e)
-
-    def onDeleteObjectListInCollection(self, proto, spec, message, body):
-        try:
-            print '-------------begin Delete Configure Collection---------------'
-            print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Delete Configure Collection Name: {0}'.format(body.Collection)
-            print 'Delete Object Name: {0}'.format(body.ObjectList)
-
-            secIdList = [self.configsql3.getObject(elem.Name, elem.Date, elem.Version)[0] for elem in body.ObjectList]
-            IsDeleteConfigureCollection = self.configsql3.deleteObjectInCollection(secIdList,
-                                                                                   body.Collection.Name,
-                                                                                   body.Collection.Category)
-            if IsDeleteConfigureCollection[0]:
-                (responseSpec, successResponse) = self.create("deleteobjectlistincollection:configureobjectproto", False)
-                successResponse.status = 0
-                successResponse.message = IsDeleteConfigureCollection[1]
-                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-            else:
-                (responseSpec, failedResponse) = self.create("deleteobjectlistincollection:configureobjectproto", False)
-                failedResponse.status = 1
-                failedResponse.message = IsDeleteConfigureCollection[1]
-                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-            print '---------------end Delete Configure Collection---------------'
-        except Exception as e:
-            print e
-
     def onCreateObject(self, proto, spec, message, body):
         try:
             print '-------------begin Create  Object---------------'
@@ -193,7 +119,7 @@ class ConfigureObjectServer(MessagePlugin):
                     .replace(" ", "")
                 return passwd
 
-            secList = [["-".join([elem.Name, elem.Date, elem.Version]),
+            secList = [["-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName]),
                         elem.Content, getkey()] for elem in body.ObjectList]
 
             with open('tests/master-public.pem') as f:
@@ -230,6 +156,7 @@ class ConfigureObjectServer(MessagePlugin):
                 failedResponse.status = 1
                 failedResponse.message = IsCreateObject[1]
                 self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
         except Exception as e:
             print e
             (responseSpec, failedResponse) = self.create("createobject:configureobjectproto", False)
@@ -243,7 +170,12 @@ class ConfigureObjectServer(MessagePlugin):
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
             print 'Configure Object Name: {0}'.format(body.ObjectList)
 
-            secIdList = [self.configsql3.getObject(elem.Name, elem.Date, elem.Version)[0] for elem in body.ObjectList]
+            secIdList = [self.configsql3.getObject(elem.Name,
+                                                   elem.Date,
+                                                   elem.Version,
+                                                   elem.Category,
+                                                   elem.TemplateName,
+                                                   elem.CollectionName)[0] for elem in body.ObjectList]
 
             def deleteContentSuccess(successMsg):
                 self.deleteObjectInMapping(message, proto, secIdList)
@@ -278,8 +210,9 @@ class ConfigureObjectServer(MessagePlugin):
         print 'Configure Object Id: {0}'.format(body.ObjectList)
 
         try:
-            secIdList = [[elem.Name + "-" + elem.Date + "-" + elem.Version,
-                          self.configsql3.getObject(elem.Name, elem.Date, elem.Version)[0]] for elem in body.ObjectList]
+            secIdList = [["-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName]),
+                          self.configsql3.getObject(elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName)[0]]
+                         for elem in body.ObjectList]
             if len(secIdList) == 0:
                 raise Exception("Error: getting Object {0} is failed".format(body.ObjectName))
             with open('tests/master-private.pem') as f:
@@ -304,40 +237,6 @@ class ConfigureObjectServer(MessagePlugin):
             (responseSpec, failedResponse) = self.create("getobjects:configureobjectproto", False)
             failedResponse.status = 1
             failedResponse.message = 'Error: get configure object,Detail: {0}'.format(e)
-            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-
-    def onGetCollection(self, proto, spec, message, body):
-        print '-------------Begin To Get Collection---------------'
-        print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-        print 'Collection Name: {0}'.format(body.CollectionList)
-        try:
-            secList = [["-".join(self.configsql3.getObjectById(elem[0])[1][1:]) + "-" + elem[1], elem[0]]
-                       for elem in self.configsql3.getCollection(body.CollectionList)]
-
-            if len(secList) == 0:
-                raise Exception("Error: getting Collection {0} is failed".format(body.CollectionName))
-            with open('tests/master-private.pem') as f:
-                privateKey1 = f.read()
-            (responseSpec, successResponse) = self.create("getcollection:configureobjectproto", False)
-
-            def getContentSuccess(Content):
-                successResponse.status = 0
-                successResponse.message = "get collection successfully!!!"
-                successResponse.Content = Content
-                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-
-            def getContentFailed(errMsg):
-                print 'put content of collection is failed!!!'
-
-            self.securityClient.getSeriesContent(self.session, secList, privateKey1) \
-                .then(getContentSuccess) \
-                .catch(getContentFailed)
-            print '---------------end Query Configure Object---------------'
-        except Exception as e:
-            print "Error: {0}".format(e)
-            (responseSpec, failedResponse) = self.create("getcollection:configureobjectproto", False)
-            failedResponse.status = 1
-            failedResponse.message = 'Error: getting collection is failed!!!\n,Detail: {0}'.format(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     def onGetConfigure(self, proto, spec, message, body):
@@ -391,7 +290,8 @@ class ConfigureObjectServer(MessagePlugin):
             print 'Object OthersId: {0}'.format(body.OthersId)
             print '---------------end Query Configure Object---------------'
 
-            secIdDict = {"-".join([elem.Name, elem.Date, elem.Version]):self.configsql3.getObject(elem.Name, elem.Date, elem.Version)[0]
+            secIdDict = {"-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName]):
+                             self.configsql3.getObject(elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName,elem.CollectionName)[0]
                          for elem in body.ObjectList}
 
             if len(secIdDict) == 0:
@@ -437,8 +337,8 @@ class ConfigureObjectServer(MessagePlugin):
             print 'Object OthersId: {0}'.format(body.OthersId)
             print '---------------end Ungrant Configure Object---------------'
 
-            secIdDict = {"-".join([elem.Name, elem.Date, elem.Version]):
-                             self.configsql3.getObject(elem.Name, elem.Date, elem.Version)[0]
+            secIdDict = {"-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName]):
+                             self.configsql3.getObject(elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName)[0]
                          for elem in body.ObjectList}
 
             if len(secIdDict) == 0:
@@ -651,45 +551,4 @@ class ConfigureObjectServer(MessagePlugin):
             failedResponse.status = 1
             failedResponse.message = str(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-
-    def onListCollections(self, proto, spec, message, body):
-        try:
-            print '---------------Begin List Collection---------------'
-            print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            isListCollections = self.configsql3.listCollections()
-            if isListCollections[0]:
-                (responseSpec, successResponse) = self.create("listcollections:configureobjectproto", False)
-                successResponse.CollectionList = map(lambda x: x[0], isListCollections[1])
-                successResponse.status = 0
-                successResponse.message = "list collection successfully!!!"
-                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-            else:
-                (responseSpec, failedResponse) = self.create("listcollections:configureobjectproto", False)
-                failedResponse.status = 1
-                failedResponse.message = 'Error: listting object is failed!!!'
-                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-            print '---------------end List Object---------------'
-
-        except Exception as e:
-            print "Error: {0}".format(e)
-            (responseSpec, failedResponse) = self.create("listcollections:configureobjectproto", False)
-            failedResponse.status = 1
-            failedResponse.message = str(e)
-            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

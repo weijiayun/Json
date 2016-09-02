@@ -9,17 +9,18 @@ struct object{
     1: required string Name;
     2: required string Date;
     3: required string Version;
+    4: required string TemplateName;
+    5: required string CollectionName;
+    6: required string Category;
 }
 struct objectContent{
     1: required string Name;
     2: required string Date;
     3: required string Version;
     4: required string Content;
-}
-struct collection
-{
-    1: required string Category;
-    2: required string Name;
+    5: required string TemplateName;
+    6: required string CollectionName;
+    7: required string Category;
 }
 
 // -------------------------Create Configure-----------------------------
@@ -54,61 +55,6 @@ struct DeleteConfigureResponse
     2: string message;
 }
 
-
-
-// -------------------------Delete Collection---------------------
-
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_DELETE_COLLECTION = 310014
-
-struct DeleteCollection
-{
-    1: required ACLProto.LoginSession session;
-    2: required collection Collection;
-}
-
-struct DeleteCollectionResponse
-{
-    1: i32 status;
-    2: string message;
-}
-
-// -------------------------Add Object List To Collection-----------------------------
-
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_ADD_OBJECT_LIST_TO_COLLECTION = 310016
-
-struct AddObjectListToCollection
-{
-    1: required ACLProto.LoginSession session;
-    2: required list<object> ObjectList;
-    3: required collection Collection;
-}
-
-struct AddObjectListToCollectionResponse
-{
-    1: i32 status;
-    2: string message;
-}
-
-// -------------------------Delete Object List In Collection-----------------------------
-
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_DELETE_OBJECT_LIST_IN_COLLECTION = 310018
-
-struct DeleteObjectListInCollection
-{
-
-    1: required ACLProto.LoginSession session;
-    2: required list<object> ObjectList;
-    3: required collection Collection;
-}
-
-struct DeleteObjectListInCollectionResponse
-{
-    1: i32 status;
-    2: string message;
-}
-
-
-
 // -------------------------Create Object-----------------------------
 
 const i32 CONFIGUREOBJECTPROTO_MESSAGE_CREATE_OBJECT = 310020
@@ -124,6 +70,7 @@ struct CreateObjectResponse
     1: i32 status;
     2: string message;
 }
+
 // -------------------------Delete Object-----------------------------
 
 const i32 CONFIGUREOBJECTPROTO_MESSAGE_DELETE_OBJECT = 310022
@@ -157,25 +104,6 @@ struct GetObjectsResponse
     2: string message;
     3: map<string, binary> Content;
 }
-
-
-// -------------------------Get Collection-----------------------------
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_GET_COLLECTION = 310026
-
-
-struct GetCollection
-{
-    1: required ACLProto.LoginSession session;
-    2: required list<collection> CollectionList;
-}
-
-struct GetCollectionResponse
-{
-    1: i32 status;
-    2: string message;
-    3: map<string, binary> Content;
-}
-
 
 // -------------------------Get Configure-----------------------------
 const i32 CONFIGUREOBJECTPROTO_MESSAGE_GET_CONFIGURE = 310028
@@ -299,21 +227,4 @@ struct GetAuthoritySharersResponse
     2: string message;
     3: list<string> SharerList;
 }
-
-// -------------------------List Collections-----------------------------
-
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_LIST_COLLECTIONS = 310044
-
-struct ListCollections
-{
-    1: required ACLProto.LoginSession session;
-}
-
-struct ListCollectionsResponse
-{
-	1: i32 status;
-    2: string message;
-    3: list<string> CollectionList;
-}
-
 

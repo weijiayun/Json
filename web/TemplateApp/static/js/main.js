@@ -516,8 +516,7 @@ function getDataFromJsonTree() {
     var currentRowIndex = $("#{0}".format(TemplatesUnitIdPrefix+valoption)).eq(0).attr("index-currentRow");
     var currentContainerId = $("#{0}".format(TemplatesUnitIdPrefix+valoption)).eq(0).attr("handsontable-container-id");
     var j,tr,td,table;
-
-
+    
     var hot = window["app"][currentContainerId];
     for (var i = 0; i < ullen; i++) {
         var ili = ul.childNodes[i];

@@ -17,11 +17,6 @@ class ConfigureObjectClient(MessagePlugin):
         self.handle('deleteconfigure:configureobjectproto', False, self._onDeleteConfigure)
         self.handle('getconfigure:configureobjectproto', False, self._onGetConfigure)
 
-        self.handle('deletecollection:configureobjectproto', False, self._onDeleteCollection)
-        self.handle('addobjectlisttocollection:configureobjectproto', False, self._onAddObjectListToCollection)
-        self.handle('deleteobjectlistincollection:configureobjectproto', False, self._onDeleteObjectListInCollection)
-        self.handle('getcollection:configureobjectproto', False, self._onGetCollection)
-
         self.handle('createobject:configureobjectproto', False, self._onCreateObject)
         self.handle('deleteobject:configureobjectproto', False, self._onDeleteObject)
         self.handle('getobjects:configureobjectproto', False, self._onGetObjects)
@@ -33,7 +28,6 @@ class ConfigureObjectClient(MessagePlugin):
 
         self.handle('listobjects:configureobjectproto', False, self._onListObjects)
         self.handle('getauthoritysharers:configureobjectproto', False, self._onGetAuthoritySharers)
-        self.handle('listcollections:configureobjectproto', False, self._onListCollections)
 
     def _getRequestId(self, request, func=None):
         requestId = self.currentRequestId
@@ -113,100 +107,6 @@ class ConfigureObjectClient(MessagePlugin):
         except Exception as e:
             print e
 
-    def _onDeleteCollection(self, proto, spec, message, body):
-        requestId = message.getRequestId()
-        if requestId in self.requests:
-            p = self.requests[requestId]
-            if 0 != body.status:
-                p.reject(Exception(body.message))
-            else:
-                p.fulfill(body.message)
-
-    def deleteCollection(self, session, collectionName):
-
-        ''' session: the information of login user
-            collectName: collection's name'''
-
-        try:
-            p = Promise()
-            (rSpec, rRequest) = self.create("deletecollection:configureobjectproto", True)
-            rRequest.session = session
-            rRequest.CollectionName = collectionName
-            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return p
-        except Exception as e:
-            print e
-
-    def _onAddObjectListToCollection(self, proto, spec, message, body):
-        requestId = message.getRequestId()
-        if requestId in self.requests:
-            p = self.requests[requestId]
-            if 0 != body.status:
-                p.reject(Exception(body.message))
-            else:
-                p.fulfill(body.message)
-
-    def addObjectListToCollection(self, session, objectList, collectionName):
-
-        ''' session: the information of login user
-            objectList: [[Name, Date, Version],...]
-                       Name: object's name
-                       Date: create date of the object
-            collectionName: collection's name'''
-
-        try:
-            p = Promise()
-            (rSpec, rRequest) = self.create("addobjectlisttocollection:configureobjectproto", True)
-            ins = []
-            for i in objectList:
-                f = self.createGeneric("object:ConfigureObjectProto")
-                f.Name = i[0]
-                f.Date = i[1]
-                f.Version = i[2]
-                ins.append(f)
-            rRequest.ObjectList = ins
-            rRequest.session = session
-            rRequest.CollectionName = collectionName
-            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return p
-        except Exception as e:
-            print e
-
-    def _onDeleteObjectListInCollection(self, proto, spec, message, body):
-        requestId = message.getRequestId()
-        if requestId in self.requests:
-            p = self.requests[requestId]
-            if 0 != body.status:
-                p.reject(Exception(body.message))
-            else:
-                p.fulfill(body.message)
-
-    def deleteObjectListInCollection(self, session, objectList, collectionName):
-
-        ''' session: the information of login user
-            objectList: [[Name, Date, Version],...]
-                       Name: object's name
-                       Date: create date of the object
-            collectionName: collection's name'''
-
-        try:
-            p = Promise()
-            (rSpec, rRequest) = self.create("deleteobjectlistincollection:configureobjectproto", True)
-            ins = []
-            for i in objectList:
-                f = self.createGeneric("object:ConfigureObjectProto")
-                f.Name = i[0]
-                f.Date = i[1]
-                f.Version = i[2]
-                ins.append(f)
-            rRequest.ObjectList = ins
-            rRequest.session = session
-            rRequest.CollectionName = collectionName
-            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return p
-        except Exception as e:
-            print e
-
     def _onCreateObject(self, proto, spec, message, body):
         requestId = message.getRequestId()
         if requestId in self.requests:
@@ -222,7 +122,10 @@ class ConfigureObjectClient(MessagePlugin):
             objectList: object list --> [[Name, Date, Version, Content],..]
                         Name: object's name
                         Date: object's create date
-                        Version: object's version
+                        Version: object's version equle to template version
+                        category: category of template
+                        templateName: name of template
+                        collectionName: name of collection
                         Content: object's content'''
         try:
             p = Promise()
@@ -233,7 +136,10 @@ class ConfigureObjectClient(MessagePlugin):
                 ins.Name = i[0]
                 ins.Date = i[1]
                 ins.Version = i[2]
-                ins.Content = i[3]
+                ins.Category = i[3]
+                ins.TemplateName = i[4]
+                ins.CollectionName = i[5]
+                ins.Content = i[6]
                 f.append(ins)
             rRequest.ObjectList = f
             rRequest.session = session
@@ -266,6 +172,9 @@ class ConfigureObjectClient(MessagePlugin):
                 ins.Name = i[0]
                 ins.Date = i[1]
                 ins.Version = i[2]
+                ins.Category = i[3]
+                ins.TemplateName = i[4]
+                ins.CollectionName = i[5]
                 f.append(ins)
             rRequest.ObjectList = f
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
@@ -299,6 +208,9 @@ class ConfigureObjectClient(MessagePlugin):
                 f.Name = i[0]
                 f.Date = i[1]
                 f.Version = i[2]
+                f.Category = i[3]
+                f.TemplateName = i[4]
+                f.CollectionName = i[5]
                 ins.append(f)
             rRequest.ObjectList = ins
             rRequest.session = session
@@ -340,30 +252,6 @@ class ConfigureObjectClient(MessagePlugin):
         except Exception as e:
             print e
 
-    def _onGetCollection(self, proto, spec, message, body):
-        requestId = message.getRequestId()
-        if requestId in self.requests:
-            p = self.requests[requestId]
-            if 0 != body.status:
-                p.reject(Exception(body.message))
-            else:
-                p.fulfill(body.Content)
-
-    def getCollection(self, session, collectionList):
-
-        '''session: the information of login user
-           collectionList: a list of collection's name'''
-
-        try:
-            p = Promise()
-            (rSpec, rRequest) = self.create("getcollection:configureobjectproto", True)
-            rRequest.session = session
-            rRequest.CollectionList = collectionList
-            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return p
-        except Exception as e:
-            print e
-
     def _onGrantObjectsToOthers(self, proto, spec, message, body):
         requestId = message.getRequestId()
         if requestId in self.requests:
@@ -389,6 +277,9 @@ class ConfigureObjectClient(MessagePlugin):
                 f.Name = i[0]
                 f.Date = i[1]
                 f.Version = i[2]
+                f.Category = i[3]
+                f.TemplateName = i[4]
+                f.CollectionName = i[5]
                 ins.append(f)
             rRequest.ObjectList = ins
 
@@ -422,6 +313,9 @@ class ConfigureObjectClient(MessagePlugin):
                 f.Name = i[0]
                 f.Date = i[1]
                 f.Version = i[2]
+                f.Category = i[3]
+                f.TemplateName = i[4]
+                f.CollectionName = i[5]
                 ins.append(f)
             rRequest.ObjectList = ins
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
@@ -528,9 +422,15 @@ class ConfigureObjectClient(MessagePlugin):
             else:
                 p.fulfill(body.SharerList)
 
-    def getAuthoritySharers(self, session, name, createDate, version):
+    def getAuthoritySharers(self, session, name, createDate, version,category, templateName,collectionName):
 
-        '''session: information of login user'''
+        '''session: information of login user
+           createDate: create date of object
+           version: equle to template version
+           category: category of template
+           templateName: name of template
+           collectionName: name of collection
+           '''
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("getauthoritysharers:configureobjectproto", True)
@@ -538,37 +438,15 @@ class ConfigureObjectClient(MessagePlugin):
             ins.Name = name
             ins.Date = createDate
             ins.Version = version
+            ins.Category = category
+            ins.TemplateName = templateName
+            ins.CollectionName = collectionName
             rRequest.Object = ins
             rRequest.session = session
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e:
             print e
-
-    def _onListCollections(self, proto, spec, message, body):
-
-        '''CollectionList is a list of collection names in database'''
-        requestId = message.getRequestId()
-        if requestId in self.requests:
-            p = self.requests[requestId]
-            if 0 != body.status:
-                p.reject(Exception(body.message))
-            else:
-                p.fulfill(body.CollectionList)
-
-    def listCollections(self, session):
-        try:
-            p = Promise()
-            (rSpec, rRequest) = self.create("listcollections:configureobjectproto", True)
-            rRequest.session = session
-            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return p
-        except Exception as e:
-            print e
-
-
-
-
 
 
 
