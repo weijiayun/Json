@@ -203,25 +203,28 @@ struct ListObjects
 {
     1: required ACLProto.LoginSession session;
 }
-
+struct collection
+{
+    1: required map<string,binary> Collection;
+}
 struct ListObjectsResponse
 {
 	1: i32 status;
     2: string message;
-    3: list<string> ObjectList;
+    3: map<string, collection> AllObjects;
 }
 
-// -------------------------Get Authority Sharers-----------------------------
+// -------------------------List Authority Sharers-----------------------------
 
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_GET_AUTHORITY_SHARERS = 310042
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_LIST_AUTHORITY_SHARERS = 310042
 
-struct GetAuthoritySharers
+struct ListAuthoritySharers
 {
     1: required ACLProto.LoginSession session;
     2: required object Object;
 }
 
-struct GetAuthoritySharersResponse
+struct ListAuthoritySharersResponse
 {
 	1: i32 status;
     2: string message;

@@ -29,7 +29,7 @@ class ConfigureObjectServer(MessagePlugin):
         self.handle('grantconfiguretoothers:configureobjectproto', True, self.onGrantConfigureToOthers)
         self.handle('ungrantconfigureofothers:configureobjectproto', True, self.onUnGrantConfigureOfOthers)
         self.handle('listobjects:configureobjectproto', True, self.onListObjects)
-        self.handle('getauthoritysharers:configureobjectproto', True, self.onGetAuthoritySharers)
+        self.handle('listauthoritysharers:configureobjectproto', True, self.onListAuthoritySharers)
 
     def onConnectionOpened(self, proto):
         print '----begin login-----'
@@ -511,16 +511,21 @@ class ConfigureObjectServer(MessagePlugin):
         successResponse.status = 0
         successResponse.message = "list object successfully!!!"
         self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-
-    def onGetAuthoritySharers(self, proto, spec, message, body):
+        
+    def onListAuthoritySharers(self, proto, spec, message, body):
 
         try:
-            print '---------------Begin Get Authority Sharers---------------'
+            print '---------------Begin List Authority Sharers---------------'
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
             print 'Object: <{0}>'.format(body.Object)
-            print '--------------- End Get Authority Sharers---------------'
+            print '--------------- End List Authority Sharers---------------'
 
-            isGetObject = self.configsql3.getObject(body.Object.Name, body.Object.Date, body.Object.Version)
+            isGetObject = self.configsql3.getObject(body.Object.Name, 
+                                                    body.Object.Date, 
+                                                    body.Object.Version,
+                                                    body.Object.Category,
+                                                    body.Object.TemplateName,
+                                                    body.Object.CollectionName)
 
             if isGetObject:
                 secId = isGetObject[0]
@@ -551,4 +556,7 @@ class ConfigureObjectServer(MessagePlugin):
             failedResponse.status = 1
             failedResponse.message = str(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+            
 
+        
+        

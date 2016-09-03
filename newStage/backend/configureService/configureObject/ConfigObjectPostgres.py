@@ -169,3 +169,11 @@ class ConfigureObjectSql(object):
         finally:
             cur.close()
 
+    def getAll(self,objectIdList):
+        cur = self.conn.cursor()
+        try:
+            sql = '''SELECT DISTINCT t_object.category FROM t_object;'''
+            cur.execute(sql)
+            categoryTuple = cur.fetchall()
+
+
