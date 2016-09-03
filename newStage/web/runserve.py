@@ -4,5 +4,5 @@ __author__ = 'jiayun.wei'
 
 from TemplateApp import app
 app.debug = True
-app.run(use_reloader=False)
+app.run()
 

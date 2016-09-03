@@ -5,17 +5,17 @@ from typeconfig import INPUTOBJECT2,ConvertTowebFormatJson
 from . import app
 from datetime import datetime
 import json
-from configureService.configureObject.ConfigureObjectClient import ConfigureObjectClient
-from configureService.acl.ACLClient import ACLClient
+# from configureService.configureObject.ConfigureObjectClient import ConfigureObjectClient
+# from configureService.acl.ACLClient import ACLClient
 
-newInput = ConvertTowebFormatJson(INPUTOBJECT2)
-JsonDict = json.dumps({"REFLIST": ["Annapurna", "Annapurnatest"], "REFERENCES": newInput})
+
 def getdiff(a, b):
     return list(set(a).difference(set(b)))
 
 @app.route('/', methods=["GET","POST"])
-@app.route('/<StructName>',methods=["GET","POST"])
-def index(StructName=""):
+def index():
+    newInput = ConvertTowebFormatJson(INPUTOBJECT2)
+    JsonDict = json.dumps({"REFLIST": ["Annapurna", "Annapurnatest"], "REFERENCES": newInput})
     # if request.method == "POST":
     #     if len(StructName) == 0:
     #         print request.form["SubmitAllInput"]
@@ -32,53 +32,38 @@ def ref(type):
 
 @app.route("/objectList", methods=["GET", "POST"])
 def getobjects():
-    aclClient = ACLClient(app.proto, app.pea.customHandle, 609)
-    configClient = ConfigureObjectClient(app.proto, app.pea.customHandle, 612)
-    session = aclClient.login("aa", "1231")
-    objectList = set()
-    collectionList = set()
-    allCollectionDict = {}
+    # aclClient = ACLClient(app.proto, app.pea.customHandle, 609)
+    # configClient = ConfigureObjectClient(app.proto, app.pea.customHandle, 612)
+    # session = aclClient.login("aa", "1231")
+    # categoryDict = {}
+    # def listObjectSuccess(cateDict):
+    #     categoryDict["Category"] = cateDict
+    #
+    # def listObjectFailed(errMsg):
+    #     print errMsg
+    #
+    # configClient.listObjects(session).then(listObjectSuccess).catch(listObjectFailed).wait()
+    categoryDict = {}
+    categoryDict = {
+        "strategy":{
+            "stcol11": ["sobj1", "obj2", "obj3"],
+            "stcol12": ["sobj1", "obj2", "obj3"],
+            "stcol13": ["sobj1", "obj2", "obj3"],
+            "stcol14": ["siobj1", "obj2", "obj3"]
+        },
+        "signal": {
+            "sicol11": ["siobj1", "obj2", "obj3"],
+            "sicol12": ["siobj1", "obj2", "obj3"],
 
-    def listCollectionSuccess(collectionNameList):
-        for i in collectionNameList:
-            collectionList.add(i)
-
-    def listCollectionFailed(errMsg):
-        print errMsg
-
-    configClient.listCollections(session).then(listCollectionSuccess).catch(listCollectionFailed).wait()
-
-    def getCollectionSuccess(objectDict):
-        for key in objectDict:
-            newkey = "-".join(key.split("-")[:-1])
-            colName = key.split("-")[-1]
-            if colName not in allCollectionDict:
-                allCollectionDict[colName] = []
-            allCollectionDict[colName].append(newkey)
-
-    def getCollectionFailed(errMsg):
-        print errMsg
-
-    configClient.getCollection(session, collectionList).then(getCollectionSuccess).catch(getCollectionFailed).wait()
-
-    def listObjectSuccess(objectNameList):
-        for i in objectNameList:
-            objectList.add(i)
-
-    def listObjectFailed(errMsg):
-        print errMsg
-
-    configClient.listObjects(session).then(listObjectSuccess).catch(listObjectFailed).wait()
-
-    temp = []
-    temp.append(list(objectList))
-    for col, val in allCollectionDict.items():
-        temp.append(val)
-    otherlist = reduce(getdiff, temp)
-    if len(otherlist) != 0:
-        allCollectionDict["other"] = otherlist
-    a = sorted(allCollectionDict.iteritems(), key=lambda asd: asd[0], reverse=False)
-    return json.dumps(a)
+        },
+        "market": {
+            "mcol11": ["mobj1", "obj2", "obj3"],
+            "mcol12": ["mobj1", "obj2", "obj3"],
+            "mcol13": ["mobj1", "obj2", "obj3"]
+        }
+    }
+    # a = sorted(categoryDict.iteritems(), key=lambda asd: asd[0], reverse=False)
+    return json.dumps(categoryDict)
 
 @app.route("/configureList", methods=["GET", "POST"])
 def getconfigures():

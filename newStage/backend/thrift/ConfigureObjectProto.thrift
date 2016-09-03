@@ -203,15 +203,13 @@ struct ListObjects
 {
     1: required ACLProto.LoginSession session;
 }
-struct collection
-{
-    1: required map<string,binary> Collection;
-}
+typedef list<string> ObjectAttr;
+typedef map<string,ObjectAttr> Collection;
 struct ListObjectsResponse
 {
 	1: i32 status;
     2: string message;
-    3: map<string, collection> AllObjects;
+    3: map<string, collection> CategoryDict;
 }
 
 // -------------------------List Authority Sharers-----------------------------

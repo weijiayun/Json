@@ -57,103 +57,102 @@
 
   </head>
   <body class="am-with-topbar-fixed-top"  style="background-color: #f2f2f2" onload="app.load2()">
-  <header class="am-topbar-fixed-top am-topbar am-topbar-inverse">
-      <div class="chrome-tabs-shell">
-          <div class="chrome-tabs">
-              <div class="chrome-tab" id="TAB0">
-                  <div class="chrome-tab-favicon" style="background-image: url('../static/img/2.ico')" ></div>
-                  <div class="chrome-tab-title">Google</div>
-                  <div class="chrome-tab-close"></div>
-                  <div class="chrome-tab-curves">
-                      <div class="chrome-tab-curves-left-shadow"></div>
-                      <div class="chrome-tab-curves-left-highlight"></div>
-                      <div class="chrome-tab-curves-left"></div>
-                      <div class="chrome-tab-curves-right-shadow"></div>
-                      <div class="chrome-tab-curves-right-highlight"></div>
-                      <div class="chrome-tab-curves-right"></div>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </header>
-  <script src="../static/js/chrome-tabs.js"></script>
-  <script>
-        var $chromeTabsShell = $('.chrome-tabs-shell');
-        chromeTabs.init({
-            $shell: $chromeTabsShell,
-            minWidth: 65,
-            maxWidth: 240
-        });
-//        chromeTabs.addNewTab($chromeTabsShell, {
-//            favicon: 'img/3.ico',
-//            title: 'jQuery之家',
-//            data: {
-//                timeAdded: +new Date()
-//            }
-//        });
-        $chromeTabsShell.bind('chromeTabRender', function(){
-            var $currentTab = $chromeTabsShell.find('.chrome-tab-current');
-            if ($currentTab.length && window['console'] && console.log) {
-                console.log('Current tab index', $currentTab.index(), 'title', $.trim($currentTab.text()), 'data', $currentTab.data('tabData').data);
-            }
-        });
-  </script>
   <div id="JsonDict" style="display: none">{{ JsonDict }}</div>
   {% set StrategyDict = JsonDict|jsontoObj %}
   <div class="am-g">
       <div class="am-u-sm-2 am-scrollable-vertical LeftMenu"  style="max-height: 930px;height: 930px">
+          <div class="well" style="min-height: 900px">
+          <div class="form-group">
+              <label >Search Tree:</label>
+              <input type="input" class="form-control" id="input-search" placeholder="Type to search..." value="">
+          </div>
+          <div class="checkbox">
+              <label>
+                <input type="checkbox" class="checkbox" id="chk-ignore-case" value="false">
+                Ignore Case
+              </label>
+              <label>
+                  <input type="checkbox" class="checkbox" id="chk-exact-match" value="false">
+                  Exact Match
+              </label>
+          </div>
+         <!--<button type="button" class="btn btn-default" id="btn-clear-search">Clear</button>!-->
           <div id="left-tree" style="margin-top: 20px"></div>
           <script>
-              function getTree() {
-                  var treeData = [
-                      {
-                          text:"Collection",
-                          nodes:[
-                              {
-                                  text:"strategy",
-                                  nodes:[
-                                      {
-                                          text:"anna1"
-                                      },
-                                      {
-                                          text:"anna2"
-                                      }
-                                  ]
-                              },
-                              {
-                                  text:"Signal",
-                                  nodes:[
-                                      {
-                                          text:"signachild1"
-                                      },
-                                      {
-                                          text:"signachild2"
-                                      }
-                                  ]
-                              },
-                              {
-                                  text:"Maket",
-                                  nodes:[
-                                      {
-                                          text:"maketchild1"
-                                      },
-                                      {
-                                          text:"maketchild2"
-                                      },
-                                      {
-                                          text:"maketchild3"
-                                      }
-
-                                  ]
-                              }
-                          ]
+              var refFeedback = $.ajax("/objectList", {
+                  dataType: 'json'
+              }).done(function (data) {
+                  var treeData = {};
+                  treeData.text = "Collection";
+                  treeData.nodes = [];
+                  var temp = {};
+                  for(var s in data){
+                      temp.text = s;
+                      temp.nodes = [];
+                      var temp2 = {tags: [Object.keys(data[s]).length]};
+                      for(var c in data[s]){
+                          temp2.text = c;
+                          temp2.nodes = [];
+                          var temp3 = {};
+                          for(var i in data[s][c]){
+                              temp3.text = data[s][c][i];
+                              temp2.nodes.push(JSON.parse(JSON.stringify(temp3)));
+                          }
+                          temp.nodes.push(JSON.parse(JSON.stringify(temp2)));
                       }
-                  ];
-                  return treeData;
-              }
+                      treeData.nodes.push(JSON.parse(JSON.stringify(temp)));
+                  }
+                  treeData = [treeData];
 
-              $("#left-tree").treeview({data:getTree()})
+                 var $searchableTree = $("#left-tree").treeview({
+                      data:treeData,
+                      //multiSelect:true,
+                      expandIcon: 'glyphicon glyphicon-chevron-right',
+                      collapseIcon: 'glyphicon glyphicon-chevron-down',
+                      nodeIcon: 'glyphicon glyphicon-bookmark',
+                      color: "#555",
+                      backColor: "white",
+                      onhoverColor: "rgb(48, 180, 214)",
+                      borderColor: "rgb(48, 180, 214)",
+                      showBorder: false,
+                      showTags: true,
+                      highlightSelected: true,
+                      //selectedColor: "yellow",
+                      selectedBackColor: "#428bca"
+                  });
+
+                  var search = function(e) {
+                      var pattern = $('#input-search').val();
+                      var options = {
+                          ignoreCase: $('#chk-ignore-case').is(':checked'),
+                          exactMatch: $('#chk-exact-match').is(':checked'),
+                          revealResults: true,//$('#chk-reveal-results').is(':checked')
+                      };
+                      var results = $searchableTree.treeview('search', [ pattern, options ]);
+
+                      var output = '<p>' + results.length + ' matches found</p>';
+                      $.each(results, function (index, result) {
+                          output += '<p>- ' + result.text + '</p>';
+                      });
+                      $('#search-output').html(output);
+                  };
+
+                  $('#btn-search').on('click', search);
+                  $('#input-search').on('keyup', search);
+
+                  $('#btn-clear-search').on('click', function (e) {
+                      $searchableTree.treeview('clearSearch');
+                      $('#input-search').val('');
+                      $('#search-output').html('');
+                  });
+              }).fail(function (xhr, status) {
+                  alert("Failed: {0}\n Reason: {1}\n".format(xhr.status, status));
+              });
+
+
+
           </script>
+              </div>
       </div>
       <div class="am-u-sm-10 RightArea" style="height: 900px">
           <div class="am-g">

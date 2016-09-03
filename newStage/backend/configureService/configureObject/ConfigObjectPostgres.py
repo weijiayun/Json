@@ -172,8 +172,36 @@ class ConfigureObjectSql(object):
     def getAll(self,objectIdList):
         cur = self.conn.cursor()
         try:
-            sql = '''SELECT DISTINCT t_object.category FROM t_object;'''
+            temp = ""
+            for Id in objectIdList:
+                if objectIdList.index(Id) == 0:
+                    temp += '''t_object.id={0}'''.format(Id)
+                else:
+                    temp += ''' OR t_object.id={0}'''.format(Id)
+            sql = '''CREATE TEMPORARY TABLE tmp_tbl SELECT * FROM t_object WHERE {0};'''.format(temp)
             cur.execute(sql)
-            categoryTuple = cur.fetchall()
+            sql = '''SELECT DISTINCT tmp_tbl.category FROM tmp_tbl'''
+            cur.execute(sql)
+            categories = cur.fetchall()
+            cateDict = {}
+            for i in categories:
+                sql = '''SELECT DISTINCT tmp_tbl.collection_name FROM tmp_tbl WHERE tmp_tbl.category='{0}';'''.format(i)
+                cur.execute(sql)
+                collections = cur.fetchall()
+                cateDict[i] = {}
+                for j in collections:
+                    sql = '''SELECT DISTINCT * FROM tmp_tbl WHERE tmp_tbl.category='{0}' AND tmp_tbl.collection_name='{1}';'''\
+                        .format(i, j)
+                    cur.execute(sql)
+                    objects = cur.fetchall()
+                    cateDict[i][j]= map(lambda x:"-".join(x[1:]),objects)
+            return [True, cateDict]
+        except Exception as e:
+            print e
+            return [False, str(e)]
+        finally:
+            cur.close()
+
+
 
 

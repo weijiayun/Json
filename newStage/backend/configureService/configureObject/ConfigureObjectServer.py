@@ -498,19 +498,20 @@ class ConfigureObjectServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     def getListObjects(self, proto, message, contentIdList):
+        categoryDict = self.configsql3.getAll(contentIdList)
+        if categoryDict[0]:
+            (responseSpec, successResponse) = self.create("listobjects:configureobjectproto", False)
+            successResponse.CategoryDict = categoryDict[1]
+            successResponse.status = 0
+            successResponse.message = "list objects successfully!!!"
+            self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+        else:
+            (responseSpec, failedResponse) = self.create("listobjects:configureobjectproto", False)
+            failedResponse.status = 1
+            failedResponse.message = categoryDict[1]
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-        objectsList = []
-        for elem in contentIdList:
-            temp = self.configsql3.getObjectById(elem.contentId)
-            if temp[0]:
-                objectsList.append("-".join(temp[1][1:]))
-            else:
-                continue
-        (responseSpec, successResponse) = self.create("listobjects:configureobjectproto", False)
-        successResponse.ObjectList = objectsList
-        successResponse.status = 0
-        successResponse.message = "list object successfully!!!"
-        self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+
         
     def onListAuthoritySharers(self, proto, spec, message, body):
 

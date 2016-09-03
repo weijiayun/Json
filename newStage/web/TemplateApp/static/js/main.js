@@ -184,9 +184,7 @@ function HtmlExcelAll(TemplatesUnitIdPrefix) {
 }
 
 function MatButton(field,evt) {
-
-    var hideDelay = 2000;
-    var hideTimer = null;
+    
     var container = $("#popupContainer");
     container.css('display', 'block');
     var pos =$(field).offset();
