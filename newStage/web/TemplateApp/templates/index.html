@@ -29,6 +29,7 @@
 
       <link data-jsfiddle="common" rel="stylesheet" media="screen" href="../static/dist/handsontable.css">
       <link data-jsfiddle="common" rel="stylesheet" media="screen" href="../static/dist/pikaday/pikaday.css">
+      <link rel="stylesheet" type="text/css" href="../static/css/context.standalone.css">
 
       <script src="../static/js/amazeui.js"></script>
       <script src="../static/js/tree.js"></script>
@@ -53,18 +54,28 @@
       <script data-jsfiddle="common" src="../static/dist/numbro/languages.js"></script>
       <script data-jsfiddle="common" src="../static/dist/handsontable.js"></script>
       <script type="text/javascript" src="../static/js/bootstrap-treeview.js"></script>
+      <script src="../static/js/context.js"></script>
+
 
 
   </head>
+<style>
+    span.glyphicon-remove-sign:hover{
+        color: #00a1cb;
+        font-size: large;
+    }
+
+</style>
   <body class="am-with-topbar-fixed-top"  style="background-color: #f2f2f2" onload="app.load2()">
   <div id="JsonDict" style="display: none">{{ JsonDict }}</div>
   {% set StrategyDict = JsonDict|jsontoObj %}
   <div class="am-g">
       <div class="am-u-sm-2 am-scrollable-vertical LeftMenu"  style="max-height: 930px;height: 930px">
           <div class="well" style="min-height: 900px">
-          <div class="form-group">
+          <div class="form-group" style="height: 55px">
               <label >Search Tree:</label>
-              <input type="input" class="form-control" id="input-search" placeholder="Type to search..." value="">
+              <input type="text" class="form-control" id="input-search" placeholder="Type to search..." value="">
+              <span class="glyphicon glyphicon-remove-sign" id="clear-search" style="cursor: pointer;position: relative;left: 195px;top: -28px"></span>
           </div>
           <div class="checkbox">
               <label>
@@ -77,82 +88,10 @@
               </label>
           </div>
          <!--<button type="button" class="btn btn-default" id="btn-clear-search">Clear</button>!-->
-          <div id="left-tree" style="margin-top: 20px"></div>
-          <script>
-              var refFeedback = $.ajax("/objectList", {
-                  dataType: 'json'
-              }).done(function (data) {
-                  var treeData = {};
-                  treeData.text = "Collection";
-                  treeData.nodes = [];
-                  var temp = {};
-                  for(var s in data){
-                      temp.text = s;
-                      temp.nodes = [];
-                      var temp2 = {tags: [Object.keys(data[s]).length]};
-                      for(var c in data[s]){
-                          temp2.text = c;
-                          temp2.nodes = [];
-                          var temp3 = {};
-                          for(var i in data[s][c]){
-                              temp3.text = data[s][c][i];
-                              temp2.nodes.push(JSON.parse(JSON.stringify(temp3)));
-                          }
-                          temp.nodes.push(JSON.parse(JSON.stringify(temp2)));
-                      }
-                      treeData.nodes.push(JSON.parse(JSON.stringify(temp)));
-                  }
-                  treeData = [treeData];
-
-                 var $searchableTree = $("#left-tree").treeview({
-                      data:treeData,
-                      //multiSelect:true,
-                      expandIcon: 'glyphicon glyphicon-chevron-right',
-                      collapseIcon: 'glyphicon glyphicon-chevron-down',
-                      nodeIcon: 'glyphicon glyphicon-bookmark',
-                      color: "#555",
-                      backColor: "white",
-                      onhoverColor: "rgb(48, 180, 214)",
-                      borderColor: "rgb(48, 180, 214)",
-                      showBorder: false,
-                      showTags: true,
-                      highlightSelected: true,
-                      //selectedColor: "yellow",
-                      selectedBackColor: "#428bca"
-                  });
-
-                  var search = function(e) {
-                      var pattern = $('#input-search').val();
-                      var options = {
-                          ignoreCase: $('#chk-ignore-case').is(':checked'),
-                          exactMatch: $('#chk-exact-match').is(':checked'),
-                          revealResults: true,//$('#chk-reveal-results').is(':checked')
-                      };
-                      var results = $searchableTree.treeview('search', [ pattern, options ]);
-
-                      var output = '<p>' + results.length + ' matches found</p>';
-                      $.each(results, function (index, result) {
-                          output += '<p>- ' + result.text + '</p>';
-                      });
-                      $('#search-output').html(output);
-                  };
-
-                  $('#btn-search').on('click', search);
-                  $('#input-search').on('keyup', search);
-
-                  $('#btn-clear-search').on('click', function (e) {
-                      $searchableTree.treeview('clearSearch');
-                      $('#input-search').val('');
-                      $('#search-output').html('');
-                  });
-              }).fail(function (xhr, status) {
-                  alert("Failed: {0}\n Reason: {1}\n".format(xhr.status, status));
-              });
-
-
-
-          </script>
-              </div>
+          <div id="left-collection-tree" style="margin-top: 20px"></div>
+              <script src="../static/js/left-collection-tree-context.js"></script>
+              <script type="text/javascript" src="../static/js/left-tree-struction.js"></script>
+          </div>
       </div>
       <div class="am-u-sm-10 RightArea" style="height: 900px">
           <div class="am-g">
@@ -164,9 +103,6 @@
                        id="loadlog"
                        style="width: 960px; height: 400px; overflow: hidden;"></div>
                   <div id="jsonlog" ></div>
-                  <p >
-                      <button onclick="ajaxtest()">ajax test</button>
-                  </p>
                   <p id="para1">
                       <button  onclick="saveBigTableData()">
                           Dump data to console
@@ -174,14 +110,14 @@
                   </p>
                   <div id="showhot1data"></div>
                   <p id="para2">
-                      <button  onclick="getDataFromJsonTree()">
+                      <button  onclick="">
                           Dump json data to console
                       </button>
                   </p>
                   <div id="showjsondata"></div>
               </div>
               <div class="am-u-sm-4 am-scrollable-vertical RightMenu" style="height: 900px; max-height: 900px; background-color: #f8f8f8;">
-                  <div class="well" id="jsonlog-right" style="margin-top: 20px"></div>
+                  <div class="well" id="jsonlog-right"  style="margin-top: 20px;height: 900px" onblur="getDataFromJsonTree()"></div>
               </div>
               <!--<div class="am-u-sm-5 am-scrollable-vertical RightMenu" style="height: 900px; max-height: 900px; background-color: #f8f8f8;">-->
                   <!--<div style="clear:both">-->

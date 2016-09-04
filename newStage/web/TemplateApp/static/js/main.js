@@ -149,7 +149,7 @@ function HtmlExcelAll(TemplatesUnitIdPrefix) {
         contextMenu: {
             callback: function (key, options) {
                 if (key === 'json') {
-                    var curRowDataDict = turnRowToJson(StrategyList[0]);
+                    var curRowDataDict = turnRowToJson(TemplatesUnitIdPrefix,StrategyList[0]);
                 }
             },
             items: {
@@ -444,7 +444,7 @@ function saveBigTableData() {
     $("#showhot1data").html(data)
 }
 
-function turnRowToJson(structName) {
+function turnRowToJson(TemplatesUnitIdPrefix,structName) {
     var i, j, tbl, tr, td, theader, tempdict = {}, listTest = /[\[\]\{\}]/i, collen;
     tr = $(".currentRow").parent().eq(1);
     tbl = $(".currentRow").parent().parent().parent().eq(1);
@@ -535,10 +535,11 @@ function turnRowToJson(structName) {
         }
 
     }
-    // $("#myModal").on('hide.bs.modal',function () {
-    //     getDataFromJsonTree(TemplateUnitIdPrefix,structName);
-    // });
-
+     $("#{0}".format(modalId)).on("click",function () {
+        getDataFromJsonTree(TemplatesUnitIdPrefix,structName);
+    }).on("keyup",function () {
+         getDataFromJsonTree(TemplatesUnitIdPrefix,structName);
+     })
 }
 
 function getDataFromJsonTree(TemplatesUnitIdPrefix,structName) {
@@ -653,7 +654,6 @@ function getDataFromJsonTree(TemplatesUnitIdPrefix,structName) {
             hot.setDataAtCell(currentRowIndex,j-1,Jsoncode[theader]);
         }
     }
-    
     $("#showjsondata").html(JSON.stringify(Jsoncode));
 }
 
