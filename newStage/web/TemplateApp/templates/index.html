@@ -63,19 +63,30 @@
     span.glyphicon-remove-sign:hover{
         color: #00a1cb;
         font-size: large;
+
+
     }
+
+     span.glyphicon-remove-sign{
+         cursor: pointer;
+         position: relative;
+         left: 94%;
+         top: -28px
+     }
+
+
 
 </style>
   <body class="am-with-topbar-fixed-top"  style="background-color: #f2f2f2" onload="app.load2()">
   <div id="JsonDict" style="display: none">{{ JsonDict }}</div>
   {% set StrategyDict = JsonDict|jsontoObj %}
   <div class="am-g">
-      <div class="am-u-sm-2 am-scrollable-vertical LeftMenu"  style="max-height: 930px;height: 930px">
+      <div class="am-u-sm-3 am-scrollable-vertical LeftMenu"  style="max-height: 930px;height: 930px">
           <div class="well" style="min-height: 900px">
           <div class="form-group" style="height: 55px">
               <label >Search Tree:</label>
               <input type="text" class="form-control" id="input-search" placeholder="Type to search..." value="">
-              <span class="glyphicon glyphicon-remove-sign" id="clear-search" style="cursor: pointer;position: relative;left: 195px;top: -28px"></span>
+              <span class="glyphicon glyphicon-remove-sign" id="clear-search" ></span>
           </div>
           <div class="checkbox">
               <label>
@@ -93,7 +104,7 @@
               <script type="text/javascript" src="../static/js/left-tree-struction.js"></script>
           </div>
       </div>
-      <div class="am-u-sm-10 RightArea" style="height: 900px">
+      <div class="am-u-sm-9 RightArea" style="height: 900px">
           <div class="am-g">
               <div  class="am-u-sm-8 am-scrollable-vertical" style="height: 900px;padding-top: 30px;" >
                   <input id="search_field" placeholder="Search" type="search"> <span id="resultCount">0</span> results

@@ -15,8 +15,10 @@ $(document).ready(function() {
             var temp2 = {tags: [Object.keys(data[s]).length]};
             for (var c in data[s]) {
                 temp2.text = c;
+                temp2.type = "collection";
                 temp2.nodes = [];
                 var temp3 = {};
+                temp3.type = "object";
                 for (var i in data[s][c]) {
                     temp3.text = data[s][c][i];
                     temp2.nodes.push(JSON.parse(JSON.stringify(temp3)));
@@ -67,7 +69,8 @@ $(document).ready(function() {
             $('#input-search').val('');
             $('#search-output').html('');
         });
-        $.pureClearButton.setDefault();
+        leftTreeContextMenu.updateContextMenu();
+        leftTreeContextMenu.initializeContextMenu();
     }).fail(function (xhr, status) {
         alert("Failed: {0}\n Reason: {1}\n".format(xhr.status, status));
     });

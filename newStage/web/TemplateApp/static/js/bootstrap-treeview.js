@@ -112,6 +112,7 @@
 			getUnchecked: $.proxy(this.getUnchecked, this),
 			getDisabled: $.proxy(this.getDisabled, this),
 			getEnabled: $.proxy(this.getEnabled, this),
+			getTree: $.proxy(this.getTree, this),
 
 			// Select methods
 			selectNode: $.proxy(this.selectNode, this),
@@ -145,7 +146,9 @@
 			clearSearch: $.proxy(this.clearSearch, this)
 		};
 	};
-
+	Tree.prototype.getTree = function () {
+		return this.tree;
+	};
 	Tree.prototype.init = function (options) {
 
 		this.tree = [];

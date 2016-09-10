@@ -1,3 +1,7 @@
+/**
+ * Created by weijiayun on 9/10/16.
+ */
+
 /* 
  * Context.js
  * Copyright Jacob Kelley
@@ -5,7 +9,7 @@
  */
 
 var context = context || (function () {
-
+    
 	var options = {
 		fadeSpeed: 100,
 		filter: function ($obj) {
@@ -15,24 +19,21 @@ var context = context || (function () {
 		preventDoubleContext: true,
 		compress: false
 	};
-
+        
 	function initialize(opts) {
-
+		
 		options = $.extend({}, options, opts);
-
-		$(document).on('click', 'html', function () {
-			$('.dropdown-context').fadeOut(options.fadeSpeed, function(){
-				$('.dropdown-context').css({display:''}).find('.drop-left').removeClass('drop-left');
-			});
-		});
-		if(options.preventDoubleContext){
-			$(document).on('contextmenu', '.dropdown-context', function (e) {
+		
+		// $(document).on('click', 'html', function () {
+		// 	$('.dropdown-context').fadeOut(options.fadeSpeed, function(){
+		// 		$('.dropdown-context').css({display:''}).find('.drop-left').removeClass('drop-left');
+		// 	});
+		// });
+		if(options.preventDoubleContext){//contextmenu
+			$(document).on('click', '.dropdown-context', function (e) {
 				e.preventDefault();
 			});
 		}
-		$(document).on('click', '.collectionNameInput', function (e) {
-			e.stopPropagation();
-		});
 		$(document).on('mouseenter', '.dropdown-submenu', function(){
 			var $sub = $(this).find('.dropdown-context-sub:first'),
 				subWidth = $sub.width(),
@@ -42,7 +43,7 @@ var context = context || (function () {
 				$sub.addClass('drop-left');
 			}
 		});
-
+		
 	}
 
 	function updateOptions(opts){
@@ -67,21 +68,9 @@ var context = context || (function () {
 					linkTarget = ' target="'+data[i].target+'"';
 				}
 				if (typeof data[i].nodes !== 'undefined') {
-					if(typeof data[i].type !== 'undefined'&&data[i].type === 'appendCollection'){
-						$sub = $('<li class="dropdown-submenu"><a tabindex="-1" data-nodeid="' + data[i].nodeId + '">' + data[i].text + '</a></li>');
-					}
-					else 
-						$sub = $('<li class="dropdown-submenu"><a tabindex="-1" href="' + data[i].href + '">' + data[i].text + '</a></li>');
-				}
-				else {
-					if(typeof data[i].type !== 'undefined'&&data[i].type === 'input'){
-						$sub = $('<li class="collectionNameInput">'+data[i].text+'</li>');
-					}
-					else if(typeof data[i].type !== 'undefined'&&data[i].type === 'appendCollection'){
-						$sub = $('<li><a tabindex="-1" data-nodeid="' + data[i].nodeId + '">' + data[i].text + '</a></li>');
-					}
-					else
-						$sub = $('<li><a tabindex="-1" href="' + data[i].href + '"'+linkTarget+'>' + data[i].text + '</a></li>');
+					$sub = ('<li class="dropdown-submenu"><a tabindex="-1" href="' + data[i].href + '">' + data[i].text + '</a></li>');
+				} else {
+					$sub = $('<li><a tabindex="-1" href="' + data[i].href + '"'+linkTarget+'>' + data[i].text + '</a></li>');
 				}
 				if (typeof data[i].action !== 'undefined') {
 					var actiond = new Date(),
@@ -105,20 +94,16 @@ var context = context || (function () {
 	}
 
 	function addContext(selector, data) {
-
 		var d = new Date(),
 			id = d.getTime(),
 			$menu = buildMenu(data, id);
-
 		$('body').append($menu);
-
-
-		$(document).on('contextmenu', selector, function (e) {
+		$(document).on('click', selector, function (e) {//contextmenu
 			e.preventDefault();
 			e.stopPropagation();
-
+			
 			$('.dropdown-context:not(.dropdown-context-sub)').hide();
-
+			
 			$dd = $('#dropdown-' + id);
 			if (typeof options.above == 'boolean' && options.above) {
 				$dd.addClass('dropdown-context-up').css({
@@ -143,16 +128,10 @@ var context = context || (function () {
 		});
 	}
 	
-		function destroyContext(selector) {
-			$(document).off('contextmenu', selector).off('click', '.context-event');
-		}
-		
-	
-		return {
-			init: initialize,
-			settings: updateOptions,
-			attach: addContext,
-			destroy: destroyContext,
-
-		};
+	return {
+		init: initialize,
+		settings: updateOptions,
+		attach: addContext
+	};
 })();
+
