@@ -1,39 +1,32 @@
-/**
- * Created by weijiayun on 9/10/16.
- */
 
-/* 
- * Context.js
- * Copyright Jacob Kelley
- * MIT License
- */
+var multilevelSelection = multilevelSelection || (function () {
 
-var context = context || (function () {
-    
 	var options = {
-		fadeSpeed: 100,
+		fadeSpeed: 300,
 		filter: function ($obj) {
 			// Modify $obj, Do not return
 		},
-		above: 'auto',
+		above: "auto",
 		preventDoubleContext: true,
-		compress: false
+		compress: false,
+		contextMenu:"contextmenu"
 	};
-        
+
 	function initialize(opts) {
-		
+
 		options = $.extend({}, options, opts);
-		
-		// $(document).on('click', 'html', function () {
-		// 	$('.dropdown-context').fadeOut(options.fadeSpeed, function(){
-		// 		$('.dropdown-context').css({display:''}).find('.drop-left').removeClass('drop-left');
-		// 	});
-		// });
+
+		$(document).on('click', 'html', function () {
+			$('.dropdown-context').fadeOut(options.fadeSpeed, function(){
+				$('.dropdown-context').css({display:''}).find('.drop-left').removeClass('drop-left');
+			});
+		});
 		if(options.preventDoubleContext){//contextmenu
-			$(document).on('click', '.dropdown-context', function (e) {
+			$(document).on(options.contextMenu, '.dropdown-context', function (e) {
 				e.preventDefault();
 			});
 		}
+
 		$(document).on('mouseenter', '.dropdown-submenu', function(){
 			var $sub = $(this).find('.dropdown-context-sub:first'),
 				subWidth = $sub.width(),
@@ -43,7 +36,7 @@ var context = context || (function () {
 				$sub.addClass('drop-left');
 			}
 		});
-		
+
 	}
 
 	function updateOptions(opts){
@@ -68,8 +61,9 @@ var context = context || (function () {
 					linkTarget = ' target="'+data[i].target+'"';
 				}
 				if (typeof data[i].nodes !== 'undefined') {
-					$sub = ('<li class="dropdown-submenu"><a tabindex="-1" href="' + data[i].href + '">' + data[i].text + '</a></li>');
-				} else {
+					$sub = $('<li class="dropdown-submenu"><a tabindex="-1" href="' + data[i].href + '">' + data[i].text + '</a></li>');
+				}
+				else {
 					$sub = $('<li><a tabindex="-1" href="' + data[i].href + '"'+linkTarget+'>' + data[i].text + '</a></li>');
 				}
 				if (typeof data[i].action !== 'undefined') {
@@ -94,44 +88,41 @@ var context = context || (function () {
 	}
 
 	function addContext(selector, data) {
+
 		var d = new Date(),
 			id = d.getTime(),
 			$menu = buildMenu(data, id);
+
 		$('body').append($menu);
-		$(document).on('click', selector, function (e) {//contextmenu
+
+
+		$(document).on(options.contextMenu, selector, function (e) {//contextmenu
 			e.preventDefault();
 			e.stopPropagation();
-			
+
 			$('.dropdown-context:not(.dropdown-context-sub)').hide();
-			
+
 			$dd = $('#dropdown-' + id);
-			if (typeof options.above == 'boolean' && options.above) {
-				$dd.addClass('dropdown-context-up').css({
-					top: e.pageY - 20 - $('#dropdown-' + id).height(),
-					left: e.pageX - 13
-				}).fadeIn(options.fadeSpeed);
-			} else if (typeof options.above == 'string' && options.above == 'auto') {
+			if (typeof options.above == 'string' && options.above == 'auto') {
 				$dd.removeClass('dropdown-context-up');
-				var autoH = $dd.height() + 12;
-				if ((e.pageY + autoH) > $('html').height()) {
-					$dd.addClass('dropdown-context-up').css({
-						top: e.pageY - 20 - autoH,
-						left: e.pageX - 13
-					}).fadeIn(options.fadeSpeed);
-				} else {
-					$dd.css({
-						top: e.pageY + 10,
-						left: e.pageX - 13
-					}).fadeIn(options.fadeSpeed);
-				}
+				$dd.css({
+					top: e.target.offsetTop+e.target.clientHeight+3,
+					left: e.target.offsetLeft//+e.target.clientWidth/2
+				}).fadeIn(options.fadeSpeed);
 			}
 		});
 	}
 	
-	return {
-		init: initialize,
-		settings: updateOptions,
-		attach: addContext
-	};
-})();
+		function destroyContext(selector) {
+			$(document).off(options.contextMenu, selector).off('click', '.context-event');//contextmenu
+		}
+		
+	
+		return {
+			init: initialize,
+			settings: updateOptions,
+			attach: addContext,
+			destroy: destroyContext
 
+		};
+})();

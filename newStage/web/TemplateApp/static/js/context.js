@@ -5,7 +5,6 @@
  */
 
 var context = context || (function () {
-
 	var options = {
 		fadeSpeed: 100,
 		filter: function ($obj) {
@@ -13,7 +12,8 @@ var context = context || (function () {
 		},
 		above: 'auto',
 		preventDoubleContext: true,
-		compress: false
+		compress: false,
+		contextMenu:"contextmenu"//right key of mouse
 	};
 
 	function initialize(opts) {
@@ -26,7 +26,7 @@ var context = context || (function () {
 			});
 		});
 		if(options.preventDoubleContext){
-			$(document).on('contextmenu', '.dropdown-context', function (e) {
+			$(document).on(options.contextMenu, '.dropdown-context', function (e) {
 				e.preventDefault();
 			});
 		}
@@ -66,11 +66,17 @@ var context = context || (function () {
 				if (typeof data[i].target !== 'undefined') {
 					linkTarget = ' target="'+data[i].target+'"';
 				}
+
+
+
+
+
+
 				if (typeof data[i].nodes !== 'undefined') {
 					if(typeof data[i].type !== 'undefined'&&data[i].type === 'appendCollection'){
 						$sub = $('<li class="dropdown-submenu"><a tabindex="-1" data-nodeid="' + data[i].nodeId + '">' + data[i].text + '</a></li>');
 					}
-					else 
+					else
 						$sub = $('<li class="dropdown-submenu"><a tabindex="-1" href="' + data[i].href + '">' + data[i].text + '</a></li>');
 				}
 				else {
@@ -83,6 +89,12 @@ var context = context || (function () {
 					else
 						$sub = $('<li><a tabindex="-1" href="' + data[i].href + '"'+linkTarget+'>' + data[i].text + '</a></li>');
 				}
+
+
+
+
+
+
 				if (typeof data[i].action !== 'undefined') {
 					var actiond = new Date(),
 						actionID = 'event-' + actiond.getTime() * Math.floor(Math.random()*100000),
@@ -112,47 +124,61 @@ var context = context || (function () {
 
 		$('body').append($menu);
 
-
-		$(document).on('contextmenu', selector, function (e) {
+		if(options.contextMenu === "contextmenu") {
+			$(document).on(options.contextMenu, selector, function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+				$('.dropdown-context:not(.dropdown-context-sub)').hide();
+				$dd = $('#dropdown-' + id);
+				if (typeof options.above == 'boolean' && options.above) {
+					$dd.addClass('dropdown-context-up').css({
+						top: e.pageY - 20 - $('#dropdown-' + id).height(),
+						left: e.pageX - 13
+					}).fadeIn(options.fadeSpeed);
+				} else if (typeof options.above == 'string' && options.above == 'auto') {
+					$dd.removeClass('dropdown-context-up');
+					var autoH = $dd.height() + 12;
+					if ((e.pageY + autoH) > $('html').height()) {
+						$dd.addClass('dropdown-context-up').css({
+							top: e.pageY - 20 - autoH,
+							left: e.pageX - 13
+						}).fadeIn(options.fadeSpeed);
+					} else {
+						$dd.css({
+							top: e.pageY + 10,
+							left: e.pageX - 13
+						}).fadeIn(options.fadeSpeed);
+					}
+				}
+			});
+		}
+		else if(options.contextMenu === "click"){
+			$(document).on("click", selector, function (e) {
 			e.preventDefault();
 			e.stopPropagation();
-
 			$('.dropdown-context:not(.dropdown-context-sub)').hide();
-
 			$dd = $('#dropdown-' + id);
-			if (typeof options.above == 'boolean' && options.above) {
-				$dd.addClass('dropdown-context-up').css({
-					top: e.pageY - 20 - $('#dropdown-' + id).height(),
-					left: e.pageX - 13
-				}).fadeIn(options.fadeSpeed);
-			} else if (typeof options.above == 'string' && options.above == 'auto') {
+			if (typeof options.above == 'string' && options.above == 'auto') {
 				$dd.removeClass('dropdown-context-up');
-				var autoH = $dd.height() + 12;
-				if ((e.pageY + autoH) > $('html').height()) {
-					$dd.addClass('dropdown-context-up').css({
-						top: e.pageY - 20 - autoH,
-						left: e.pageX - 13
-					}).fadeIn(options.fadeSpeed);
-				} else {
-					$dd.css({
-						top: e.pageY + 10,
-						left: e.pageX - 13
-					}).fadeIn(options.fadeSpeed);
-				}
+				$dd.css({
+					top: e.target.offsetTop+e.target.clientHeight+3,
+					left: e.target.offsetLeft//+e.target.clientWidth/2
+				}).fadeIn(options.fadeSpeed);
 			}
 		});
-	}
-	
-		function destroyContext(selector) {
-			$(document).off('contextmenu', selector).off('click', '.context-event');
+			
 		}
-		
+	}
+
+		function destroyContext(selector) {
+			$(document).off(options.contextMenu, selector).off('click', '.context-event');
+		}
 	
 		return {
 			init: initialize,
 			settings: updateOptions,
 			attach: addContext,
-			destroy: destroyContext,
+			destroy: destroyContext
 
 		};
 })();

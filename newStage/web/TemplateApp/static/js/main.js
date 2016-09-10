@@ -2,7 +2,6 @@
  * Created by jiayun.wei on 7/28/16.
  */
 var app = {
-    load:TypesTemplate,
     load2:HtmlExcelAll
 };
 
@@ -10,7 +9,7 @@ function HtmlExcelAll(TemplatesUnitIdPrefix) {
     TemplatesUnitIdPrefix = "HandsontableMain";
     var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
     var mainTableId = "loadlog";
-    $("#loadlog").eq(0).attr("handsontable-container-id",mainTableId);
+    $("#{0}".format(mainTableId)).eq(0).attr("handsontable-container-id",mainTableId);
     var ColumsAttr = [];
     var container1;
     var searchFiled = document.getElementById('search_field');
@@ -30,8 +29,6 @@ function HtmlExcelAll(TemplatesUnitIdPrefix) {
                 $(td).children().eq(0).attr("data-Cols", col);
                 $(td).children().eq(0).attr("data-Prop", prop);
                 $(td).children().eq(0).addClass("popupTrigger");
-
-
             }
             var a3 = $(td).parent().parent().children().eq(currentRowindex).children().eq(col+1).children().eq(0).val();
             $(td).children().eq(0).val(a3);
@@ -657,61 +654,7 @@ function getDataFromJsonTree(TemplatesUnitIdPrefix,structName) {
     $("#showjsondata").html(JSON.stringify(Jsoncode));
 }
 
-function SelectTypeTemplate(TemplatesUnitIdPrefix,typeslist) {
-    var typeshtml = "";
-    typeshtml +="<span class='dropdown'>";
-    typeshtml +="<button type='button' class='btn dropdown-toggle btn-large btn-primary' id='StrategyTypesSelect' data-toggle='dropdown'>";
-    typeshtml +="<span id=\"{0}StrategyTypesButtonValue\">Types</span><span class='caret'></span></button>".format(TemplatesUnitIdPrefix);
-    typeshtml +="<ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">";
-    for(var i in typeslist){
-        typeshtml += "<li role=\"presentation\">";
-        typeshtml += '<a role="menuitem" tabindex="-1" onmouseover="shadowover(this)" onmouseout="shadowout(this)" onclick="get_TypesSelect_Result(\'{0}\',this)" name="{1}">{1}</a>'.format(TemplatesUnitIdPrefix,typeslist[i]);
-        typeshtml += "</li>"
-    }
-    typeshtml += "</ul></span>";
-    return typeshtml;
-}
 
-
-function TypesTemplate(TemplateUnitIdPrefix) {
-    var html = "";
-    var StrategyList = JSON.parse($("#JsonDict").html())["REFLIST"];
-    html += "<div class='jsoneditor-selecttype' id='{0}TemplatesSelection' style='display: block'>{1}</div>".format(TemplateUnitIdPrefix,SelectTypeTemplate(TemplateUnitIdPrefix,StrategyList));
-    $("#jsonlog").append(html);
-}
-function TypeUnitTemplate(structname,TemplateUnitIdPrefix){
-    var typehtml="";
-    var StrategyDict = JSON.parse($("#JsonDict").html())["REFERENCES"];
-    typehtml += "<ul id=\"{0}{1}\">".format(TemplateUnitIdPrefix,structname);
-    var FieldsVar = StrategyDict[structname].Fields;
-    var FieldsVarAttrs = {};
-    for(var varName in FieldsVar){
-        FieldsVarAttrs = FieldsVar[varName];
-        FieldsVarAttrs["Name"] = varName;
-        if(!FieldsVarAttrs.Reference){
-            if(FieldsVarAttrs.Type == "sint_32" || FieldsVarAttrs.Type == "uint_32"||FieldsVarAttrs.Type == "string")
-               typehtml += NumberandStringTemplate(structname,FieldsVarAttrs,TemplateUnitIdPrefix);
-            else if(FieldsVarAttrs.Type == "enum"){
-                var enumList = Object.getOwnPropertyNames(StrategyDict[FieldsVarAttrs.EleType].Fields);
-                typehtml += enumTemplate(structname,enumList,FieldsVarAttrs,TemplateUnitIdPrefix)
-            }
-            else if(FieldsVarAttrs.Type.match("mat") ||FieldsVarAttrs.Type.match("vec"))
-                typehtml += matrixTemplate(structname,FieldsVarAttrs,TemplateUnitIdPrefix);
-            else if(FieldsVarAttrs.Type == "bool")
-                typehtml += boolTemplate(structname,FieldsVarAttrs,TemplateUnitIdPrefix);
-            else if(FieldsVarAttrs.Type.match("list"))
-                typehtml += listTamplate(structname,StrategyDict[FieldsVarAttrs.EleType].Fields,FieldsVarAttrs,false,structname,TemplateUnitIdPrefix);
-        }
-        else {
-            if(FieldsVarAttrs.Type.match("list"))
-             typehtml += listRefTemplate(structname,FieldsVarAttrs,TemplateUnitIdPrefix);
-            else if(FieldsVarAttrs.Type == "sint_32" || FieldsVarAttrs.Type == "uint_32")
-                typehtml += singleRefTemplate(structname,FieldsVarAttrs,TemplateUnitIdPrefix);
-         }
-    }
-    typehtml += "</ul>";
-    return typehtml;
-}
 function get_chekbox_value(checkboxid,showcheckid) {
     if(document.getElementById(checkboxid).checked){
         document.getElementById(showcheckid+"boolval").innerHTML= 'true';
