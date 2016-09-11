@@ -13,7 +13,7 @@ var context = context || (function () {
 		above: 'auto',
 		preventDoubleContext: true,
 		compress: false,
-		contextMenu:"contextmenu"//right key of mouse
+		contextMenu:"contextmenu"//right key of mouse as default
 	};
 
 	function initialize(opts) {

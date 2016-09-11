@@ -1,5 +1,8 @@
 /**
  * Created by jiayun.wei on 7/28/16.
+ * reference url for moment.js:
+ * http://momentjs.com/docs/
+ * http://www.helloweba.com/view-blog-271.html
  */
 var app = {
     load2:HtmlExcelAll
@@ -104,13 +107,13 @@ function HtmlExcelAll(TemplatesUnitIdPrefix) {
         manualRowResize: true,
         rowHeaders:true,
         //fixedColumnsLeft: 2,
-        colHeights:100,
+        //colHeights:100,
         currentRowClassName: 'currentRow',
         currentColClassName: 'currentCol',
         //colHeaders: true,
         //minSpareRows: 1,
         startRows:1,
-        stretchH: 'all',
+        //stretchH: 'all',
         cells:function (row, col, prop) {
             var cellProperties = {};
             if(!ColumsAttr[3][prop].Reference){
@@ -120,13 +123,17 @@ function HtmlExcelAll(TemplatesUnitIdPrefix) {
                 else if (ColumsAttr[3][prop].Type === "list") {
                     cellProperties.renderer = "expandList";
                 }
-
             }
             else{
                 if (ColumsAttr[3][prop].Type === "list") {
                     cellProperties.renderer = "expandMultiRefList";
                 }
             }
+
+            if(prop === "Type"){
+                cellProperties.readOnly = true;
+            }
+
             return cellProperties;
         }
     });
@@ -146,7 +153,7 @@ function HtmlExcelAll(TemplatesUnitIdPrefix) {
         contextMenu: {
             callback: function (key, options) {
                 if (key === 'json') {
-                    var curRowDataDict = turnRowToJson(TemplatesUnitIdPrefix,StrategyList[0]);
+                    turnRowToJson(TemplatesUnitIdPrefix,StrategyList[0]);
                 }
             },
             items: {
@@ -296,10 +303,10 @@ function getColumsAttrs(structname) {
     var StrategyDict = JSON.parse($("#JsonDict").html())["REFERENCES"];
     var FieldsVar = StrategyDict[structname].Fields;
     var FieldsVarAttrs = {};
-    var ColumsAttrList = new Array();
+    var ColumsAttrList = [];
     var ColDataDict = {};
     var colAttrDict = {};
-    var colHeaders = new Array();
+    var colHeaders = [];
     for(var varName in FieldsVar){
         colAttrDict = {};
         FieldsVarAttrs = FieldsVar[varName];
@@ -308,6 +315,14 @@ function getColumsAttrs(structname) {
             if(FieldsVarAttrs.Type == "sint_32" || FieldsVarAttrs.Type == "uint_32") {
                 colAttrDict.data = FieldsVarAttrs.Name;
                 colAttrDict.type = "numeric";
+                ColumsAttrList.push(colAttrDict);
+                colHeaders.push(FieldsVarAttrs.Name);
+                ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
+            }
+            else if(FieldsVarAttrs.Type == "double"){
+                colAttrDict.data = FieldsVarAttrs.Name;
+                colAttrDict.type = "numeric";
+                colAttrDict.format = '0,0.0000';
                 ColumsAttrList.push(colAttrDict);
                 colHeaders.push(FieldsVarAttrs.Name);
                 ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
@@ -345,6 +360,32 @@ function getColumsAttrs(structname) {
                 ColumsAttrList.push(colAttrDict);
                 colHeaders.push(FieldsVarAttrs.Name);
                 ColDataDict[FieldsVarAttrs.Name] = StrategyDict[FieldsVarAttrs.EleType].Fields;
+            }
+            else if(FieldsVarAttrs.Type == 'date'){
+                colAttrDict.data = FieldsVarAttrs.Name;
+                colAttrDict.type = "date";
+                colAttrDict.dateFormat = "MM/DD/YYYY";
+                colAttrDict.correctFormat = true;
+                ColumsAttrList.push(colAttrDict);
+                colHeaders.push(FieldsVarAttrs.Name);
+                ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
+            }
+            else if(FieldsVarAttrs.Type == 'time'){
+                colAttrDict.data = FieldsVarAttrs.Name;
+                colAttrDict.type = "time";
+                colAttrDict.timeFormat = "hh:mm:ss:SSS a";
+                colAttrDict.correctFormat = true;
+                ColumsAttrList.push(colAttrDict);
+                colHeaders.push(FieldsVarAttrs.Name);
+                ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
+            }
+            else if(FieldsVarAttrs.Type == 'timespan'){
+                colAttrDict.data = FieldsVarAttrs.Name;
+                colAttrDict.type = "numeric";
+                colAttrDict.format = "00:00:00";//moment.duration(string,unit)
+                ColumsAttrList.push(colAttrDict);
+                colHeaders.push(FieldsVarAttrs.Name);
+                ColDataDict[FieldsVarAttrs.Name] = FieldsVarAttrs.Default;
             }
         }
         else {
@@ -532,7 +573,7 @@ function turnRowToJson(TemplatesUnitIdPrefix,structName) {
         }
 
     }
-     $("#{0}".format(modalId)).on("click",function () {
+    $("#{0}".format(modalId)).on("click",function () {
         getDataFromJsonTree(TemplatesUnitIdPrefix,structName);
     }).on("keyup",function () {
          getDataFromJsonTree(TemplatesUnitIdPrefix,structName);

@@ -398,6 +398,58 @@ INPUTOBJECT2=[
                 "Fieldname": "Market",
                 "Requiredness": False,
                 "Type": "sint_32"
+            },
+            {
+                "Function": None,
+                "IsAuto": False,
+                "Reference": None,
+                "Default": 13.55,
+                "DimensionX": None,
+                "DimensionY": None,
+                "IsFixed": False,
+                "EleType": None,
+                "Fieldname": "DoubleTest",
+                "Requiredness": False,
+                "Type": "double"
+            },
+            {
+                "Function": None,
+                "IsAuto": False,
+                "Reference": None,
+                "Default": None,
+                "DimensionX": None,
+                "DimensionY": None,
+                "IsFixed": False,
+                "EleType": None,
+                "Fieldname": "DateTest",
+                "Requiredness": False,
+                "Type": "date"
+            },
+            {
+                "Function": None,
+                "IsAuto": False,
+                "Reference": None,
+                "Default": None,
+                "DimensionX": None,
+                "DimensionY": None,
+                "IsFixed": False,
+                "EleType": None,
+                "Fieldname": "TimeTest",
+                "Requiredness": False,
+                "Type": "time"
+            },
+            {
+                "Function": None,
+                "IsAuto": False,
+                "Reference": None,
+                "Default": None,
+                "DimensionX": None,
+                "DimensionY": None,
+                "IsFixed": False,
+                "EleType": None,
+                "Fieldname": "TimeSpanTest",
+                "Requiredness": False,
+                "Type": "timespan"
             }
         ],
         "BaseName": "signal",
@@ -414,7 +466,11 @@ INPUTOBJECT2=[
             "FeedMarket":9,
             "OrderType":10,
             "IsDaylight":11,
-            "Market":12
+            "Market":12,
+            "DoubleTest":13,
+            "DateTest":14,
+            "TimeTest": 15,
+            "TimeSpanTest": 16
         },
         "TemplName": "Annapurna"
     },
