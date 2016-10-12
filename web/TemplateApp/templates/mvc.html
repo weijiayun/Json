@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="../static/js/mvc/MVC.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var model = new ListModel([]);
+
+            var view = new ListView(model, {
+                'inputElem': $('#inputTest')
+            });
+            var controller = new ListController(model, view);
+            view.show();
+        });
+</script>
+</head>
+<body>
+<div>
+    <input id="inputTest"/>
+    <input id="inputShow" />
+</div>
+</body>
+</html>

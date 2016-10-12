@@ -88,6 +88,7 @@ class MessageHandler(object):
     def create(self, nameOrCode, isInitiator):
         return self.view.create(nameOrCode, isInitiator)
 
+
     def createGeneric(self, name):
         return self.view.createGeneric(name)
 

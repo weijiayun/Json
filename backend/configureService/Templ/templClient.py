@@ -33,9 +33,9 @@ class templClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.resourceId)
+                p.fulfill(body.message)
 
-    def upContent(self, session, name, version, contents):
+    def upContent(self, session, name, version, contents):#上传模板文件
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("upcontent:templ_json", True)
@@ -55,14 +55,14 @@ class templClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.resourceId)
+                p.fulfill(body.message)
 
-    def jsonRelation(self, session, JsonRelationName, version):
+    def jsonRelation(self, session, JsonRelationName, version):#检查该模板版本的直接基类
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("jsonrelation:templ_json", True)
             rRequest.session = session
-            rRequest.name = JsonRelationName
+            rRequest.JsonRelationName = JsonRelationName
             rRequest.version = version
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
@@ -76,14 +76,14 @@ class templClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.resourceId)
+                p.fulfill(body.message)
 
-    def baseCheck(self, session, BaseName, version):
+    def baseCheck(self, session, BaseName, version):#检查该模板所有的基类，包括基类的基类
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("basecheck:templ_json", True)
             rRequest.session = session
-            rRequest.name = BaseName
+            rRequest.BaseName = BaseName
             rRequest.version = version
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
@@ -97,14 +97,14 @@ class templClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.resourceId)
+                p.fulfill(body.message)
 
-    def downLoad(self, session, TemplName, version):
+    def downLoad(self, session, TemplName, version):#下载原始模板content内容
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("download:templ_json", True)
             rRequest.session = session
-            rRequest.name = TemplName
+            rRequest.TemplName = TemplName
             rRequest.version = version
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
@@ -118,14 +118,14 @@ class templClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.resourceId)
+                p.fulfill(body.message)
 
-    def getJsonCon(self, session, JsonAttrName, version):
+    def getJsonCon(self, session, JsonAttrName, version):#获取对应模板，版本的Json内容
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("getjsoncon:templ_json", True)
             rRequest.session = session
-            rRequest.name = JsonAttrName
+            rRequest.JsonAttrName = JsonAttrName
             rRequest.version = version
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
@@ -139,9 +139,9 @@ class templClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.resourceId)
+                p.fulfill(body.message)
 
-    def grantAuthority(self, session, userId):
+    def grantAuthority(self, session, userId):#授权操作
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("grantauthority:templ_json", True)
@@ -159,9 +159,9 @@ class templClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.resourceId)
+                p.fulfill(body.message)
 
-    def templMerge(self, session):
+    def templMerge(self, session):#模板合并
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("templmerge:templ_json", True)
@@ -179,9 +179,9 @@ class templClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.resourceId)
+                p.fulfill(body.message)
 
-    def createVersion(self, session, name, version, contents):
+    def createVersion(self, session, name, version, contents):#为已有模板创建新版本
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("createversion:templ_json", True)

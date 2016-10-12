@@ -522,8 +522,8 @@
     setChecked:function () {
       var checkedList;
       var flag = false;
-      if($(this.element).parent().find("input.collection-elements-tagsinput").length>0){
-        checkedList = $(this.element).parent().find("input.collection-elements-tagsinput").tagsinput("items");
+      if($(this.element).parent().parent().find("input.collection-elements-tagsinput").length>0){
+        checkedList = $(this.element).parent().parent().find("input.collection-elements-tagsinput").tagsinput("items");
         if($(this.element).attr("id") && $(this.element).attr("id").match("Json")){
           var csvselectid = $(this.element).attr("id").replace(/Json/g,"");
           $("#"+csvselectid).attr("data-select",JSON.stringify(checkedList))
@@ -542,12 +542,7 @@
         var values = {};
         $inputs.each(function () {
           var setCheckedList = new Set(checkedList);
-          if (setCheckedList.has($(this).val())) {
-            this.checked = true;
-          }
-          else {
-            this.checked = false;
-          }
+          this.checked = setCheckedList.has($(this).val())?true:false; 
         });
         // update button text
         this.update();

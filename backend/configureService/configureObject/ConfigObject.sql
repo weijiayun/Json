@@ -1,17 +1,17 @@
-CREATE TABLE t_configure_grid(
-  name VARCHAR(32) UNIQUE
-);
-
-CREATE TABLE t_configure_instance(
+CREATE TABLE t_configure(
+  object_list VARCHAR(256) NOT NULL ,
+  name VARCHAR(32),
   version VARCHAR(32),
-  objectId INTEGER,
-  create_time VARCHAR(32),
-  basketName VARCHAR(32) REFERENCES t_configure_grid(name) ON DELETE CASCADE ON UPDATE CASCADE
+  create_date VARCHAR(32)
 );
 
-CREATE TABLE t_configure_object(
-  id INTEGER PRIMARY KEY,
-  collection VARCHAR(64),
-  TemplName VARCHAR(64),
-  version VARCHAR(32)
+CREATE TABLE t_object(
+  id INTEGER PRIMARY KEY ,
+  name VARCHAR(32),
+  create_date VARCHAR(64),
+  version VARCHAR(32),
+  category VARCHAR(32),
+  template_name VARCHAR(32),
+  collection_name VARCHAR(64)
 );
+

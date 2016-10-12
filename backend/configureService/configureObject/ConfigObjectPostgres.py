@@ -1,206 +1,153 @@
 #!/opt/Apps/local/Python/anaconda/bin/python2.7
 __author__ = 'jiayun.wei'
 import psycopg2
-import json
+import json,redis
 class ConfigureObjectSql(object):
 
     def __init__(self,conn):
         self.conn = conn
 
-
-
-    def createGridInMapping(self,gridName):
+    def createConfigure(self, objectList, name, version, createDate):
         cur = self.conn.cursor()
         try:
-            sql = '''INSERT INTO t_configure_grid_mapping(name) VALUES ('{0}')'''.format(gridName)
+            sql = '''SELECT * FROM t_configure
+                     WHERE t_configure.create_date='{0}'
+                           AND t_configure.version='{1}'
+                           AND t_configure.name='{2}';'''.format(createDate, version, name)
+            cur.execute(sql)
+            selectval = cur.fetchone()
+            if selectval is None:
+                sql = '''INSERT INTO t_configure(object_list, name, version, create_date)
+                         VALUES ('{0}','{1}','{2}','{3}');'''\
+                         .format(objectList,
+                                 name,
+                                 version,
+                                 createDate)
+            else:
+                raise Exception("The configure<Name: {0},Version: {1}, createDate: {2}> has already existed".format(name, version, createDate))
             cur.execute(sql)
             self.conn.commit()
-            return True
+            return [True, "Create configure<Name: {0},Version: {1}, createDate: {2}> successfully".format(name, version, createDate)]
         except Exception as e:
             print e
             self.conn.rollback()
-            return
+            return [False, str(e)]
         finally:
             cur.close()
 
-    def deleteGridInMapping(self,gridName):
+    def deleteConfigure(self, name, createDate, version):
         cur = self.conn.cursor()
         try:
-            sql = '''DELETE FROM t_configure_grid_mapping WHERE t_configure_grid_mapping.name='{0}';'''.format(gridName)
+            sql = '''SELECT * FROM t_configure
+                     WHERE t_configure.create_date='{0}'
+                           AND t_configure.version='{1}'
+                           AND t_configure.name='{2}';'''.format(createDate, version,name)
             cur.execute(sql)
-            if cur.rowcount == 0:
-                raise Exception('''The "{0}" doesn't exist'''.format(gridName))
-            self.conn.commit()
-            return True
+            if cur.fetchone() is not None:
+                sql = '''DELETE FROM t_configure
+                         WHERE t_configure.version='{0}'
+                               AND t_configure.create_date='{1}'
+                               AND t_configure.name='{2}';'''.format(version,createDate,name)
+                cur.execute(sql)
+                self.conn.commit()
+                return [True, "delete configure<Name: {0}, Date: {1}, Version: {2}> in mapping successfully".format(name, createDate, version)]
+            else:
+                raise Exception("Error: The Configure <Name: {0}, Date: {0}, Version: {1}> is not exist!!!".format(name, createDate, version))
         except Exception as e:
             print e
             self.conn.rollback()
-            return False
+            return [False, str(e)]
         finally:
             cur.close()
 
-    def deleteConfigureInGridMapping(self,createTime,version,gridName):
+    def getConfigure(self, name, createDate, version):
         cur = self.conn.cursor()
         try:
-            sql = '''SELECT t_configure_grid_mapping.configure_list
-                     FROM t_configure_grid_mapping WHERE t_configure_grid_mapping.name ='{0}';'''.format(gridName)
-            cur.execute(sql)
-            if cur.rowcount == 0:
-                raise Exception("grid: {0} has no configure list".format(gridName))
-            configlist = json.loads(cur.fetchone()[0])
-            newConfigurelist = json.dumps([elem for elem in configlist if elem[0] != createTime and elem[1] != version])
-            sql = '''UPDATE t_configure_grid_mapping SET t_configure_grid_mapping.configure_list='{0}'
-                     WHERE t_configure_grid_mapping.name = '{1}';'''.format(newConfigurelist,gridName)
-            cur.execute(sql)
-            self.conn.commit()
-            return True
-        except Exception as e:
-            print e
-            self.conn.rollback()
-            return True
-        finally:
-            cur.close()
-
-    def addConfigureToGridMapping(self, createTime, version, gridName):
-        cur = self.conn.cursor()
-        try:
-            sql = '''SELECT t_configure_grid_mapping.configure_list
-                         FROM t_configure_grid_mapping WHERE t_configure_grid_mapping.name ='{0}';'''.format(gridName)
-            cur.execute(sql)
-            if cur.rowcount == 0:
-                raise Exception("grid: {0} has no configure list".format(gridName))
-            configlist = json.loads(cur.fetchone()[0])
-            if configlist is None:
-                configlist = []
-            if [createTime, version] not in configlist:
-                configlist.append([createTime, version])
-            sql = '''UPDATE t_configure_grid_mapping SET t_configure_grid_mapping.configure_list='{0}'
-                         WHERE t_configure_grid_mapping.name = '{1}';'''.format(json.dumps(configlist), gridName)
-            cur.execute(sql)
-            self.conn.commit()
-            return True
-        except Exception as e:
-            print e
-            self.conn.rollback()
-            return True
-        finally:
-            cur.close()
-#####################################################
-    def getGridFromMapping(self,gridName):
-        cur = self.conn.cursor()
-        try:
-            sql = '''SELECT * FROM t_configure_grid_mapping
-                     WHERE t_configure_grid_mapping.name='{0}';'''.format(gridName)
-            cur.execute(sql)
-            grid = cur.fetchone()
-            if grid is None:
-                raise Exception('''The "{0} doesn't exist'''.format(gridName))
-            return grid
-        except Exception as e:
-            print e
-            return False
-        finally:
-            cur.close()
-
-
-    def addConfigureToMapping(self,objectList,version,createTime):
-        cur = self.conn.cursor()
-        try:
-            sql = '''INSERT INTO t_configure_instance_mapping( object_list, version, create_time,) VALUES ('{0}','{1}','{2}')'''\
-                     .format(
-                             objectList,
-                             version,
-                             createTime,
-                             )
-            cur.execute(sql)
-            self.conn.commit()
-            return True
-        except Exception as e:
-            print e
-            self.conn.rollback()
-            return False
-        finally:
-            cur.close()
-
-    def deleteConfigureInMapping(self,createDate,version):
-        cur = self.conn.cursor()
-        try:
-            sql = '''DELETE FROM t_configure_instance_mapping
-                     WHERE t_configure_instance_mapping.create_time='{0}'
-                     AND t_configure_instance.mapping.version='{1}';'''\
-                .format(createDate,version)
-            cur.execute(sql)
-            if cur.rowcount == 0:
-                raise Exception("<Create Date: {0}, Version: {1}> is not exist"
-                                .format(createDate, version))
-            self.conn.commit()
-            return True
-        except Exception as e:
-            print e
-            self.conn.rollback()
-            return False
-        finally:
-            cur.close()
-
-    def getConfigureFromMapping(self, createDate, version):
-        cur = self.conn.cursor()
-        try:
-            sql = '''SELECT * FROM t_configure_instance_mapping
-                     WHERE t_configure_instance_mapping.create_time='{0}'
-                     AND t_configure_instance_mapping.version='{1}';'''.format(createDate, version)
+            sql = '''SELECT * FROM t_configure
+                     WHERE t_configure.create_date='{0}'
+                     AND t_configure.version='{1}'
+                     AND t_configure.name='{2}';'''.format(createDate, version, name)
             cur.execute(sql)
             configure = cur.fetchone()
             if configure is None:
-                raise Exception("<Create Date: {0}, Version: {1}> is not exist"
-                                .format(createDate, version))
+                raise Exception("Create <Name: {0}, Date: {1}, Version: {2}> is not exist"
+                                .format(name, createDate, version))
             return configure
         except Exception as e:
-            print e
-            return False
+            return [False, str(e)]
         finally:
             cur.close()
 
-
-    def createObjectToMapping(self,secId,objectName,collection,templName,templVersion):
+    def createObject(self, nameIdDict):
         cur = self.conn.cursor()
         try:
-            sql = '''INSERT INTO t_configure_object_mapping(id, name, collection, templ_name, templ_version)
-            VALUES ({0},'{1}','{2}','{3}','{4}');'''.format(secId,objectName,collection,templName,templVersion)
-            cur.execute(sql)
-            self.conn.commit()
-            return True
+            if nameIdDict is not None:
+                temp1 = []
+                for key, secId in nameIdDict.items():
+                    temp2 = key.split("-")
+                    name = temp2[0]
+                    createDate = temp2[1]
+                    version = temp2[2]
+                    category = temp2[3]
+                    templName = temp2[4]
+                    collectionName = temp2[5]
+                    temp1.append([secId, name, createDate, version, category, templName, collectionName])
+
+                def list2str(li):
+                    return "(" + "{0},'{1}','{2}','{3}','{4}', '{5}', '{6}'"\
+                        .format(li[0], li[1], li[2], li[3], li[4], li[5], li[6]) + ")"
+                temp1 = map(list2str, temp1)
+                temp1 = ",".join(temp1)
+                sql = '''INSERT INTO t_object(id, name, create_date, version, category, template_name, collection_name)
+                         VALUES {0};'''.format(temp1)
+                cur.execute(sql)
+                self.conn.commit()
+                return [True, "Create Objects Successfully!!!"]
+            else:
+                raise Exception("input is none when creating objects in t_object")
         except Exception as e:
             print e
             self.conn.rollback()
-            return False
+            return [False, str(e)]
         finally:
             cur.close()
 
-
-    def deleteObjectInMapping(self,objectId):
+    def deleteObject(self, objectIdList):
         cur = self.conn.cursor()
         try:
-            sql = '''DELETE FROM t_configure_object_mapping WHERE t_configure_object_mapping.id={0};'''.format(objectId)
-            cur.execute(sql)
-            if cur.rowcount == 0:
-                raise Exception('''The object Name :{0} doesn't exist'''.format(objectId))
+            for objectId in objectIdList:
+                sql = '''DELETE FROM t_object WHERE t_object.id={0};'''.format(objectId)
+                cur.execute(sql)
+                if cur.rowcount == 0:
+                    raise Exception('''The object Name :{0} doesn't exist'''.format(objectId))
             self.conn.commit()
-            return True
+            return [True, "Delete Object<Id: {0}> successfully".format(str(objectIdList))]
         except Exception as e:
             print e
             self.conn.rollback()
-            return False
+            return [False, str(e)]
         finally:
             cur.close()
 
-    def getObjectFromMapping(self,objectName):
+    def getObject(self, objectName, createDate, version, category, templateName, collectionName):
         cur = self.conn.cursor()
         try:
-            sql = '''SELECT * FROM t_configure_object_mapping WHERE name='{0}';'''.format(objectName)
+            sql = '''SELECT * FROM t_object WHERE t_object.name='{0}'
+                          AND t_object.create_date='{1}'
+                          AND t_object.version='{2}'
+                          AND t_object.template_name='{3}'
+                          AND t_object.category='{4}'
+                          AND t_object.collection_name='{5}';'''\
+                .format(objectName,
+                        createDate,
+                        version,
+                        templateName,
+                        category,
+                        collectionName)
             cur.execute(sql)
             Objectdata = cur.fetchone()
             if Objectdata is None:
-                raise Exception('''The object: {0} the is None'''.format(objectName))
+                raise Exception('''Error: the object<Name: {0}> the is not exist!!!'''.format(objectName))
             return Objectdata
         except Exception as e:
             print e
@@ -208,17 +155,71 @@ class ConfigureObjectSql(object):
         finally:
             cur.close()
 
+    def getObjectById(self, objectId):
+        cur = self.conn.cursor()
+        try:
+            sql = '''SELECT * FROM t_object WHERE t_object.id={0};'''.format(objectId)
+            cur.execute(sql)
+            Objectdata = cur.fetchone()
+            if Objectdata is None:
+                raise Exception('''Error: the object <Id: {0}> the is not exist!!!'''.format(objectId))
+            return [True, Objectdata]
+        except Exception as e:
+            print e
+            return [False, str(e)]
+        finally:
+            cur.close()
 
+    def getAll(self,objectIdList):
+        cur = self.conn.cursor()
+        try:
+            objectIdList = list(set(objectIdList))
+            temp = ""
+            for Id in objectIdList:
+                if objectIdList.index(Id) == 0:
+                    temp += '''t_object.id={0}'''.format(Id)
+                else:
+                    temp += ''' OR t_object.id={0}'''.format(Id)
+            sql = '''SELECT * FROM t_object WHERE {0};'''.format(temp)
+            cur.execute(sql)
+            temp = cur.fetchall()
+            cateDict = {}
+            for e in temp:
+                if not cateDict.has_key(e[4]):
+                    cateDict[e[4]] = {}
+                if not cateDict[e[4]].has_key(e[6]):
+                    cateDict[e[4]][e[6]] = []
+                cateDict[e[4]][e[6]].append("-".join([e[1], e[2], e[3], e[5]]))
+            return [True, cateDict]
+        except Exception as e:
+            print e
+            return [False, str(e)]
+        finally:
+            cur.close()
 
-
-if __name__ == "__main__":
-
-    conn = psycopg2.connect(database= "config3",user='postgres',password='powerup',host='127.0.0.1',port='5432')
-    a= ConfigureObjectSql(conn)
-    #c=a.DeleteConfigureInGrid("g1","20160101","v1","b1")
-
-    print c
-
+    def getCollection(self, createDate, version, templateName, category, collectionName):
+        cur = self.conn.cursor()
+        try:
+            sql = '''SELECT * FROM t_object WHERE t_object.create_date='{0}'
+                              AND t_object.version='{1}'
+                              AND t_object.template_name='{2}'
+                              AND t_object.category='{3}'
+                              AND t_object.collection_name='{4}';''' \
+                .format(createDate,
+                        version,
+                        templateName,
+                        category,
+                        collectionName)
+            cur.execute(sql)
+            Objectdata = cur.fetchall()
+            if Objectdata is None:
+                raise Exception('''Error: the collection<collection: {0}> the is not exist!!!'''.format(collectionName))
+            return Objectdata
+        except Exception as e:
+            print e
+            return False
+        finally:
+            cur.close()
 
 
 

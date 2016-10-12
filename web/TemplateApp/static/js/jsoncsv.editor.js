@@ -658,31 +658,67 @@ function handleEnter(field,event) {
     }
 
 }
-function NumberChecktips(field){
-    var number = field.innerHTML;
-    number = number.replace(new RegExp("\\<br\\>","g"),"");
+function get_Drop_Select_value(ID,obj){
+    var id1 = "{0}enumSelect".format(ID);
+    var id2 = "{0}buttonValue".format(ID);
+    document.getElementById(id1).value = obj.name;
+    document.getElementById(id2).innerHTML = obj.name;
+}
+function inputTypeChecktips(field){
+    var tdValue = $(field).text();
+    var tdType = $(field).attr("data-type");
+    tdValue = tdValue.replace(new RegExp("\\<br\\>","g"),"");
     var doubleTest = /^-*\d+.\d+$/i;
-    var intTest = /^-*\d+$/i;
+    var sintTest = /^-*\d+$/i;
+    var uintTest = /^\d+$/i;
+    var stringTest = /^[a-zA-Z0-9]+$/i;
     var message = "";
     var check = false;
     var backgroundColor="";
-    if(number.length == 0){
+    var aaa = stringTest.test(tdValue);
+    if(tdValue.length == 0){
         message = "It's empty!";
         check = true;
-        backgroundColor="#00A1CB"
+        backgroundColor = "#00A1CB"
     }
-    else if(!(doubleTest.test(number) || intTest.test(number))){
-        message = 'Error:STRING!!! Please input number';
+    else if(tdType === "string" && !stringTest.test(tdValue)){
+        message = 'Please input string';
         check = true;
-        backgroundColor="#FF0000";
+        backgroundColor = "#FF0000";
     }
+    else if(tdType === "uint" && !uintTest.test(tdValue)){
+        message = 'Please input positive number!';
+        check = true;
+        backgroundColor = "#FF0000";
+    }
+    else if(tdType === "sint" && !sintTest.test(tdValue)){
+        message = 'Please input number(positive or negative)!';
+        check = true;
+        backgroundColor = "#FF0000";
+    }
+    else if(tdType === "date" && !moment(tdValue,["YYYY/MM/DD","YYYY/M/DD","YYYY/MM/D","YYYY/M/D"],true).isValid()){
+        message = "Date formate is YYYY/MM/DD. eg '2016/09/26'.";
+        check = true;
+        backgroundColor = "#FF0000";
+    }
+    else if(tdType === "time" && !moment(tdValue,["HH:mm:ss:SSS","hh:mm:ss:SSS a"],true).isValid()){
+        message = "Date formate is HH:mm:ss:SSS or hh:mm:ss:SSS a. eg '23:09:26:123' or '11:00:00:123 pm'.";
+        check = true;
+        backgroundColor = "#FF0000";
+    }
+    else if(tdType === "timespan" && !moment(tdValue,"HH:mm:ss",true).isValid()){
+        message = "Date formate is HH:mm:ss. eg '1:45:56'.";
+        check = true;
+        backgroundColor = "#FF0000";
+    }
+    //alert(moment.duration("35:34","seconds").hours());
     if(check){
         $(field).tips({
         side:2,  //1,2,3,4 分别代表 上右下左
         msg:message,
         color:'#FFF',//文字颜色，默认为白色
         bg:backgroundColor,//背景色，默认为红色
-        time:0.3,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
+        time:0.6,//默认为2 自动关闭时间 单位为秒 0为不关闭 （点击提示也可以关闭）
         x:0,// 默认为0 横向偏移 正数向右偏移 负数向左偏移
         y:0 // 默认为0 纵向偏移 正数向下偏移 负数向上偏移
     });

@@ -644,13 +644,105 @@ class mysql(object):
         finally:
             cur.close()
 
-
-
-    def aaa(self,key, userId):
+    def myInformation(self, userId, rName):
         cur = self.conn.cursor()
-        sql='''UPDATE t_user SET private_key=%s WHERE id=%s;'''
+        try:
+            rValue = {}
+            for i in rName:
+                sql = ''' select {0} from t_user where id = {1}; '''.format(i,userId)
+                cur.execute(sql)
+                v = cur.fetchone()
+                rValue[i]=v[0]
+            return rValue
+        except Exception as e:
+            print e
+            return False
+        finally:
+            cur.close()
+
+    def changeMyInformation(self,userId, reqDic):
+        cur = self.conn.cursor()
+        try:
+            for k,v in reqDic.items():
+                sql = '''UPDATE t_user SET {1}='{2}' WHERE id={0};  '''.format(userId,k,v)
+                cur.execute(sql)
+                if cur.rowcount ==0:
+                    raise Exception('object does not exist')
+            self.conn.commit()
+            return True
+        except Exception as e :
+            print e
+            self.conn.rollback()
+            return False
+        finally:
+            cur.close()
+
+    def changeMyPassword(self, userId, oldPassword, newPassword):
+        try:
+            cur = self.conn.cursor()
+            sql = '''select count(*) from t_user where id={0} and password='{1}'; '''.format(userId, oldPassword)
+            cur.execute(sql)
+            v = cur.fetchone()
+            if v[0] == 1:
+                sql='''UPDATE t_user SET password='{1}' WHERE id={0};'''.format(userId, newPassword)
+                cur.execute(sql)
+                if cur.rowcount ==0:
+                    raise Exception('object does not exist')
+                self.conn.commit()
+                return 0
+            else:
+                return 1
+        except Exception as e:
+            print e
+            self.conn.rollback()
+            return  2
+        finally:
+            cur.close()
+
+
+    def allUserInformation(self, rName):
+        cur = self.conn.cursor()
+        try:
+            select=','.join(rName)
+            sql = ''' select {0} from t_user; '''.format(select)
+            cur.execute(sql)
+            rValue = cur.fetchall()
+            return rValue
+        except Exception as e:
+            print e
+            return False
+        finally:
+            cur.close()
+
+    def allResourceInformation(self):
+        cur = self.conn.cursor()
+        try:
+            sql = ''' select id, name, resource_type_id from t_resource; '''
+            cur.execute(sql)
+            rValue = cur.fetchall()
+            return rValue
+        except Exception as e:
+            print e
+            return False
+        finally:
+            cur.close()
+
+
+
+
+
+
+
+
+    def aaa(self,rname):
+        cur = self.conn.cursor()
+        c=",".join(rname)
+
+        sql='''select ({0}) from t_user'''.format(c)
         # sql = ''' DELETE FROM t_user WHERE (id=%s);'''
-        cur.execute(sql,(key,userId))
+        cur.execute(sql)
+        aaa=cur.fetchall()
+
         self.conn.commit()
         #a = cur.fetchall()
         cur.close()
@@ -661,48 +753,16 @@ class mysql(object):
         # cur.execute(sql2)
         #self.conn.rollback()
 
-# class Timer(threading.Thread):
-#     def __init__(self, seconds):
-#         self.runTime = seconds
-#         threading.Thread.__init__(self)
-#     def run(self):
-#         time.sleep(self.runTime)
-#         print "Buzzzz!! Time's up!"
-#
-# class sessionTimeOut(Timer):
-#     #a timer that execute an action at the end of the timer run.
-#     def __init__(self, seconds, action, args=[]):
-#         self.args = args
-#         self.action = action
-#         Timer.__init__(self, seconds)
-#     def run(self):
-#         Timer.run(self)
-#         self.action(self.args)
-# def myAction(args=[]):
-#     print "Performing my action with args:"
-#     print args
-#
-# # if __name__ == "__main__":
-# #     print 123321
-# #     t = sessionTimeOut(10, myAction, ["hello", "world",'123'])
-# #     t.start()
-# #
-# #     time.sleep(2)
-# #     print 123
-# #     t = sessionTimeOut(3, myAction, ["hello", "world"])
-# #     t.start()
-#
-#
-#
-# if __name__=='__main__':
-#
-#     #from mypostgresql import sql
-#         #sql.addresource(body.resourceTypeId, body.name, body.description )
-#     conn = psycopg2.connect(database="acl2", user="postgres", password="powerup", host="127.0.0.1", port="5432")
-#     # aa = mysql(conn)
-#     aa=mysql(conn)
-#     c= aa.aaa(8,5)
-#     print c
+
+
+
+if __name__=='__main__':
+
+    conn = psycopg2.connect(database="acl2", user="postgres", password="powerup", host="127.0.0.1", port="5432")
+    aa = mysql(conn)
+    aa=mysql(conn)
+    c= aa.aaa(['id', 'name'])
+    print c
     #conn.rollback()
     #aa.createResourceTable()
     #c=aa.md5('13866sj')

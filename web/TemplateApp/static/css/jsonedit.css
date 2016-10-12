@@ -1,10 +1,24 @@
-
+div.jsoneditor-ref-tags{
+	margin-top: 1px;
+	margin-left: 139px;
+}
+div.json-right-tree{
+	margin-top: 20px;
+	height: 900px;
+	overflow: auto;
+}
 div.jsoneditor,div.jsoneditor-outer{
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box
 }
 div.jsoneditor-selecttype{
 	padding: 10px;
+}
+
+span.asterisk{
+	color: red;
+	font-size: 8px;
+	vertical-align:middle
 }
 .jsonlist{
 	min-height:16px;
@@ -24,7 +38,7 @@ td.jsoneditor input{
 li.jsoneditor-ref {
 	margin-left: 30px;
 }
-ul li{
+ul.jsoneditor li.jsoneditor{
 	list-style-type:none;
 	min-height: 20px;
 	padding: 3px;

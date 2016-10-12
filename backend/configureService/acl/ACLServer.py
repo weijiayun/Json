@@ -21,8 +21,12 @@ class ACLServer(MessagePlugin):
         global T
         T = {}
 
-        logging.basicConfig(filename = os.path.join(os.getcwd(), time.strftime('%Y-%m-%d-') + 'log.txt'),
-        level = logging.ERROR, filemode = 'a', format = '错误时间：%(asctime)s  %(message)s',datefmt='%a, %d %b %Y %H:%M:%S')
+        logging.basicConfig(
+            filename=os.path.join('log/', time.strftime('%Y-%m-%d-') + 'log.txt'),
+            level=logging.ERROR,
+            filemode='a',
+            format='错误时间：%(asctime)s  %(message)s',
+            datefmt='%a, %d %b %Y %H:%M:%S')
 
         #按照下面的顺序将函数写入t_permission中，如addRole:3 addUser:4
 
@@ -57,6 +61,15 @@ class ACLServer(MessagePlugin):
         self.handle('haspermission:aclproto', True, self.onHasPermission)
         self.handle('listtyperesource:aclproto', True, self.onListTypeResource)
 
+        self.handle('myinformation:aclproto', True, self.onMyInformation)
+        self.handle('changemyinformation:aclproto', True, self.onChangeMyInformation)
+        self.handle('changemypassword:aclproto', True, self.onChangeMyPassword)
+        self.handle('otherinformation:aclproto', True, self.onOtherInformation)
+        self.handle('alluserinformation:aclproto', True, self.onAllUserInformation)
+        self.handle('allresourceinformation:aclproto', True, self.onAllResourceInformation)
+
+
+
     def write_log(self,log_type, userId, message):
         logger = '\n用户ID：%s\n错误信息：%s\n%s\n' % (userId, message, '-'*50)
         if log_type == 'error':
@@ -73,7 +86,7 @@ class ACLServer(MessagePlugin):
                 global T
                 t = time.time()-T[body.session.userId]
                 print t
-                if t<100 :
+                if t<600 :
                     T[body.session.userId] = time.time()
                     print time.ctime()
                     f( self, proto, spec, message, body)
@@ -924,6 +937,280 @@ class ACLServer(MessagePlugin):
             failedResponse.message = 'error'
             self.write_log('error', body.session.userId, failedResponse.message)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+
+
+    # @checkLogin
+    # @checkPermission
+    def onMyInformation(self,proto, spec, message, body):
+        print '--------begin my information --------'
+        print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
+        rName=[]
+        for i in body.reqName:
+            rName.append(spec.fields['reqName'].valueSpec.value2Strings[i])
+            print 'reqname: %s'% i
+        print '--------end  my information----------'
+        rValue = ACLServer.aclsql.myInformation(body.session.userId, rName)
+
+        if rValue.has_key('id'):
+            rValue['id'] = str(rValue['id'])
+
+        if rValue != False:
+            (responseSpec, successResponse)= self.create("myinformation:aclproto", False)
+            successResponse.status = 0
+            successResponse.message = 'ok'
+            # for key, value in rValue.items():
+            #     successResponse.information[key] = value
+            # for i in rName:
+            successResponse.information = rValue
+            self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+        else:
+            (responseSpec, failedResponse)= self.create("myinformation:aclproto", False)
+            failedResponse.status = 1
+            failedResponse.message = 'error'
+            self.write_log('error', body.session.userId, failedResponse.message)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+
+    # @checkLogin
+    # @checkPermission
+    def onChangeMyInformation(self,proto, spec, message, body):
+        print '--------begin change my information --------'
+        print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
+        rDic={}
+        for k,v in body.reqDic.items():
+            rDic[spec.fields['reqDic'].keySpec.value2Strings[k]]=v
+            print 'reqname: %s %s'% (k,v)
+        print '--------end  my information----------'
+
+        # if rDic.has_key('avatar'):
+        #     rDic['avatar']=psycopg2.Binary(rDic['avatar'])
+
+        r = ACLServer.aclsql.changeMyInformation(body.session.userId, rDic)
+
+        if r != False:
+            (responseSpec, successResponse)= self.create("changemyinformation:aclproto", False)
+            successResponse.status = 0
+            successResponse.message = 'ok'
+            self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+        else:
+            (responseSpec, failedResponse)= self.create("changemyinformation:aclproto", False)
+            failedResponse.status = 1
+            failedResponse.message = 'error'
+            self.write_log('error', body.session.userId, failedResponse.message)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+
+    # @checkLogin
+    # @checkPermission
+    def onChangeMyPassword(self, proto, spec, message, body):
+        print '--------begin change my password --------'
+        print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
+        #print 'userId:%s' % body.userId
+        print 'old password:%s' % body.oldPassword
+        print 'new password:%s' % body.newPassword
+        print '--------end change my password ----------'
+        r = ACLServer.aclsql.changeMyPassword(body.session.userId, self.md5(body.oldPassword), self.md5(body.newPassword) )
+
+        if r == 0:
+            (responseSpec, successResponse) = self.create("changemypassword:aclproto", False)
+            successResponse.status = 0
+            successResponse.message = 'ok'
+            self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+        elif r == 1:
+            (responseSpec, failedResponse) = self.create("changemypassword:aclproto", False)
+            failedResponse.status = 1
+            failedResponse.message = 'wrong old password, place input again'
+            self.write_log('error', body.session.userId, failedResponse.message)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+        else:
+            (responseSpec, failedResponse) = self.create("changemypassword:aclproto", False)
+            failedResponse.status = 2
+            failedResponse.message = 'user does not exist'
+            self.write_log('error', body.session.userId, failedResponse.message)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+
+    # @checkLogin
+    # @checkPermission
+    def onOtherInformation(self, proto, spec, message, body):
+        print '--------begin other information --------'
+        print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
+        rName = []
+        for i in body.reqName:
+            rName.append(spec.fields['reqName'].valueSpec.value2Strings[i])
+            print 'reqname: %s' % i
+        print 'otheruserid : %s' % body.otherUserId
+        print '--------end  other information----------'
+        rValue = ACLServer.aclsql.myInformation(body.otherUserId, rName)
+
+        if rValue.has_key('id'):
+            rValue['id']= str(rValue['id'])
+
+        if rValue != False:
+            (responseSpec, successResponse) = self.create("otherinformation:aclproto", False)
+            successResponse.status = 0
+            successResponse.message = 'ok'
+            successResponse.information = rValue
+            self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+        else:
+            (responseSpec, failedResponse) = self.create("otherinformation:aclproto", False)
+            failedResponse.status = 1
+            failedResponse.message = 'error'
+            self.write_log('error', body.session.userId, failedResponse.message)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+
+    # @checkLogin
+    # @checkPermission
+    def onAllUserInformation(self, proto, spec, message, body):
+        print '--------begin all user information --------'
+        print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
+        rName = []
+        for i in body.reqName:
+            rName.append(spec.fields['reqName'].valueSpec.value2Strings[i])
+            print 'reqname: %s' % i
+        print '--------end  all user information----------'
+        rValue = ACLServer.aclsql.allUserInformation(rName)
+        c=[]
+        for i in rValue:
+            d= [str(j) for j in i ]
+            c.append(d)
+
+        rValue = c
+        # if rValue.has_key('id'):
+        #     rValue['id'] = [str(j) for j in rValue['id']]
+        if rValue != False:
+            (responseSpec, successResponse) = self.create("alluserinformation:aclproto", False)
+            successResponse.status = 0
+            successResponse.message = 'ok'
+            # for key, value in rValue.items():
+            #     successResponse.information[key] = value
+            # for i in rName:
+            successResponse.information = rValue
+            self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+        else:
+            (responseSpec, failedResponse) = self.create("alluserinformation:aclproto", False)
+            failedResponse.status = 1
+            failedResponse.message = 'error'
+            self.write_log('error', body.session.userId, failedResponse.message)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+
+
+    def onAllResourceInformation(self, proto, spec, message, body):
+        print '--------begin all resource information --------'
+        print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
+        print '--------end  all resource information----------'
+        rValue = ACLServer.aclsql.allResourceInformation()
+        rtype= ACLServer.aclsql.listResourceType()
+        typeDict={}
+        for i in rtype:
+            typeDict[i[0]]=i[1]
+
+
+        c=[]
+        l=len(rValue)
+        for i in range(l):
+            a=[]
+            a.append( str(rValue[i][0]))
+            a.append(rValue[i][1])
+            a.append(typeDict[rValue[i][2]])
+            c.append(a)
+
+        # c = []
+        # for i in rValue:
+        #     d = [str(j) for j in i]
+        #     c.append(d)
+
+        rValue = c
+        # if rValue.has_key('id'):
+        #     rValue['id'] = [str(j) for j in rValue['id']]
+        if rValue != False:
+            (responseSpec, successResponse) = self.create("allresourceinformation:aclproto", False)
+            successResponse.status = 0
+            successResponse.message = 'ok'
+            # for key, value in rValue.items():
+            #     successResponse.information[key] = value
+            # for i in rName:
+            successResponse.information = rValue
+            self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+        else:
+            (responseSpec, failedResponse) = self.create("allresourceinformation:aclproto", False)
+            failedResponse.status = 1
+            failedResponse.message = 'error'
+            self.write_log('error', body.session.userId, failedResponse.message)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

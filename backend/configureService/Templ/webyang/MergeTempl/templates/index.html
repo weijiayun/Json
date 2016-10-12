@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Merge</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Loading Bootstrap -->
+    <link href="../static/css/jsonedit.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../static/css/jquery.multiselect.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/css/prettify.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/css/jquery-ui.css"/>
+    <link type="text/css" rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link href="../static/css/jquery.webui-popover.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="../static/css/custom.css">
+    <link rel="stylesheet" href="../static/css/jqtree.css">
+    <link rel="stylesheet" href="../static/css/amazeui.css">
+    <link rel="stylesheet" href="../static/css/SignalSystem.css">
+
+    <link rel="stylesheet" type="text/css" href="../static/css/normalize.css"/>
+    <link rel="stylesheet" href="../static/css/chrome-tabs.css">
+    <link rel="stylesheet" href="../static/css/chrome-tabs-dark-theme.css">
+    <!--[if IE]>
+    <script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+    <![endif]-->
+    <script src="../static/js/amazeui.js"></script>
+    <script src="../static/js/tree.js"></script>
+    <script src="../static/js/Automaton.js"></script>
+    <script src="../static/js/dropzone.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../static/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.ui.core.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="../static/js/prettify.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.multiselect.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.tips.js"></script>
+    <script type="text/javascript" src="../static/js/mainfunction.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.iframe-transport.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.fileupload.js"></script>
+</head>
+<body class="am-with-topbar-fixed-top">
+<header class="am-topbar-fixed-top am-topbar am-topbar-inverse">
+    <div class="chrome-tabs-shell">
+        <div class="chrome-tabs">
+            <div class="chrome-tab" id="TAB0">
+                <div class="chrome-tab-favicon" style="background-image: url('../static/img/2.ico')"></div>
+                <div class="chrome-tab-title">Google</div>
+                <div class="chrome-tab-close" style="right:3px;"></div>
+            </div>
+        </div>
+    </div>
+</header>
+<script src="../static/js/chrome-tabs.js"></script>
+<script>
+        var $chromeTabsShell = $('.chrome-tabs-shell');
+        chromeTabs.init({
+            $shell: $chromeTabsShell,
+            minWidth: 65,
+            maxWidth: 240
+        });
+        $chromeTabsShell.bind('chromeTabRender', function(){
+            var $currentTab = $chromeTabsShell.find('.chrome-tab-current');
+            if ($currentTab.length && window['console'] && console.log) {
+                console.log('Current tab index', $currentTab.index(), 'title', $.trim($currentTab.text()), 'data', $currentTab.data('tabData').data);
+            }
+        });
+</script>
+<div id="JsonDict" style="display: none">{{ JsonDict }}</div>
+<div class="am-g">
+    <div class="am-u-sm-2 am-scrollable-vertical LeftMenu" style="width:11%; min-height: 930px;height: 930px;">
+        <input id="fileupload" style="margin-top:20px;" type="file" name="files[]" data-url="/upload" multiple>
+        <select id="StrategySelect" style="margin-top:20px;width: 150px;height: 40px;">
+        </select>
+        <button id="Add_button" onclick="addStrategy();" style="margin-top:20px;width: 150px;height: 40px;">
+            ADD Strategy
+        </button>
+        <button id="Confirm_button" onclick="ConfirmOption();" style="margin-top:20px;width: 150px;height: 40px;">
+            操作确认/回车
+        </button>
+        <input class='form-control' id='Templnameinp' style="margin-top:30px;width: 150px;height: 40px;" placeholder='Enter New Name'>
+        <input class='form-control' id='Templversioninp' style="margin-top:20px;width: 150px;height: 40px;" placeholder='Enter New Version'>
+        <button id="Finish_button" onclick="Finish();" style="margin-top:20px;width: 150px;height: 40px;">
+            Finish
+        </button>
+    </div>
+    <div class="am-u-sm-10 RightArea" style="width:89%; height: 930px">
+        <div class="am-g">
+            <div class="am-u-sm-10 am-scrollable-vertical" style="height: 930px;padding-top: 0;">
+                <div class="handsontable htRowHeaders htColumnHeaders" id="loadlog" style="padding-top:20px;"></div>
+            </div>
+            <div class="am-u-sm-2 am-scrollable-vertical RightMenu" style="height: 930px; max-height: 930px;">
+                <h2 style="margin-top:20px;display: block">OperateLists</h2>
+                <div id="OptionLists"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

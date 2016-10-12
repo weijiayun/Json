@@ -1,11 +1,12 @@
 var TabBlock = {
   s: {
-    animLen: 200
+    tabName: "TAB0"
   },
   
   init: function() {
     TabBlock.bindUIActions();
     TabBlock.hideInactive();
+    TabBlock.addButton();
   },
   
   bindUIActions: function() {
@@ -13,19 +14,25 @@ var TabBlock = {
       TabBlock.switchTab($(this));
     });
   },
-  
   hideInactive: function() {
     var $tabBlocks = $('.tabBlock');
     
     $tabBlocks.each(function(i) {
-      var 
+      var
         $tabBlock = $($tabBlocks[i]),
         $panes = $tabBlock.find('.tabBlock-pane'),
         $activeTab = $tabBlock.find('.tabBlock-tab.is-active');
-      
       $panes.hide();
       $($panes[$activeTab.index()]).show();
     });
+  },
+  addButton:function () {
+    var buttonhtml = '<li><button id="tabBlock-tab-plus" class="tabBlock-tab-plus"><span class="glyphicon glyphicon-plus"></span></button></li>';
+    $(".tabBlock-tabs").append(buttonhtml);
+    $(".tabBlock-tab-plus").on("click",function () {
+      TabBlock.addTab();
+    })
+
   },
   
   switchTab: function($tab) {
@@ -34,17 +41,32 @@ var TabBlock = {
     if (!$tab.hasClass('is-active')) {
       $tab.siblings().removeClass('is-active');
       $tab.addClass('is-active');
-   
+      
       TabBlock.showPane($tab.index(), $context);
     }
    },
-  
+  addTab:function () {
+    var Nostr = TabBlock.s.tabName.replace("TAB","");
+    var NoInt = parseInt(Nostr)+1;
+    TabBlock.s.tabName = "TAB"+NoInt;
+    var tabhtml = "<li class='tabBlock-tab {0}' tabblock-id='{0}'><span class='tabBlock-tab-name'  contenteditable='true' spellcheck='false'>New collection".format(TabBlock.s.tabName)+
+        "</span><button class='tabBlock-tab-remove' tabblock-tab-name='{0}' onclick='TabBlock.deleteTab(this)'><span class=' glyphicon glyphicon-remove'></span></button></li>".format(TabBlock.s.tabName);
+    $(".tabBlock-tabs").children().eq(-1).before(tabhtml);
+    TabBlock.switchTab($("li.tabBlock-tab.{0}".format(TabBlock.s.tabName)))
+  },
+  deleteTab:function (obj) {
+    if($(obj).parent().prev())
+      TabBlock.switchTab($(obj).parent().prev());
+    else if($(obj).parent().next())
+      TabBlock.switchTab($(obj).parent().next());
+    $(obj).parent().remove();
+    var tagName = $(obj).attr("tabblock-tab-name");
+    $("div.tabBlock-pane.{0}".format(tagName)).remove()
+  },
   showPane: function(i, $context) {
     var $panes = $context.find('.tabBlock-pane');
-   
-    // Normally I'd frown at using jQuery over CSS animations, but we can't transition between unspecified variable heights, right? If you know a better way, I'd love a read it in the comments or on Twitter @johndjameson
-    $panes.slideUp(TabBlock.s.animLen);
-    $($panes[i]).slideDown(TabBlock.s.animLen);
+    $panes.hide();
+    $($panes[i]).show();
   }
 };
 

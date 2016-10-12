@@ -297,7 +297,7 @@ class ProtoParser(object):
 
     def parse(self,path,specDict,excludes = None):
         if not os.path.exists(path):
-            print('%s not exists' % path)
+            print('directory %s not exists' % path)
             return
 
         if specDict is None:

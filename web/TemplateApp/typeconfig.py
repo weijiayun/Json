@@ -11,7 +11,7 @@ TYPES = {
     7:"Json Wei"
 }
 
-INPUTOBJECT2=[
+INPUTOBJECT21 = [
     {
         "Category": "signal",
         "TemplType": "struct",
@@ -90,7 +90,7 @@ INPUTOBJECT2=[
                 "EleType": None,
                 "Fieldname": "diemen",
                 "Requiredness": False,
-                "Type": "SignalMode::type"
+                "Type": "string"
             },
             {
                 "Function": None,
@@ -195,6 +195,84 @@ INPUTOBJECT2=[
                 "Fieldname": "Market",
                 "Requiredness": False,
                 "Type": "sint_32"
+            },
+            {
+                "Function": None,
+                "IsAuto": False,
+                "Reference": None,
+                "Default": 13.55,
+                "DimensionX": None,
+                "DimensionY": None,
+                "IsFixed": False,
+                "EleType": None,
+                "Fieldname": "DoubleTest",
+                "Requiredness": False,
+                "Type": "double"
+            },
+            {
+                "Function": None,
+                "IsAuto": False,
+                "Reference": None,
+                "Default": None,
+                "DimensionX": None,
+                "DimensionY": None,
+                "IsFixed": False,
+                "EleType": None,
+                "Fieldname": "DateTest",
+                "Requiredness": False,
+                "Type": "date"
+            },
+            {
+                "Function": None,
+                "IsAuto": False,
+                "Reference": None,
+                "Default": None,
+                "DimensionX": None,
+                "DimensionY": None,
+                "IsFixed": False,
+                "EleType": None,
+                "Fieldname": "TimeTest",
+                "Requiredness": False,
+                "Type": "time"
+            },
+            {
+                "Function": None,
+                "IsAuto": False,
+                "Reference": None,
+                "Default": None,
+                "DimensionX": None,
+                "DimensionY": None,
+                "IsFixed": False,
+                "EleType": None,
+                "Fieldname": "TimeSpanTest",
+                "Requiredness": False,
+                "Type": "timespan"
+            },
+            {
+                "Function": None,
+                "IsAuto": False,
+                "Reference": None,
+                "Default": None,
+                "DimensionX": None,
+                "DimensionY": None,
+                "IsFixed": False,
+                "EleType": None,
+                "Fieldname": "name",
+                "Requiredness": True,
+                "Type": "string"
+            },
+            {
+                "Function": None,
+                "IsAuto": False,
+                "Reference": None,
+                "Default": None,
+                "DimensionX": None,
+                "DimensionY": None,
+                "IsFixed": False,
+                "EleType": None,
+                "Fieldname": "iptest",
+                "Requiredness": True,
+                "Type": "ip"
             }
         ],
         "BaseName": "signal",
@@ -207,13 +285,19 @@ INPUTOBJECT2=[
             "ObserveHistory": 2,
             "Type": 3,
             "Id": 5,
-            "Ranges": 8,
-            "FeedMarket": 9,
-            "OrderType": 10,
-            "IsDaylight": 11,
-            "Market": 12
+            "Ranges":8,
+            "FeedMarket":9,
+            "OrderType":10,
+            "IsDaylight":11,
+            "Market":12,
+            "DoubleTest":13,
+            "DateTest":14,
+            "TimeTest": 15,
+            "TimeSpanTest": 16,
+            "name":17,
+            "iptest":18
         },
-        "TemplName": "Annapurnatest"
+        "TemplName": "Annapurna"
     },
     {
         "Category": "signal",
@@ -231,6 +315,128 @@ INPUTOBJECT2=[
                 "DimensionY": None,
                 "IsFixed": True,
                 "EleType": None,
+                "Fieldname": "END",
+                "Requiredness": True,
+                "Type": "uint_32"
+            },
+            {
+                "Function": None,
+                "IsAuto": False,
+                "Reference": None,
+                "Default": None,
+                "DimensionX": None,
+                "DimensionY": None,
+                "IsFixed": False,
+                "EleType": None,
+                "Fieldname": "Start",
+                "Requiredness": False,
+                "Type": "sint_32"
+            }
+        ],
+        "BaseName": "signal",
+        "FieldName": {
+            "END": 0,
+            "Start":1
+        },
+        "TemplName": "IInstructionComponent"
+    },
+    {
+        "Category": "signal",
+        "TemplType": "struct",
+        "Fields": [
+        {
+              "Function": {
+                  "FunctionName": "YHY",
+                  "Parameters": []
+              },
+              "IsAuto": False,
+              "Reference": None,
+              "Default": None,
+              "DimensionX": None,
+              "DimensionY": None,
+              "IsFixed": True,
+              "EleType": None,
+              "Fieldname": "Feedmarket",
+              "Requiredness": True,
+              "Type": "uint_32"
+          },
+          {
+              "Function": None,
+              "IsAuto": False,
+              "Reference": None,
+              "Default": None,
+              "DimensionX": None,
+              "DimensionY": None,
+              "IsFixed": False,
+              "EleType": None,
+              "Fieldname": "Feedbeed",
+              "Requiredness": False,
+              "Type": "sint_32"
+          },
+          {
+              "Function": None,
+              "IsAuto": False,
+              "Reference": None,
+              "Default": None,
+              "DimensionX": None,
+              "DimensionY": None,
+              "IsFixed": False,
+              "EleType": None,
+              "Fieldname": "Feedcode",
+              "Requiredness": False,
+              "Type": "sint_32"
+          },
+          {
+              "Function": None,
+              "IsAuto": False,
+              "Reference": None,
+              "Default": None,
+              "DimensionX": None,
+              "DimensionY": None,
+              "IsFixed": False,
+              "EleType": None,
+              "Fieldname": "MaxQty",
+              "Requiredness": False,
+              "Type": "sint_32"
+          }
+      ],
+      "BaseName": "signal",
+      "FieldName": {
+          "Feedmarket":0,
+          "Feedbeed":1,
+          "Feedcode":2,
+          "MaxQty":3
+      },
+      "TemplName":"FeedcodeMaxQty"
+    },
+    {
+        "TemplType": "enum",
+        "Values": {
+            "POTF": 3,
+            "SIMULATION": 1,
+            "IOC": 2,
+            "OTGFD": 0
+        },
+        "TemplName": "OrderType::type"
+    }
+]
+INPUTOBJECT22=[
+    {
+        "Category": "signal",
+        "TemplType": "struct",
+        "Fields": [
+            {
+                "Function": {
+                    "FunctionName": "YHY",
+                    "Parameters": []
+                },
+                "IsAuto": False,
+                "Reference": None,
+                "Default": None,
+                "DimensionX": None,
+                "DimensionY": None,
+                "IsFixed": True,
+                "EleType": None,
                 "Fieldname": "MidSignalId",
                 "Requiredness": True,
                 "Type": "uint32_t"
@@ -293,7 +499,7 @@ INPUTOBJECT2=[
                 "EleType": None,
                 "Fieldname": "diemen",
                 "Requiredness": False,
-                "Type": "SignalMode::type"
+                "Type": "string"
             },
             {
                 "Function": None,
@@ -398,6 +604,19 @@ INPUTOBJECT2=[
                 "Fieldname": "Market",
                 "Requiredness": False,
                 "Type": "sint_32"
+            },
+            {
+                "Function": None,
+                "IsAuto": False,
+                "Reference": None,
+                "Default": None,
+                "DimensionX": None,
+                "DimensionY": None,
+                "IsFixed": False,
+                "EleType": None,
+                "Fieldname": "name",
+                "Requiredness": True,
+                "Type": "string"
             }
         ],
         "BaseName": "signal",
@@ -410,13 +629,14 @@ INPUTOBJECT2=[
             "ObserveHistory": 2,
             "Type": 3,
             "Id": 5,
-            "Ranges":8,
-            "FeedMarket":9,
-            "OrderType":10,
-            "IsDaylight":11,
-            "Market":12
+            "Ranges": 8,
+            "FeedMarket": 9,
+            "OrderType": 10,
+            "IsDaylight": 11,
+            "Market": 12,
+            "name":13
         },
-        "TemplName": "Annapurna"
+        "TemplName": "Annapurnatest"
     },
     {
         "Category": "signal",
@@ -1035,6 +1255,19 @@ INPUTOBJECT4=[
                 "Fieldname": "Market",
                 "Requiredness": False,
                 "Type": "sint_32"
+            },
+            {
+                "Function": None,
+                "IsAuto": False,
+                "Reference": None,
+                "Default": None,
+                "DimensionX": None,
+                "DimensionY": None,
+                "IsFixed": False,
+                "EleType": None,
+                "Fieldname": "name",
+                "Requiredness": True,
+                "Type": "string"
             }
         ],
         "BaseName": "signal",
@@ -1051,7 +1284,8 @@ INPUTOBJECT4=[
             "FeedMarket":9,
             "OrderType":10,
             "IsDaylight":11,
-            "Market":12
+            "Market":12,
+            "name":13
         },
         "TemplName": "Annapurnatest"
     },

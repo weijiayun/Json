@@ -15,17 +15,21 @@ class ConfigureObjectServer(MessagePlugin):
     conn = psycopg2.connect(database="config3", user="postgres", password="powerup", host="127.0.0.1", port="5432")
     configsql3 = ConfigureObjectSql(conn)
 
-    def __init__(self,messageHandle):
-        super(ConfigureObjectServer,self).__init__(messageHandle)
+    def __init__(self, messageHandle):
+        super(ConfigureObjectServer, self).__init__(messageHandle)
 
-        self.handle('getconfigurefromgrid:configureobjectproto', True, self.onGetConfigureFromGrid)
-        self.handle('createconfiguregrid:configureobjectproto', True, self.onCreateConfigureGrid)
-        self.handle('deleteconfiguregrid:configureobjectproto', True, self.onDeleteConfigureGrid)
-        self.handle('createconfiguretogrid:configureobjectproto', True, self.onCreateConfigureToGrid)
-        self.handle('deleteconfigureingrid:configureobjectproto', True, self.onDeleteConfigureInGrid)
-        self.handle('createconfigureobject:configureobjectproto', True, self.onCreateConfigureObject)
-        self.handle('deleteconfigureobject:configureobjectproto', True, self.onDeleteConfigureObject)
-        self.handle('getconfigureobject:configureobjectproto', True, self.onGetConfigureObject)
+        self.handle('createconfigure:configureobjectproto', True, self.onCreateConfigure)
+        self.handle('deleteconfigure:configureobjectproto', True, self.onDeleteConfigure)
+        self.handle('createobject:configureobjectproto', True, self.onCreateObject)
+        self.handle('deleteobject:configureobjectproto', True, self.onDeleteObject)
+        self.handle('getconfigure:configureobjectproto', True, self.onGetConfigure)
+        self.handle('getobjects:configureobjectproto', True, self.onGetObjects)
+        self.handle('grantobjectstoothers:configureobjectproto', True, self.onGrantObjectsToOthers)
+        self.handle('ungrantobjectsofothers:configureobjectproto', True, self.onUnGrantObjectsOfOthers)
+        self.handle('grantconfiguretoothers:configureobjectproto', True, self.onGrantConfigureToOthers)
+        self.handle('ungrantconfigureofothers:configureobjectproto', True, self.onUnGrantConfigureOfOthers)
+        self.handle('listobjects:configureobjectproto', True, self.onListObjects)
+        self.handle('listauthoritysharers:configureobjectproto', True, self.onListAuthoritySharers)
 
     def onConnectionOpened(self, proto):
         print '----begin login-----'
@@ -48,368 +52,506 @@ class ConfigureObjectServer(MessagePlugin):
         if log_type == 'error':
             logging.error(logger)
 
-    def onCreateGrid(self,proto,spec,message,body):
+    def onCreateConfigure(self, proto, spec, message, body):
         try:
-            print '-------------begin Create Configure Grid---------------'
+            print '-------------begin Delete Configure In Grid---------------'
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Configure Grid Name: {0}'.format(body.GridName)
-            print '-------------end Create Configure Grid------------------'
+            print 'Configure: {0}'.format(body.Configure)
+            print 'Object: {0}'.format(body.ObjectList)
 
-            IsCreateGridSuccess = self.configsql3.createGridInMapping(body.GridName)
-            if IsCreateGridSuccess:
-                (responseSpec, successResponse) = self.create("createconfiguregrid:configureobjectproto", False)
+            secIdList = [self.configsql3.getObject(elem.Name,
+                                                   elem.Date,
+                                                   elem.Version,
+                                                   elem.TemplateName,
+                                                   elem.CollectionName,
+                                                   elem.Category)[0] for elem in body.ObjectList]
+
+            IsCreateConfigureInstance = self.configsql3.createConfigure(json.dumps(secIdList),
+                                                                        body.Configure.Name,
+                                                                        body.Configure.Version,
+                                                                        body.Configure.Date)
+            if IsCreateConfigureInstance[0]:
+                (responseSpec, successResponse) = self.create("createconfigure:configureobjectproto", False)
                 successResponse.status = 0
-                successResponse.message = "Create Grid successfully"
+                successResponse.message = IsCreateConfigureInstance[1]
                 self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
             else:
-                (responseSpec, failedResponse) = self.create("createconfiguregrid:configureobjectproto", False)
+                (responseSpec, failedResponse) = self.create("createconfigure:configureobjectproto", False)
                 failedResponse.status = 1
-                failedResponse.message = 'error: creating grid is failed!!!'
+                failedResponse.message = IsCreateConfigureInstance[1]
                 self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+            print '---------------end Delete Configure In Grid---------------'
         except Exception as e:
             print e
 
-
-    def onDeleteGrid(self, proto, spec, message, body):
-
-        print '-------------begin Delete Configure Grid---------------'
-        print 'Delete Configure Grid Name: {0}'.format(body.GridName)
-        print '---------------end Delete Configure Grid---------------'
-
+    def onDeleteConfigure(self, proto, spec, message, body):
         try:
-            IsDeleteConfigureGrid = self.configsql3.deleteGridInMapping(body.GridName)
-            if IsDeleteConfigureGrid != False:
-                (responseSpec, successResponse) = self.create("deleteconfiguregrid:configureobjectproto", False)
-                successResponse.status = 0
-                successResponse.message = "delete grid is successfully."
-                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-            else:
-                (responseSpec, failedResponse) = self.create("deleteconfiguregrid:configureobjectproto", False)
-                failedResponse.status = 1
-                failedResponse.message = 'error: delete grid is failed!!!'
-                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-        except Exception as e:
-            print 'Error: {0}'.format(e)
-
-
-    def onAddConfigureToGrid(self,proto,spec,message,body):
-        try:
-            print '-------------begin Create Configure Grid---------------'
+            print '-------------begin Delete Configure In Grid---------------'
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Configure Grid Name: {0}'.format(body.GridName)
-            print 'Configure Create Date: {0}'.format(body.Date)
-            print 'Configure Version: {0}'.format(body.Version)
-            print '-------------end Create Configure Grid------------------'
+            print 'Configure: {0}'.format(body.Configure)
 
-            IsBuildGridToMappingSuccess = self.configsql3.addConfigureToGridMapping(body.Date,body.Version,body.GridName)
-            if IsBuildGridToMappingSuccess != False:
-                (responseSpec, successResponse) = self.create("createconfiguregrid:configureobjectproto", False)
+            IsDeleteConfigureInstanceMapping = self.configsql3.deleteConfigure(body.Configure.Name,
+                                                                               body.Configure.Date,
+                                                                               body.Configure.Version)
+            if IsDeleteConfigureInstanceMapping[0]:
+                (responseSpec, successResponse) = self.create("deleteconfigure:configureobjectproto", False)
                 successResponse.status = 0
-                successResponse.message = "Add configure in grid is successfully"
+                successResponse.message = IsDeleteConfigureInstanceMapping[1]
                 self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
             else:
-                (responseSpec, failedResponse) = self.create("createconfiguregrid:configureobjectproto", False)
+                (responseSpec, failedResponse) = self.create("deleteconfigure:configureobjectproto", False)
                 failedResponse.status = 1
-                failedResponse.message = 'Error: Add configure in grid is failed!!!'
+                failedResponse.message = IsDeleteConfigureInstanceMapping[1]
                 self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+            print '---------------end Delete Configure In Grid---------------'
+        except Exception as e:
+            print e
+
+    def onCreateObject(self, proto, spec, message, body):
+        try:
+            print '-------------begin Create  Object---------------'
+            print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
+            print 'Object: {0}'.format(body.ObjectList)
+
+            def getkey():
+                passwd = string.join(
+                    random.sample(list('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-+'), 16)) \
+                    .replace(" ", "")
+                return passwd
+
+            secList = [["-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName]),
+                        elem.Content, getkey()] for elem in body.ObjectList]
+
+            with open('tests/master-public.pem') as f:
+                publicKey1 = f.read()
+
+            def putContentSuccess(nameIdDict):
+                self.buildInT_Object(message, proto, nameIdDict)
+
+            def putContentFailed(errMesg):
+                print 'putSeriesContent failed: %s' % errMesg
+
+            self.securityClient.putSeriesContent(self.session, secList, publicKey1)\
+                .then(putContentSuccess)\
+                .catch(putContentFailed)
+
+            print '---------------end Create Configure Object---------------'
         except Exception as e:
             print 'error: {0}'.format(e)
-
-
-    def onDeleteConfigureInGrid(self,proto,spec,message,body):
-
-        print '-------------begin Delete Configure Grid---------------'
-        print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-        print 'Delete Configure Grid Name: {0}'.format(body.GridName)
-        print 'Configure Date: {0}'.format(body.Date)
-        print 'Configure Version: {0}'.format(body.Version)
-        print '---------------end Delete Configure Grid---------------'
-
-        try:
-            IsDeleteConfigureGrid = self.configsql3.deleteGridInMapping(body.GridName)
-            if IsDeleteConfigureGrid != False:
-                (responseSpec, successResponse) = self.create("deleteconfiguregrid:configureobjectproto", False)
-                successResponse.status = 0
-                successResponse.message = "delete configure in grid is successfully."
-                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-            else:
-                (responseSpec, failedResponse) = self.create("deleteconfiguregrid:configureobjectproto", False)
-                failedResponse.status = 1
-                failedResponse.message = 'error: delete configure in grid is failed!!!'
-                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-        except Exception as e:
-            print e
-
-    def onCreateConfigureInstance(self,proto,spec,message,body):
-        try:
-            print '-------------begin Delete Configure In Grid---------------'
-            print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Configure Version: {0}'.format(body.Version)
-            print 'Configure Create Date: {0}'.format(body.Date)
-            print 'Configure Object List: {0}'.format(body.ObjectList)
-            print '---------------end Delete Configure In Grid---------------'
-
-            secIdList = [self.configsql3.getObjectFromMapping(elem)[0] for elem in body.ObjectList]
-            IsCreateConfigureInstance = self.configsql3.addConfigureToMapping(json.dumps(secIdList),body.Version,body.Date)
-            if IsCreateConfigureInstance:
-                (responseSpec, successResponse) = self.create("deleteconfigureingrid:configureobjectproto", False)
-                successResponse.status = 0
-                successResponse.message = "delete configure in mapping successfully"
-                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-            else:
-                (responseSpec, failedResponse) = self.create("deleteconfigureingrid:configureobjectproto", False)
-                failedResponse.status = 1
-                failedResponse.message = 'Error: delete configure in grid is failed!!!'
-                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-        except Exception as e:
-            print e
-
-    def onDeleteConfigureInstance(self, proto, spec, message, body):
-        try:
-            print '-------------begin Delete Configure In Grid---------------'
-            print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Configure Version: {0}'.format(body.Version)
-            print 'Configure Create Date: {0}'.format(body.Date)
-            print '---------------end Delete Configure In Grid---------------'
-
-            IsDeleteConfigureInstanceMapping = self.configsql3.deleteConfigureInMapping(body.Date, body.Version)
-            if IsDeleteConfigureInstanceMapping:
-                (responseSpec, successResponse) = self.create("deleteconfigureingrid:configureobjectproto", False)
-                successResponse.status = 0
-                successResponse.message = "delete configure in mapping successfully"
-                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-            else:
-                (responseSpec, failedResponse) = self.create("deleteconfigureingrid:configureobjectproto", False)
-                failedResponse.status = 1
-                failedResponse.message = 'Error: delete configure in grid is failed!!!'
-                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-        except Exception as e:
-            print e
-
-    def onCreateObject(self,proto,spec,message,body):
-        print '-------------begin Create Configure Object---------------'
-        print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-        print 'Configure Template Id : {0}'.format(body.TemplateId)
-        print 'Configure Template Name : {0}'.format(body.TemplateName)
-        print 'Configure Template Version: {0}'.format(body.Version)
-        print 'Configure Object Name : {0}'.format(body.ObjectName)
-        print 'Configure Object Content: {0}'.format(body.Content)
-        print '---------------end Create Configure Object---------------'
-
-        if body.Content != None and body.Content != []:
-            try:
-                with open('tests/master-public.pem') as f:
-                    publicKey1 = f.read()
-                contentDict = {
-                    "templateName":body.TemplateName,
-                    "templVersion":body.Version,
-                    "objectName":body.ObjectName,
-                    "content": body.Content,
-                    "collection":body.Collection
-                }
-                passwd = string.join(
-                    random.sample(list('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-+'),
-                                  16)).replace(" ", "")
-                def putContentSuccess(originContentId):
-                    print originContentId
-                    self.buildObjectInMapping(message, proto, originContentId,body)
-                def putContentFailed(errMesg):
-                    print 'putSeriesContent failed: %s' % errMesg
-                self.securityClient.putContent(self.session,json.dumps(contentDict),passwd,publicKey1)\
-                    .then(putContentSuccess)\
-                    .catch(putContentFailed)
-            except Exception as e:
-                print 'error: {0}'.format(e)
-                (responseSpec, failedResponse) = self.create("createconfigureobject:configureobjectproto", False)
-                failedResponse.status = 1
-                failedResponse.message = 'error: create configure object'
-                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-
-        else:
-            (responseSpec, failedResponse) = self.create("createconfigureobject:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("createobject:configureobjectproto", False)
             failedResponse.status = 1
-            failedResponse.message = 'error: create configure object\nContent is null'
+            failedResponse.message = e
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-    def buildObjectInMapping(self,message,proto,originContentId,body):
-        security_id = originContentId[0]
-        IsCreateObjectRelation = self.configsql3\
-            .createObjectToMapping(security_id,
-                                   body.ObjectName,
-                                   body.Collection,
-                                   body.TemplateName,
-                                   body.Version)
-        if IsCreateObjectRelation:
-            (responseSpec, successResponse) = self.create("createconfigureobject:configureobjectproto", False)
-            successResponse.status = 0
-            successResponse.message = "ok"
-            successResponse.ContentId = security_id
-            self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-        else:
-            (responseSpec, failedResponse) = self.create("createconfigureobject:configureobjectproto", False)
+    def buildInT_Object(self, message, proto, nameIdDict):
+        try:
+            IsCreateObject = self.configsql3.createObject(nameIdDict)
+            if IsCreateObject[0]:
+                (responseSpec, successResponse) = self.create("createobject:configureobjectproto", False)
+                successResponse.status = 0
+                successResponse.message = IsCreateObject[1]
+                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+            else:
+                (responseSpec, failedResponse) = self.create("createobject:configureobjectproto", False)
+                failedResponse.status = 1
+                failedResponse.message = IsCreateObject[1]
+                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+        except Exception as e:
+            print e
+            (responseSpec, failedResponse) = self.create("createobject:configureobjectproto", False)
             failedResponse.status = 1
-            failedResponse.message = 'error: create configure object'
+            failedResponse.message = str(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-
-    def onDeleteObject(self,proto,spec,message,body):
+    def onDeleteObject(self, proto, spec, message, body):
         try:
             print '-------------begin Delete Configure Object---------------'
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Configure Object Name: {0}'.format(body.ObjectName)
-            print '---------------end Create Configure Object---------------'
+            print 'Configure Object Name: {0}'.format(body.ObjectList)
 
-            secId = self.configsql3.getObjectFromMapping(body.ObjectName)[0]
+            secIdList = [self.configsql3.getObject(elem.Name,
+                                                   elem.Date,
+                                                   elem.Version,
+                                                   elem.Category,
+                                                   elem.TemplateName,
+                                                   elem.CollectionName)[0] for elem in body.ObjectList]
 
-            def deleteContentSuccess():
-                self.deleteObjectInMapping(message, proto,secId)
-            def deleteContentFailed():
-                print 'delete Content is Faild!!!'
-            self.securityClient.deleteContent(self.session,secId)\
+            def deleteContentSuccess(successMsg):
+                self.deleteObjectInMapping(message, proto, secIdList)
+
+            def deleteContentFailed(errMsg):
+                print errMsg+'delete Content is Faild!!!'
+            self.securityClient.deleteContent(self.session, secIdList)\
                 .then(deleteContentSuccess).catch(deleteContentFailed)
+            print '---------------end Create Configure Object---------------'
         except Exception as e:
-            (responseSpec, failedResponse) = self.create("deleteconfigureobject:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("deleteobject:configureobjectproto", False)
             failedResponse.status = 1
             failedResponse.message = 'error: delete configure object and {0}'.format(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-    def deleteObjectInMapping(self, message, proto, secId):
-        IsDeleteObjectRelation = self.configsql3.deleteObjectInMapping(secId)
-        if IsDeleteObjectRelation:
-            (responseSpec, successResponse) = self.create("deleteconfigureobject:configureobjectproto", False)
+    def deleteObjectInMapping(self, message, proto, secIdList):
+        IsDeleteObject = self.configsql3.deleteObject(secIdList)
+        if IsDeleteObject[0]:
+            (responseSpec, successResponse) = self.create("deleteobject:configureobjectproto", False)
             successResponse.status = 0
-            successResponse.message = "ok"
+            successResponse.message = IsDeleteObject[1]
             self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
         else:
             (responseSpec, failedResponse) = self.create("deleteconfigureobject:configureobjectproto", False)
             failedResponse.status = 1
-            failedResponse.message = 'error: delete configure object and {0}'
+            failedResponse.message = IsDeleteObject[1]
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-
-
-    def onGetGrid(self,proto,spec,message,body):
-        try:
-            print '-------------begin Get Configure From Grid---------------'
-            print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Configure Grid: {0}'.format(body.GridName)
-            print '-------------end Get Configure From Grid-----------------'
-            grid = self.configsql3.getGridFromMapping(body.GridName)
-            if not grid:
-                raise Exception("configure list in grid({0} is not exist!!!)".format(body.GridName))
-            configureList = json.loads(grid[1])
-            objectList = []
-            for createTime,version in configureList:
-                templ = self.configsql3.getConfigureFromMapping(createTime,version)
-                if not templ:
-                    raise Exception("Object list in Configure({0},{1})".format(createTime,version))
-                objectList.append(json.loads(templ[0]))
-            with open('tests/master-private.pem') as f:
-                privateKey1 = f.read()
-
-            (responseSpec, successResponse) = self.create("getconfigurefromgrid:configureobjectproto", False)
-            (responseSpec, failedResponse) = self.create("getconfigurefromgrid:configureobjectproto", False)
-
-            def getContentSuccess(JContent):
-                Content = json.loads(JContent)
-                ###############################series##################################33
-                successResponse.Content[body.ObjectName] = Content["content"]
-                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-            def getContentFailed(errMsg):
-                failedResponse.status = 1
-                failedResponse.message = 'error: get configure from configure grid'
-                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-            ###series getContent
-            for row in objectList:
-                for col in row:
-                    self.securityClient.getContent(self.session,col,privateKey1).then(getContentSuccess).catch(getContentFailed)
-        except Exception as e:
-            print "Error: {0}".format(e)
-
-    def onGetConfigure(self,proto,spec,message,body):
-        try:
-            print '-------------begin Query Configure Object---------------'
-            print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Configure Create Date: {0}'.format(body.Date)
-            print 'Configure Version: {0}'.format(body.Version)
-            print '---------------end Query Configure Object---------------'
-
-            templ = self.configsql3.getConfigureFromMapping(body.Date, body.Version)
-            if not templ:
-                raise Exception("Object list in Configure({0},{1})".format(body.Date, body.Version))
-            objectList = json.loads(templ[0])
-
-            with open('tests/master-private.pem') as f:
-                privateKey1 = f.read()
-
-            (responseSpec, successResponse) = self.create("getconfigurefromgrid:configureobjectproto", False)
-            (responseSpec, failedResponse) = self.create("getconfigurefromgrid:configureobjectproto", False)
-
-            def getContentSuccess(JContent):
-                Content = json.loads(JContent)
-                #############################series###############################
-                successResponse.Content[body.ObjectName] = Content["content"]
-                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-            def getContentFailed(errMsg):
-                failedResponse.status = 1
-                failedResponse.message = 'error: get configure from configure grid'
-                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-
-            ###series getContent
-            for elem in objectList:
-                    self.securityClient.getContent(self.session,elem, privateKey1).then(getContentSuccess).catch(getContentFailed)
-        except Exception as e:
-            print "Error: {0}".format(e)
-
-
-    def onGetObject(self, proto, spec, message, body):
-        print '-------------begin Query Configure Object---------------'
+    def onGetObjects(self, proto, spec, message, body):
+        print '-------------Begin To Get Object---------------'
         print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-        print 'Configure Object Id: {0}'.format(body.ObjectName)
-        print '---------------end Query Configure Object---------------'
+        print 'Configure Object Id: {0}'.format(body.ObjectList)
 
         try:
-            secId = self.configsql3.getObjectFromMapping(body.ObjectName)
-            if not secId:
-                raise Exception("Error: get Object {0}".format(body.ObjectName))
+            secIdList = [["-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName]),
+                          self.configsql3.getObject(elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName)[0]]
+                         for elem in body.ObjectList]
+            if len(secIdList) == 0:
+                raise Exception("Error: getting Object {0} is failed".format(body.ObjectName))
             with open('tests/master-private.pem') as f:
                 privateKey1 = f.read()
+            (responseSpec, successResponse) = self.create("getobjects:configureobjectproto", False)
 
-            def getContentSuccess(JContent):
-                Content = json.loads(JContent)
-                (responseSpec, successResponse) = self.create("getconfigureobject:configureobjectproto", False)
+            def getContentSuccess(Content):
                 successResponse.status = 0
-                successResponse.message = "ok"
-                successResponse.Content[body.ObjectName] = Content["content"]
-                print 'status: {0}'.format(successResponse.status)
-                print 'message: {0}'.format(successResponse.message)
-                print 'Object Name: {0}'.format(body.ObjectName)
-                print 'Template Name: {0}'.format(Content['templateName'])
-                print successResponse.Content
+                successResponse.message = "get object successfully!!!"
+                successResponse.Content = Content
                 self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
 
             def getContentFailed(errMsg):
                 print 'put content of object is failed!!!'
-            self.securityClient.getContent(self.session,secId,privateKey1).then(getContentSuccess).catch(getContentFailed)
+
+            self.securityClient.getSeriesContent(self.session, secIdList, privateKey1)\
+                .then(getContentSuccess)\
+                .catch(getContentFailed)
+            print '---------------end Query Configure Object---------------'
         except Exception as e:
             print "Error: {0}".format(e)
-            (responseSpec, failedResponse) = self.create("getconfigureobject:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("getobjects:configureobjectproto", False)
             failedResponse.status = 1
-            failedResponse.message = 'error: get configure object'
+            failedResponse.message = 'Error: get configure object,Detail: {0}'.format(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
+    def onGetConfigure(self, proto, spec, message, body):
+        print '-------------Begin Get Object---------------'
+        print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
+        print 'Collection Name: {0}'.format(body.Configure)
 
+        try:
+            objectList = self.configsql3.getConfigure(body.Configure.Name,
+                                                      body.Configure.Date,
+                                                      body.Configure.Version)
+            if not objectList[0]:
+                raise Exception(objectList[1])
 
+            secList = [["-".join(self.configsql3.getObjectById(elem)[1][1:]), elem]
+                       for elem in json.loads(objectList[0])]
 
+            if len(secList) == 0:
+                raise Exception("Error: getting Configure <Name: {0}, Date: {1}, Version: {2}> is failed".format(body.Configure.Name,
+                                                                                                                 body.Configure.Date,
+                                                                                                                 body.Configure.Version))
+            with open('tests/master-private.pem') as f:
+                privateKey1 = f.read()
+            (responseSpec, successResponse) = self.create("getconfigure:configureobjectproto", False)
 
+            def getContentSuccess(Content):
+                successResponse.status = 0
+                successResponse.message = "get configure successfully!!!"
+                successResponse.Content = Content
+                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
 
+            def getContentFailed(errMsg):
+                print 'put content of configure is failed!!!'
 
+            self.securityClient.getSeriesContent(self.session, secList, privateKey1) \
+                .then(getContentSuccess) \
+                .catch(getContentFailed)
+            print '---------------end Query Configure---------------'
+        except Exception as e:
+            print "Error: {0}".format(e)
+            (responseSpec, failedResponse) = self.create("getconfigure:configureobjectproto", False)
+            failedResponse.status = 1
+            failedResponse.message = 'Error: getting Configure is failed!!!\n,Detail: {0}'.format(e)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
+    def onGrantObjectsToOthers(self, proto, spec, message, body):
+        try:
+            print '---------------Begin Grant Object To Others---------------'
+            print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
+            print 'Object Name: {0}'.format(body.ObjectList)
+            print 'Object OthersId: {0}'.format(body.OthersId)
+            print '---------------end Query Configure Object---------------'
 
+            secIdDict = {"-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName]):
+                             self.configsql3.getObject(elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName,elem.CollectionName)[0]
+                         for elem in body.ObjectList}
 
+            if len(secIdDict) == 0:
+                raise Exception("Objects <{0}> is not exist when query the database".format(body.ObjectList))
 
+            with open('tests/master-private.pem') as f:
+                myPrivateKey = f.read()
+            # require publickey from otherId
+            with open('tests/ghost-public.pem') as f:
+                othersPublicKey = f.read()
 
+            (responseSpec, successResponse) = self.create("grantobjectstoothers:configureobjectproto", False)
 
+            def grantOtherSuccess(Msg):
+                successResponse.status = 0
+                successResponse.message = "Grant object to other is successfully!!!"
+                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
 
+            (responseSpec, failedResponse) = self.create("grantobjectstoothers:configureobjectproto", False)
 
+            def grantOtherFailed(errMsg):
+                failedResponse.status = 1
+                failedResponse.message = 'Error: grant objects to others is failed!!!'
+                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
+            self.securityClient.grantSeriesToOther(self.session,
+                                                   secIdDict,
+                                                   body.OthersId,
+                                                   myPrivateKey,
+                                                   othersPublicKey).then(grantOtherSuccess).catch(grantOtherFailed)
+        except Exception as e:
+            (responseSpec, failedResponse) = self.create("grantobjectstoothers:configureobjectproto", False)
+            print "Error: {0}".format(e)
+            failedResponse.status = 1
+            failedResponse.message = str(e)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+    def onUnGrantObjectsOfOthers(self, proto, spec, message, body):
+        try:
+            print '---------------Begin Ungrant Object To Others---------------'
+            print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
+            print 'Object Name: {0}'.format(body.ObjectList)
+            print 'Object OthersId: {0}'.format(body.OthersId)
+            print '---------------end Ungrant Configure Object---------------'
+
+            secIdDict = {"-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName]):
+                             self.configsql3.getObject(elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName)[0]
+                         for elem in body.ObjectList}
+
+            if len(secIdDict) == 0:
+                raise Exception("Objects <{0}> is not exist when query the database".format(body.ObjectList))
+
+            (responseSpec, successResponse) = self.create("ungrantobjectsofothers:configureobjectproto", False)
+
+            def grantOtherSuccess(Msg):
+                successResponse.status = 0
+                successResponse.message = "Ungrant object to other is successfully!!!"
+                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+
+            (responseSpec, failedResponse) = self.create("ungrantobjectsofothers:configureobjectproto", False)
+
+            def grantOtherFailed(errMsg):
+                failedResponse.status = 1
+                failedResponse.message = 'Error: Ungrant objects to others is failed!!!'
+                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+            self.securityClient.revokeGrant(self.session,
+                                            secIdDict,
+                                            body.OthersId,
+                                            ).then(grantOtherSuccess).catch(grantOtherFailed)
+        except Exception as e:
+            (responseSpec, failedResponse) = self.create("ungrantobjectsofothers:configureobjectproto", False)
+            print "Error: {0}".format(e)
+            failedResponse.status = 1
+            failedResponse.message = str(e)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+    def onGrantConfigureToOthers(self, proto, spec, message, body):
+        try:
+            print '---------------Begin Grant Object To Others---------------'
+            print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
+            print 'Object OthersId: {0}'.format(body.OthersId)
+            print 'Configure: {0}'.format(body.ConfigureList)
+            print '---------------end Query Configure Object---------------'
+
+            def getUnionList(lli, rli):
+                return list(set(lli).union(set(rli)))
+
+            temp = [json.loads(self.configsql3.getConfigure(elem.Name,
+                                                            elem.Date,
+                                                            elem.Version)[0]) for elem in body.ConfigureList]
+
+            secIdDict = {"-".join(self.configsql3.getObjectById(elem)[1][1:]): elem for elem in reduce(getUnionList, temp)}
+
+            if len(secIdDict) == 0:
+                raise Exception("The Configure <Name: {0}, Date: {1}, Version: {2}> "
+                                "which is going to be granted is not exist!!!".format(body.Configure.Name,
+                                                                                      body.Configure.Date,
+                                                                                      body.Configure.Version))
+
+            with open('tests/master-private.pem') as f:
+                myPrivateKey = f.read()
+
+            with open('tests/ghost-public.pem') as f:
+                othersPublicKey = f.read()
+
+            (responseSpec, successResponse) = self.create("grantconfiguretoothers:configureobjectproto", False)
+
+            def grantOtherSuccess(Msg):
+                successResponse.status = 0
+                successResponse.message = "Grant configure to other is successfully!!!"
+                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+
+            (responseSpec, failedResponse) = self.create("grantconfiguretoothers:configureobjectproto", False)
+
+            def grantOtherFailed(Msg):
+                failedResponse.status = 1
+                failedResponse.message = 'Error: grant configure object to others is failed!!!'
+                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+            self.securityClient.grantSeriesToOther(self.session,
+                                                   secIdDict,
+                                                   body.OthersId,
+                                                   myPrivateKey,
+                                                   othersPublicKey).then(grantOtherSuccess).catch(grantOtherFailed)
+        except Exception as e:
+            (responseSpec, failedResponse) = self.create("grantconfiguretoothers:configureobjectproto", False)
+            print "Error: {0}".format(e)
+            failedResponse.status = 1
+            failedResponse.message = str(e)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+    def onUnGrantConfigureOfOthers(self, proto, spec, message, body):
+        try:
+            print '---------------Begin Revoke Grant Object To Others---------------'
+            print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
+            print 'Object OthersId: {0}'.format(body.OthersId)
+            print 'Configure: {0}'.format(body.ConfigureList)
+            print '---------------end Query Configure Object---------------'
+
+            def getUnionList(lli, rli):
+                return list(set(lli).union(set(rli)))
+
+            temp = [json.loads(self.configsql3.getConfigure(elem.Name,
+                                                            elem.Date,
+                                                            elem.Version)[0]) for elem in body.ConfigureList]
+
+            secIdDict = {"-".join(self.configsql3.getObjectById(elem)[1][1:]): elem for elem in reduce(getUnionList, temp)}
+
+            if len(secIdDict) == 0:
+                raise Exception("The Configure <Name: {0}, Date: {1}, Version: {2}> "
+                                "which is going to be ungranted is not exist!!!".format(body.Configure.Name,
+                                                                                        body.Configure.Date,
+                                                                                        body.Configure.Version))
+
+            (responseSpec, successResponse) = self.create("ungrantconfigureofothers:configureobjectproto", False)
+
+            def grantOtherSuccess(Msg):
+                successResponse.status = 0
+                successResponse.message = "Ungrant configure<{0}> to other is successfully!!!".format(body.ConfigureList)
+                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+
+            (responseSpec, failedResponse) = self.create("ungrantconfigureofothers:configureobjectproto", False)
+
+            def grantOtherFailed(Msg):
+                failedResponse.status = 1
+                failedResponse.message = 'Error: Ungrant configure<{0}> object to others is failed!!!'.format(body.ConfigureList)
+                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+            self.securityClient.revokeGrant(self.session,
+                                            secIdDict,
+                                            body.OthersId,
+                                            ).then(grantOtherSuccess).catch(grantOtherFailed)
+        except Exception as e:
+            (responseSpec, failedResponse) = self.create("ungrantconfigureofothers:configureobjectproto", False)
+            print "Error: {0}".format(e)
+            failedResponse.status = 1
+            failedResponse.message = str(e)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+    def onListObjects(self, proto, spec, message, body):
+        try:
+            print '---------------Begin List Object To Others---------------'
+            print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
+
+            def listObjectsSuccess(contentIdList):
+                self.getListObjects(proto, message, contentIdList)
+
+            (responseSpec, failedResponse) = self.create("listobjects:configureobjectproto", False)
+
+            def listObjectsFailed(Msg):
+                failedResponse.status = 1
+                failedResponse.message = 'Error: listting object is failed!!!'
+                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+            self.securityClient.listContent(self.session).then(listObjectsSuccess).catch(listObjectsFailed)
+            print '---------------end List Object---------------'
+
+        except Exception as e:
+            print "Error: {0}".format(e)
+            (responseSpec, failedResponse) = self.create("listobjects:configureobjectproto", False)
+            failedResponse.status = 1
+            failedResponse.message = str(e)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+    def getListObjects(self, proto, message, contentIdList):
+        contentIdList = [e.contentId for e in contentIdList]
+        categoryDict = self.configsql3.getAll(contentIdList)
+        if categoryDict[0]:
+            (responseSpec, successResponse) = self.create("listobjects:configureobjectproto", False)
+            successResponse.CategoryDict = categoryDict[1]
+            successResponse.status = 0
+            successResponse.message = "list objects successfully!!!"
+            self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+        else:
+            (responseSpec, failedResponse) = self.create("listobjects:configureobjectproto", False)
+            failedResponse.status = 1
+            failedResponse.message = categoryDict[1]
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+    def onListAuthoritySharers(self, proto, spec, message, body):
+        try:
+            print '---------------Begin List Authority Sharers---------------'
+            print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
+            print 'Object: <{0}>'.format(body.Object)
+            print '--------------- End List Authority Sharers---------------'
+
+            isGetObject = self.configsql3.getObject(body.Object.Name, 
+                                                    body.Object.Date, 
+                                                    body.Object.Version,
+                                                    body.Object.Category,
+                                                    body.Object.TemplateName,
+                                                    body.Object.CollectionName)
+
+            if isGetObject:
+                secId = isGetObject[0]
+
+                def getSharersSuccess(sharersDict):
+                    (responseSpec, successResponse) = self.create("getauthoritysharers:configureobjectproto", False)
+                    successResponse.SharerList = [elem for elem in sharersDict]
+                    successResponse.status = 0
+                    successResponse.message = "Get sharer list {} successfully!!!".format(str(successResponse.SharerList))
+                    self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+
+                def getSharersFailed(Msg):
+                    (responseSpec, failedResponse) = self.create("getauthoritysharers:configureobjectproto", False)
+                    failedResponse.status = 1
+                    failedResponse.message = "Error: Getting sharer list is failed!!!"
+                    self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+                self.securityClient.checkSharer(self.session, secId).then(getSharersSuccess).catch(getSharersFailed)
+
+            else:
+                (responseSpec, failedResponse) = self.create("getauthoritysharers:configureobjectproto", False)
+                failedResponse.status = 1
+                failedResponse.message = "Error: Getting sharer list is failed!!!"
+                self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+        except Exception as e:
+            (responseSpec, failedResponse) = self.create("getauthoritysharers:configureobjectproto", False)
+            failedResponse.status = 1
+            failedResponse.message = str(e)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())

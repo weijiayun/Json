@@ -1,6 +1,6 @@
 --前面建表，后面初始化参数
 
-CREATE TABLE t_login ( seq_id serial , user_id integer PRIMARY KEY);
+CREATE TABLE t_login ( seq_id serial , user_id integer, PRIMARY KEY(seq_id));
 CREATE INDEX i_login_name ON t_login(user_id,seq_id);
 
 CREATE TABLE t_resource_type
@@ -16,8 +16,8 @@ CREATE TABLE t_permission
 CREATE INDEX i_permissionname ON t_permission (id, name, resource_type_id);
 
 CREATE TABLE t_user
-		(id serial , name varchar , phone_number char(11), password varchar,
-private_key varchar, public_key varchar, PRIMARY KEY(id));
+		(id serial , name varchar default '0', phone_number char(11) default '0', password varchar default '0',
+private_key varchar default '0', public_key varchar default '0', email varchar default '0', intro varchar default '0', avatar varchar default '0', PRIMARY KEY(id));
 CREATE INDEX i_username ON t_user ( id, name);
 
 CREATE TABLE t_resource

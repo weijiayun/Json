@@ -10,6 +10,15 @@ function getPropertyCount(o){
     }
     return count;
 }
+// Object.prototype.size = function () {
+//     var n, count = 0;
+//     for(n in this){
+//         if(this.hasOwnProperty(n)){
+//             count++;
+//         }
+//     }
+//     return count;
+// };
 String.prototype.format=function()
 {
     if(arguments.length==0) return this;
@@ -17,3 +26,4 @@ String.prototype.format=function()
         s=s.replace(new RegExp("\\{"+i+"\\}","g"), arguments[i]);
     return s;
 };
+		

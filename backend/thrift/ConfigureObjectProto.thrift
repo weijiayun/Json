@@ -1,18 +1,121 @@
 include "ACLProto.thrift"
 
+struct configure{
+    1: required string Name;
+    2: required string Date;
+    3: required string Version;
+}
+struct object{
+    1: required string Name;
+    2: required string Date;
+    3: required string Version;
+    4: required string TemplateName;
+    5: required string CollectionName;
+    6: required string Category;
+}
+struct objectContent{
+    1: required string Name;
+    2: required string Date;
+    3: required string Version;
+    4: required string Content;
+    5: required string TemplateName;
+    6: required string CollectionName;
+    7: required string Category;
+}
+
+// -------------------------Create Configure-----------------------------
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_CREATE_CONFIGURE = 310008
+
+struct CreateConfigure
+{
+    1: required ACLProto.LoginSession session;
+    2: required configure Configure;
+    3: required list<object> ObjectList;
+}
+
+struct CreateConfigureResponse
+{
+    1: i32 status;
+    2: string message;
+}
+
+// -------------------------Delete Configure-----------------------------
+
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_DELETE_CONFIGURE = 310010
+
+struct DeleteConfigure
+{
+    1: required ACLProto.LoginSession session;
+    2: required configure Configure;
+}
+
+struct DeleteConfigureResponse
+{
+    1: i32 status;
+    2: string message;
+}
+
+// -------------------------Create Object-----------------------------
+
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_CREATE_OBJECT = 310020
+
+struct CreateObject
+{
+    1: required ACLProto.LoginSession session;
+    2: required list<objectContent> ObjectList;
+}
+
+struct CreateObjectResponse
+{
+    1: i32 status;
+    2: string message;
+}
+
+// -------------------------Delete Object-----------------------------
+
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_DELETE_OBJECT = 310022
+
+struct DeleteObject
+{
+    1: required ACLProto.LoginSession session;
+    2: required list<object> ObjectList;
+
+}
+
+struct DeleteObjectResponse
+{
+    1: i32 status;
+    2: string message;
+}
+
+// -------------------------Get Objects-----------------------------
+
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_GET_OBJECTS = 310024
+
+struct GetObjects
+{
+    1: required ACLProto.LoginSession session;
+    2: required list<object> ObjectList;
+}
+
+struct GetObjectsResponse
+{
+    1: i32 status;
+    2: string message;
+    3: map<string, binary> Content;
+}
 
 // -------------------------Get Configure-----------------------------
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_GET_CONFIGURE_FROM_GRID = 310000
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_GET_CONFIGURE = 310028
 
-struct GetConfigureFromGrid
+struct GetConfigure
 {
     1: required ACLProto.LoginSession session;
-    2: required string GridName;
-    3: required string Version;
-    4: required string Date;
+    2: required configure Configure;
+
 }
 
-struct GetConfigureFromGridResponse
+struct GetConfigureResponse
 {
     1: i32 status;
     2: string message;
@@ -20,249 +123,111 @@ struct GetConfigureFromGridResponse
 
 }
 
-// -------------------------Create Configure Grid-----------------------------
 
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_CREATE_CONFIGURE_GRID = 310002
+// -------------------------Grant Objects To Others-----------------------------
 
-struct Configure
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_GRANT_OBJECTS_TO_OTHERS = 310032
+
+struct GrantObjectsToOthers
 {
-    1: required string Date;
-    2: required string Version;
-}
-struct CreateConfigureGrid
-{
-    1: required ACLProto.LoginSession session;
-    2: required string GridName;
-    3: required list<Configure> ConfigureList;
+	1: required ACLProto.LoginSession session;
+	2: required i32 OthersId;
+	3: required list<object> ObjectList;
 }
 
-struct CreateConfigureGridResponse
-{
-    1: i32 status;
-    2: string message;
-}
-
-
-// -------------------------Delete Configure Grid---------------------
-
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_DELETE_CONFIGURE_GRID = 310004
-
-struct DeleteConfigureGrid
-{
-    1: required ACLProto.LoginSession session;
-    2: required string GridName;
-}
-
-struct DeleteConfigureGridResponse
-{
-    1: i32 status;
-    2: string message;
-}
-
-
-
-// -------------------------Create Configure In Grid-----------------------------
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_CREATE_CONFIGURE_TO_GRID = 310006
-
-struct CreateConfigureToGrid
-{
-
-    1: required ACLProto.LoginSession session;
-    2: required string Version;
-    3: required string Date;
-    4: required string GridName;
-    5: required list<i32> ObjectNameList;
-}
-
-struct CreateConfigureToGridResponse
-{
-    1: i32 status;
-    2: string message;
-    3: i32 ContentId;
-}
-
-// -------------------------Delete Configure In Grid-----------------------------
-
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_DELETE_CONFIGURE_IN_GRID = 310008
-
-struct DeleteConfigureInGrid
-{
-    1: required string Version;
-    2: required string Date;
-    3: required string GridName;
-}
-
-struct DeleteConfigureInGridResponse
-{
-    1: i32 status;
-    2: string message;
-}
-
-
-
-// -------------------------Create Configure Object-----------------------------
-
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_CREATE_CONFIGURE_OBJECT = 310010
-
-struct CreateConfigureObject
-{
-    1: required ACLProto.LoginSession session;
-    2: required i32 TemplateId;
-    3: required string ObjectName;
-    4: required string Content;
-    5: required string Version;
-    6: required string TemplateName;
-    7: required string Collection;
-}
-
-struct CreateConfigureObjectResponse
-{
-    1: i32 status;
-    2: string message;
-    3: i32 ContentId;
-}
-// -------------------------Delete Configure Object-----------------------------
-
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_DELETE_CONFIGURE_OBJECT = 310012
-
-struct DeleteConfigureObject
-{
-    1: required ACLProto.LoginSession session;
-    2: required string ObjectName;
-
-}
-
-struct DeleteConfigureObjectResponse
-{
-    1: i32 status;
-    2: string message;
-    3: i32 ContentId;
-}
-
-// -------------------------Get Configure Object-----------------------------
-
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_GET_CONFIGURE_OBJECT = 310014
-
-struct GetConfigureObject
-{
-    1: required ACLProto.LoginSession session;
-    2: required i32 ObjectName;
-}
-
-struct GetConfigureObjectResponse
-{
-    1: i32 status;
-    2: string message;
-    3: map<string, binary> Content;
-}
-
-
-// -------------------------Grant Authority To Others-----------------------------
-
-const i32 CONFIGUREOBJECTPROTO_GRANT_CONFIGURE_OBJECT_AUTHORITY_TO_OTHERS = 310016
-
-struct GrantConfigureObjectAuthorityToOthers
-{
-	1: required i32 UserId;
-	2: required i32 ObjectId;
-	3: required ACLProto.LoginSession session;
-}
-
-struct GrantConfigureObjectAuthorityToOthersResponse
+struct GrantObjectsToOthersResponse
 {
 	1: i32 status;
     2: string message;
 }
 
-// -------------------------UnGrant Configure Authority To Others-----------------------------
+// -------------------------UnGrant Objects of Others-----------------------------
 
-const i32 CONFIGUREOBJECTPROTO_UN_GRANT_CONFIGURE_OBJECT_AUTHORITY_TO_OTHERS = 310018
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_UN_GRANT_OBJECTS_OF_OTHERS = 310034
 
-struct UnGrantConfigureObjectAuthorityToOthers
+struct UnGrantObjectsOfOthers
 {
     1: required ACLProto.LoginSession session;
 	2: required i32 OthersId;
-	3: required i32 ObjectId;
+	3: required list<object> ObjectList;
 }
-struct UnGrantConfigureObjectAuthorityToOthersResponse
+struct UnGrantObjectsOfOthersResponse
 {
 	1: i32 status;
     2: string message;
 }
 
 
-// -------------------------Grant Configure Instance Authority To Others-----------------------------
+// -------------------------Grant Configure Authority To Others-----------------------------
 
-const i32 CONFIGUREOBJECTPROTO_GRANT_CONFIGURE_INSTANCE_AUTHORITY_TO_OTHERS = 310020
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_GRANT_CONFIGURE_TO_OTHERS = 310036
 
-struct GrantConfigureInstanceAuthorityToOthers
+struct GrantConfigureToOthers
 {
-    1: required i32 OthersId;
-    2: required ACLProto.LoginSession session;
-	3: required string ConfigureName;
-    4: required string Version;
-    5: required string Date;
+    1: required ACLProto.LoginSession session;
+    2: required i32 OthersId;
+    3: required list<configure> ConfigureList;
 
 }
-struct GrantConfigureInstanceAuthorityToOthersResponse
+struct GrantConfigureToOthersResponse
 {
 	1: i32 status;
     2: string message;
 }
 
 
-// -------------------------UnGrant Configure Instance Authority To Others-----------------------------
+// -------------------------UnGrant Configure To Others-----------------------------
 
-const i32 CONFIGUREOBJECTPROTO_UN_GRANT_CONFIGURE_INSTANCE_AUTHORITY_TO_OTHERS = 310022
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_UN_GRANT_CONFIGURE_OF_OTHERS = 310038
 
-struct UnGrantConfigureInstanceAuthorityToOthers
+struct UnGrantConfigureOfOthers
 {
-    1: required i32 OthersId;
-    2: required ACLProto.LoginSession session;
-    3: required string ConfigureName;
-    4: required string Version;
-    5: required string Date;
+    1: required ACLProto.LoginSession session;
+    2: required i32 OthersId;
+    3: required list<configure> ConfigureList;
+
 }
 
-struct UnGrantConfigureInstanceAuthorityToOthersResponse
-{
-	1: i32 status;
-    2: string message;
-}
-
-
-// -------------------------Grant Configure Grid Authority To Others-----------------------------
-
-const i32 CONFIGUREOBJECTPROTO_GRANT_CONFIGURE_GRID_AUTHORITY_TO_OTHERS = 310024
-
-struct GrantConfigureGridAuthorityToOthers
-{
-    1: required i32 OthersId;
-    2: required ACLProto.LoginSession session;
-	3: required string GridName;
-    
-}
-struct GrantConfigureGridAuthorityToOthersResponse
+struct UnGrantConfigureOfOthersResponse
 {
 	1: i32 status;
     2: string message;
 }
 
-// -------------------------UnGrant Configure Grid Authority To Others-----------------------------
 
-const i32 CONFIGUREOBJECTPROTO_UN_GRANT_CONFIGURE_GRID_AUTHORITY_TO_OTHERS = 310026
+// -------------------------List Objects-----------------------------
 
-struct UnGrantConfigureGridAuthorityToOthers
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_LIST_OBJECTS = 310040
+
+struct ListObjects
 {
-    1: required i32 OthersId;
-    2: required ACLProto.LoginSession session;
-	3: required string GridName;
-
+    1: required ACLProto.LoginSession session;
 }
-struct UnGrantConfigureGridAuthorityToOthersResponse
+typedef list<string> objectAttr
+typedef map<string,objectAttr> collection
+struct ListObjectsResponse
 {
 	1: i32 status;
     2: string message;
+    3: map<string,collection> CategoryDict;
 }
+
+// -------------------------List Authority Sharers-----------------------------
+
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_LIST_AUTHORITY_SHARERS = 310042
+
+struct ListAuthoritySharers
+{
+    1: required ACLProto.LoginSession session;
+    2: required object Object;
+}
+
+struct ListAuthoritySharersResponse
+{
+	1: i32 status;
+    2: string message;
+    3: list<string> SharerList;
+}
+
 
 

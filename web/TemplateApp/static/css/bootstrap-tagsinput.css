@@ -9,8 +9,14 @@
   border-radius: 4px;
   line-height: 22px;
   cursor: text;
-  min-height: 35px;
-  max-width: 410px;
+  min-height: 33px;
+  max-width: 314px;
+}
+.bootstrap-tagsinput-add-button{
+  width: 30px;
+  border: transparent;
+  font-size: 25px;
+  background-color: transparent
 }
 .bootstrap-tagsinput-transparent {
   border: transparent;

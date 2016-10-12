@@ -71,6 +71,19 @@ class ACLClient(MessagePlugin):
 
         self.handle('listtyperesource:aclproto', False, self._onListTypeResource)
 
+        self.handle('myinformation:aclproto', False, self._onMyInformation)
+
+        self.handle('changemyinformation:aclproto', False, self._onChangeMyInformation)
+
+        self.handle('changemypassword:aclproto', False, self._onChangeMyPassword)
+
+        self.handle('otherinformation:aclproto', False, self._onOtherInformation)
+
+        self.handle('alluserinformation:aclproto', False, self._onAllUserInformation)
+
+        self.handle('allresourceinformation:aclproto', False, self._onAllResourceInformation)
+
+
         self.currentRequestId = 1
         self.requests = {}
         self.serverId = serverId
@@ -166,7 +179,7 @@ class ACLClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.resourceId)
+                p.fulfill(body.resourceId)
 
     def addResource(self, session ,resourceTypeId, name, description):
         try:
@@ -733,6 +746,133 @@ class ACLClient(MessagePlugin):
         except Exception as e :
             print e
 
+    def _onMyInformation(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.information)
+
+
+    def myInformation(self, session, reqName):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("myinformation:aclproto", True)
+            rRequest.session = session
+            rRequest.reqName = reqName
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e :
+            print e
+
+    def _onChangeMyInformation(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.message)
+
+
+    def changeMyInformation(self, session, reqDic):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("changemyinformation:aclproto", True)
+            rRequest.session = session
+            rRequest.reqDic = reqDic
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e :
+            print e
+
+
+    def _onChangeMyPassword(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p  = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.status)
+
+    def changeMyPassword(self, session,oldPassword, newPassword):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("changemypassword:aclproto", True)
+            rRequest.session = session
+            rRequest.oldPassword = oldPassword
+            rRequest.newPassword = newPassword
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e :
+            print e
+
+
+    def _onOtherInformation(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.information)
+
+    def otherInformation(self, session, reqName, otherUserId):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("otherinformation:aclproto", True)
+            rRequest.session = session
+            rRequest.reqName = reqName
+            rRequest.otherUserId = otherUserId
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
+            print e
+
+
+    def _onAllUserInformation(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.information)
+
+    def allUserInformation(self, session, reqName):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("alluserinformation:aclproto", True)
+            rRequest.session = session
+            rRequest.reqName = reqName
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
+            print e
+
+
+    def _onAllResourceInformation(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.information)
+
+
+    def allResourceInformation(self, session):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("allresourceinformation:aclproto", True)
+            rRequest.session = session
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
+            print e
 
 
 

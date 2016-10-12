@@ -54,8 +54,8 @@ if __name__ == '__main__':
 
     print('thrift generating gen-py for proto files in dir:' + str(confs.ProtoPath))
     try:
-        metaPath = '/tmp/gen-py'
-        sys.path.append(metaPath)
+        metaPath = '/tmp/'
+        sys.path.append(os.path.join(metaPath, 'gen-py'))
         generateProto(confs.ProtoPath, metaPath)
     except Exception as e:
         print('thrift generate gen-py failed: ' + str(e))

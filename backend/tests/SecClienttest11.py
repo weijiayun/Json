@@ -68,72 +68,146 @@ def test(pea, proto):
         privateKey2 = f.read()
 
 
-    t = "zhang hai xu 1234567890"
-    def putContentSeriesSuccess( result ):
-        for k in result:
-            print 'putSeriesContent success:name=%s : %s' % (k, result[k])
-    def putSeriesContentFailed( errMesg):
-        print 'putSeriesContent  %s failed: %s' % (t, errMesg)
-    client.putSeriesContent( session, [['one',t, '1234567812345678'],['two',t, '1234567812345678']],publicKey1)\
-            .then(putContentSeriesSuccess).catch(putSeriesContentFailed)
+    # t = "zhang hai xu 1234567890"
+    # def putContentSeriesSuccess( result ):
+    #     for k in result:
+    #         print 'putSeriesContent success:name=%s : %s' % (k, result[k])
+    # def putSeriesContentFailed(errMesg):
+    #     print 'putSeriesContent  %s failed: %s' % (t, errMesg)
+    # client.putSeriesContent( session, [['one',t, '1234567812345678'],['two',t, '1234567812345678']],publicKey1)\
+    #         .then(putContentSeriesSuccess).catch(putSeriesContentFailed)
 
 
 
-    t = "zhang hai xu 1234567890"
-    def putContentSuccess( result ):
-        print 'putContent  %s success:contentId=%d,keyId=%s' % (t, result[0], result[1])
-        return client.putContent( session, t, '1234567812345678',publicKey1)
-    def putContentFailed( errMesg):
-        print 'putContent  %s failed: %s' % (t, errMesg)
-    def put1Success(x):
-        print 'haha:%d%d' % tuple(x)
-    client.putContent(session, t, '1234567812345678',publicKey1)\
-        .then(putContentSuccess).catch(putContentFailed)\
-        .then(put1Success)
+    # def getSeriesContentSuccess( content ):
+    #     for k,v in content.items():
+    #          print k,v
+    #
+    # def getSeriesContentFailed( errMesg):
+    #     print 'GetsssContent failed: %s' % ( errMesg)
+    # id=[['a',24],['b',25]]
+    # client.getSeriesContent( session, id, privateKey1 )\
+    #     .then(getSeriesContentSuccess).catch(getSeriesContentFailed)
+    #
+    #
+    #
+    #
+    # contentIds={'a':27,'b':28,}
+    # def getkeysuccess(a):
+    #     print 'get key success'
+    # def getKeyFailed(errMesg):
+    #     print 'get key failed %s' % errMesg
+    # def grantSeriesToOtherSuccess( keyId ):
+    #     print 'grant contentId  to other Success success '
+    # def grantSeriesToOtherFailed(errMesg):
+    #     print 'grant  to other  failed: %s' % (errMesg)
+    # client.grantSeriesToOther( session, contentIds, 1, privateKey1, publicKey2)\
+    #         .then(getkeysuccess).catch(getKeyFailed)\
+    #             .then(grantSeriesToOtherSuccess).catch(grantSeriesToOtherFailed)
 
-    contentId = 3
-    def deleteContentSuccess( ):
-        print 'deleteContent id= %s success ' % (contentId)
-    def deleteContentFailed(errMesg):
-        print 'deleteContent id= %s failed: %s' % (contentId, errMesg)
-    client.deleteContent(session, contentId )\
-            .then(deleteContentSuccess).catch(deleteContentFailed)
+    #
+    # def revokeGrantSuccess( nouse ):
+    #     print 'revokeGrant'
+    # def revokeGrantFailed( errMesg):
+    #     print 'revokeGrant failed: %s' % ( errMesg)
+    # id={'a':27,'b':28}
+    # otherUserId=1
+    # client.revokeGrant( session, id, otherUserId )\
+    #     .then(revokeGrantSuccess).catch(revokeGrantFailed)
+
+    def revokeGrantSuccess(nouse):
+        print 'revokeGrant'
+
+    def revokeGrantFailed(errMesg):
+        print 'revokeGrant failed: %s' % (errMesg)
+
+    id = {'a': 27, 'b': 28}
+    otherUserId = 1
+    client.checkSharer(session, 28) \
+        .then(revokeGrantSuccess).catch(revokeGrantFailed)
 
 
-    id = 1
-    def getContentSuccess( content ):
-        print 'GetContent %d  success:content = %s' % (id, content)
-    def getContentFailed( errMesg):
-        print 'GetContent failed: %s' % ( errMesg)
-    client.getContent( session, id, privateKey1 )\
-        .then(getContentSuccess).catch(getContentFailed)
+
+    # #
+    # def listContentSuccess( contents ):
+    #     print 'ListContent success:'
+    #     for i in contents:
+    #         print i
+    # def listContentFailed(errMesg):
+    #     print 'ListContent  failed: %s' % (errMesg[0])
+    # client.listContent( session )\
+    #     .then(listContentSuccess).catch(listContentFailed)
+    #
+    # contentId = [24,25]
+    # def deleteContentSuccess(nouse ):
+    #     print 'deleteContent  success '
+    # def deleteContentFailed(errMesg):
+    #     print 'deleteContent id= %s failed: %s' % (contentId, errMesg)
+    # client.deleteContent(session, contentId )\
+    #         .then(deleteContentSuccess).catch(deleteContentFailed)
 
 
 
-    def listContentSuccess( contents ):
-        print 'ListContent success:'
-        for i in contents:
-            print i
-    def listContentFailed(errMesg):
-        print 'ListContent  failed: %s' % (errMesg[0])
-    client.listContent( session )\
-        .then(listContentSuccess).catch(listContentFailed)
+
+######## 此线以上程序测试通过
+##############################################################################
 
 
-    contentId = 1
-    def getkeysuccess(a):
-        print 'get key success'
-    def getKeyFailed(errMesg):
-        print 'get key failed %s' % errMesg
-
-
-    def grantToOtherSuccess( keyId ):
-        print 'grant contentId =%s to other Success success: newKeyId= %s' % (contentId,keyId)
-    def grantToOtherFailed(errMesg):
-        print 'grant contentId = %s to other  failed: %s' % (contentId, errMesg)
-    client.grantToOther( session, contentId, 1, privateKey1, publicKey2)\
-            .then(getkeysuccess).catch(getKeyFailed)\
-                .then(grantToOtherSuccess).catch(grantToOtherFailed)
+    # t = "zhang hai xu 1234567890"
+    # def putContentSuccess( result ):
+    #     print 'putContent  %s success:contentId=%d,keyId=%s' % (t, result[0], result[1])
+    #     return client.putContent( session, t, '1234567812345678',publicKey1)
+    # def putContentFailed( errMesg):
+    #     print 'putContent  %s failed: %s' % (t, errMesg)
+    # def put1Success(x):
+    #     print 'haha:%d%d' % tuple(x)
+    #     client.putContent(session, t, '1234567812345678',publicKey1)\
+    #     .then(putContentSuccess).catch(putContentFailed)\
+    #     .then(put1Success)
+    #
+    # contentId = 20
+    # def deleteContentSuccess( ):
+    #     print 'deleteContent id= %s success ' % (contentId)
+    # def deleteContentFailed(errMesg):
+    #     print 'deleteContent id= %s failed: %s' % (contentId, errMesg)
+    # client.deleteContent(session, contentId )\
+    #         .then(deleteContentSuccess).catch(deleteContentFailed)
+    #
+    #
+    # id = 1
+    # def getContentSuccess( content ):
+    #     print 'GetContent %d  success:content = %s' % (id, content)
+    # def getContentFailed( errMesg):
+    #     print 'GetContent failed: %s' % ( errMesg)
+    # client.getContent( session, id, privateKey1 )\
+    #     .then(getContentSuccess).catch(getContentFailed)
+    #
+    #
+    #
+    # def listContentSuccess( contents ):
+    #     print 'ListContent success:'
+    #     for i in contents:
+    #         print i
+    # def listContentFailed(errMesg):
+    #     print 'ListContent  failed: %s' % (errMesg[0])
+    # client.listContent( session )\
+    #     .then(listContentSuccess).catch(listContentFailed)
+    #
+    #
+    # contentId = 1
+    # def getkeysuccess(a):
+    #     print 'get key success'
+    # def getKeyFailed(errMesg):
+    #     print 'get key failed %s' % errMesg
+    #
+    #
+    # def grantToOtherSuccess( keyId ):
+    #     print 'grant contentId =%s to other Success success: newKeyId= %s' % (contentId,keyId)
+    # def grantToOtherFailed(errMesg):
+    #     print 'grant contentId = %s to other  failed: %s' % (contentId, errMesg)
+    # client.grantToOther( session, contentId, 1, privateKey1, publicKey2)\
+    #         .then(getkeysuccess).catch(getKeyFailed)\
+    #             .then(grantToOtherSuccess).catch(grantToOtherFailed)
 
     print 'SecClient test seccess!!!'
 

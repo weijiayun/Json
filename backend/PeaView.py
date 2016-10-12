@@ -129,6 +129,7 @@ class PeaView(object):
         obj = self.inputer.create(typeSpec)
         return obj
 
+
     def create(self,name,isInitiator = False):
         if isinstance(name,int):
             from network.DMessage import DMessageType

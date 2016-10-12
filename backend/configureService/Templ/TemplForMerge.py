@@ -1,65 +1,122 @@
 #!/opt/Apps/local/Python/anaconda/bin/python
 #coding: utf-8
-import re
+import json
+class MyEncoder(json.JSONEncoder):
+    def default(self, o):
+        so = {}
+        for attr in o.__dict__:
+            if not callable(attr):
+                v = getattr(o, attr)
+                if not v and issubclass(type(v), VV):
+                    so[attr] = self.default(v)
+                else:
+                    so[attr] = v
+        return so
+
 class VV(object):
     pass
 
 class MergeField(VV):
     def __init__(self):
         self.Default = None
-        self.Source = None
+        self.Source = []
         self.Value = None
-        self.Option = []
+        self.Type = None
+        self.Operate = []
         self.Function = {}
 
 class MergeObject(VV):
-    def __init__(self,OptionList):
+    def __init__(self,OptionDict):
         self.FieldsDict = {}  #连接MergeField
-        self.SourcesDict = {}
-        IsComposite = True
-        self.OptionDcode(OptionList)
+        self.SourcesDict = []
+        self.MergeTemplName = OptionDict["NewName"].encode()
+        self.MergeTemplVersion = OptionDict["NewVersion"].encode()
+        self.OperateLists = OptionDict
+        count=1
+        for i1 in range(len(OptionDict)-2):
+            while(("Option_"+str(count)) not in OptionDict.keys()):
+                count = count+1
+            op_name = "Option_"+str(count)
+            if(OptionDict[op_name]["Operate"]=='Merge'):
+                self.Merge(OptionDict[op_name])
+                count = count + 1
+                continue
+            if (OptionDict[op_name]["Operate"] == 'Fixed'):
+                self.FixField(OptionDict[op_name])
+                count = count + 1
+                continue
+            if (OptionDict[op_name]["Operate"] == 'Connected'):
+                self.Connected(OptionDict[op_name])
+                count = count + 1
+                continue
 
-    def OptionDcode(self,OptionList):
-        for i1 in range(len(OptionList)):
-            if OptionList[i1][0]=='AddSources':   #{1:['AddSources',[add list]]}
-                self.AddSources(OptionList[i1][1])
-            elif OptionList[i1][0]=='DeleteSource': #{2:['DeleteSource',[delete list]]}
-                self.DeleteSource(OptionList[i1][1])
-            elif OptionList[i1][0]=='Merge':        #{3:['Merge',[merge list],[new name for field]]}
-                self.AddField(OptionList[i1][2])
-                self.Merge(OptionList[i1][1])
-            elif OptionList[i1][0]=='Fixed':        #{4:['Fixed',[fix list]]}
-                self.FixField(OptionList[i1][1])
-            elif OptionList[i1][0]=='Addfield':     #{5:['Addfield',[add list],[new name for field]]}
-                self.AddField(OptionList[i1][2])
+    def Connected(self,obj):
+        texttemp = obj["Field"].encode()
+        text = texttemp.split()
+        type = text[1].encode()
+        source = obj["Source"].encode()
+        self.FieldsDict.setdefault(text[2], MergeField())
+        self.FieldsDict[text[2]].Type = type
+        self.FieldsDict[text[2]].Operate.append('Connected')
+        if source not in self.SourcesDict:
+            self.SourcesDict.append(source)
+        else:
+            pass
+        if source not in self.FieldsDict[text[2]].Source:
+            self.FieldsDict[text[2]].Source.append(source)
+        else:
+            pass
 
-    def AddSources(self,valuelist):
-        for i2 in range(len(valuelist)):
-            self.SourcesDict.setdefault(i2,valuelist[i2])
+    def FixField(self, obj):
+        value = obj["Value"]
+        try:
+            value = value.encode()
+        except AttributeError:
+            pass
+        texttemp = obj["Field"].encode()
+        text = texttemp.split()
+        type = text[1].encode()
+        source = obj["Source"].encode()
+        self.FieldsDict.setdefault(text[2], MergeField())
+        self.FieldsDict[text[2]].Value = value
+        self.FieldsDict[text[2]].Type = type
+        self.FieldsDict[text[2]].Operate.append('Fixed')
+        if source not in self.SourcesDict:
+            self.SourcesDict.append(source)
+        else:
+            pass
+        if source not in self.FieldsDict[text[2]].Source:
+            self.FieldsDict[text[2]].Source.append(source)
+        else:
+            pass
+        if 'default' in obj["Field"]:
+            self.FieldsDict[text[2]].Default = text[4].rstrip(";")
 
-    def DeleteSource(self,valuelist):
-        for i2 in range(len(valuelist)):
-            for i0 in range(len(self.SourcesDict)):
-                if self.SourcesDict[i0] == valuelist[i2]:
-                    del self.SourcesDict[i0]
-
-    def FixField(self,fixlist):  #[A,B,new name,[]]
-        for i2 in range(len(fixlist)):
-            self.AddField(fixlist[i2][2])
-            fixA = fixlist[i2][0].split()
-            fixB = fixlist[i2][1].split()
-            if 'default' in fixA:
-                self.FieldsDict[fixlist[i2][2]].Default = fixA[-1]
-            elif 'default' in fixB:
-                self.FieldsDict[fixlist[i2][2]].Default = fixB[-1]
-            self.FieldsDict[fixlist[i2][2]].Value = fixB
-            self.FieldsDict[fixlist[i2][2]].Option.append('Fixed')
-
-
-    def AddField(self,fieldname):
-        self.FieldsDict.setdefault(fieldname,MergeField())
-
-    def Merge(self,fieldlist): #检查是否含有equal #[[fieldlist],[new name]]
-        a = []
-        for i2 in range(len(fieldlist)):
-            a.append(re.sub("\d", " ", fieldlist[i2]))
+    def Merge(self,obj):
+        value = obj["Value"]
+        try:
+            value = value.encode()
+        except AttributeError:
+            pass
+        texttemp = obj["Field"].encode()
+        text=texttemp.split()
+        type = text[1].encode()
+        sourcedict = obj["Source"]
+        self.FieldsDict.setdefault(text[2], MergeField())
+        self.FieldsDict[text[2]].Value = value
+        self.FieldsDict[text[2]].Type = type
+        self.FieldsDict[text[2]].Operate.append('Merge')
+        self.FieldsDict[text[2]].Source = {}
+        for i2 in sourcedict.keys():
+            if i2 not in self.SourcesDict:
+                self.SourcesDict.append(i2)
+            else:
+                pass
+            if i2 not in self.FieldsDict[text[2]].Source.keys():
+                self.FieldsDict[text[2]].Source[i2] = sourcedict[i2]
+            else:
+                pass
+        if 'equal' in obj["Field"]:
+            self.FieldsDict[text[2]].Value = text[4]
+        if 'default' in obj["Field"]:
+            self.FieldsDict[text[2]].Default = text[4].rstrip(";")

@@ -649,18 +649,178 @@ struct ListTypeResourceResponse
 }
 
 
+//-----------------------My information----------------------------
+
+
+const i32 ACLPROTO_MESSAGE_MY_INFORMATION = 100054
+
+
+enum RequestName
+{
+    name =1,
+    phone_number=2,
+    email=3,
+    intro=4,
+    password=5,
+    private_key=6,
+    public_key=7,
+    avatar=8,
+    id=9,
+}
+
+struct MyInformation
+{
+	1: required LoginSession session;
+	2: required list<RequestName> reqName;
+}
 
 
 
 
+struct MyInformationResponse
+{
+	1: i32 status;
+	2: string message;
+	3: map<string, string> information;
+}
+
+
+//-----------------------Change my information----------------------------
+
+
+const i32 ACLPROTO_MESSAGE_CHANGE_MY_INFORMATION = 100056
+
+
+struct ChangeMyInformation
+{
+	1: required LoginSession session;
+	2: required map<RequestName, string> reqDic;
+}
 
 
 
 
+struct ChangeMyInformationResponse
+{
+	1: i32 status;
+	2: string message;
+}
+
+//-----------------------Change my password---------------------------
+
+
+const i32 ACLPROTO_MESSAGE_CHANGE_MY_PASSWORD = 100058
+
+struct ChangeMyPassword
+{
+	1: required LoginSession session;
+    2: required binary oldPassword;
+    3: required binary newPassword;
+}
+
+struct ChangeMyPasswordResponse
+{
+	1: i32 status;
+	2: string message;
+}
+
+
+
+//-----------------------Other information----------------------------
+
+
+const i32 ACLPROTO_MESSAGE_OTHER_INFORMATION = 100060
+
+/*
+enum RequestName
+{
+    name =1,
+    phone_number=2,
+    email=3,
+    intro=4,
+    password=5,
+    private_key=6,
+    public_key=7,
+    avatar=8,
+    id=9,
+}
+
+*/
+
+struct OtherInformation
+{
+	1: required LoginSession session;
+	2: required list<RequestName> reqName;
+	3: required i32 otherUserId;
+}
 
 
 
 
+struct OtherInformationResponse
+{
+	1: i32 status;
+	2: string message;
+	3: map<string, string> information;
+}
+
+
+//-----------------------All user information----------------------------
+
+
+const i32 ACLPROTO_MESSAGE_ALL_USER_INFORMATION = 100062
+
+/*
+enum RequestName
+{
+    name =1,
+    phone_number=2,
+    email=3,
+    intro=4,
+    password=5,
+    private_key=6,
+    public_key=7,
+    avatar=8,
+    id=9,
+}
+
+*/
+
+
+struct AllUserInformation
+{
+	1: required LoginSession session;
+	2: required list<RequestName> reqName;
+}
+
+typedef list<string>  Lists
+
+struct AllUserInformationResponse
+{
+	1: i32 status;
+	2: string message;
+	3: list<Lists> information;
+}
+
+
+//-----------------------All resource information----------------------------
+
+
+const i32 ACLPROTO_MESSAGE_ALL_RESOURCE_INFORMATION = 100064
+
+struct AllResourceInformation
+{
+	1: required LoginSession session;
+}
+
+//typedef list<string>  Lists
+
+struct AllResourceInformationResponse
+{
+	1: i32 status;
+	2: string message;
+	3: list<Lists> information;
+}
 
 
 
