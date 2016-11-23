@@ -1,7 +1,0 @@
-enum OrderType::type
-{
-    OTGFD = 0,
-    SIMULATION = 1,
-    IOC = 2,
-    POTF = 3
-};

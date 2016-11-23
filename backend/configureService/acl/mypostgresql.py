@@ -8,13 +8,8 @@ import threading
 '''
 创建所需数据表，完成数据插入、查找、删除、修改等功能
 '''
-
-
-
 # logging.basicConfig(filename = os.path.join(os.getcwd(), time.strftime('%Y-%m-%d-') + 'log.txt'),
 #         level = logging.WARN, filemode = 'a', format = '错误时间：%(asctime)s  %(message)s')
-
-
 # 写入日志
 def write_log(log_type, url, message):
     logger = '\n错误链接：%s\n错误信息：%s\n%s\n' % (url, message, '-'*50)
@@ -23,9 +18,7 @@ def write_log(log_type, url, message):
     elif log_type == 'warning':
         logging.warning(logger)
 
-
 class mysql(object):
-    #conn = psycopg2.connect(database="acl", user="postgres", password="powerup", host="127.0.0.1", port="5432")
 
     def __init__(self,conn):
         self.conn = conn
@@ -50,43 +43,9 @@ class mysql(object):
         finally:
             cur.close()
 
-
-    # print threading.activeCount()
-    # t = threading.Timer(20.0, sessionTimeOut,[key])
-    # t.start()
-    # print threading.activeCount()
-    # time.sleep(3)
-    # t = threading.Timer(20.0, sessionTimeOut,[key])
-    # t.cancel()
-    # print threading.activeCount()
-
-
-
-
-
-
-
-
-
     def login(self,userName, password):
         cur = self.conn.cursor()
         try:
-            # sql3 = ''' SELECT id FROM t_user WHERE name=%s AND password =%s ;'''
-            # cur.execute(sql3,(userName,password))
-            # a = cur.fetchone()
-            # if a is None:
-            #     return 0,0
-            # userId = a[0]
-            # sql = '''INSERT INTO t_login (user_id) VALUES (%s);'''
-            # cur.execute(sql,(userId,))
-            # sql2 = '''SELECT seq_id FROM t_login WHERE (user_id=%s) ;'''
-            # cur.execute(sql2,(userId,))
-            # r =cur.fetchone()
-            # self.conn.commit()
-            # return r, userId
-
-
-
             sql3 = ''' SELECT id FROM t_user WHERE name=%s AND password =%s ;'''
             cur.execute(sql3,(userName,password))
             a = cur.fetchone()
@@ -110,7 +69,6 @@ class mysql(object):
         finally:
             cur.close()
 
-
     def logout(self,userId,seqId):
         cur = self.conn.cursor()
         try:
@@ -124,8 +82,6 @@ class mysql(object):
             return False
         finally:
             cur.close()
-
-
 
     def checkLogin(self,userId,seqId):
         cur = self.conn.cursor()
@@ -180,24 +136,22 @@ class mysql(object):
         finally:
             cur.close()
 
-
-
-
-    def insertResource(self, userId,restypeid, name, description):
+    def insertResource(self, userId,restypeid, name, contentId):
         cur = self.conn.cursor()
         try:
-            sql='''INSERT INTO t_resource (resource_type_id, name, description) VALUES (%s, %s, %s);'''
-            cur.execute(sql,(restypeid, name, description))
-            sql2='''  SELECT currval('t_resource_id_seq');'''
+            sql='''INSERT INTO t_resource (resource_type_id, name, contentId) VALUES (%s, %s, %s);'''
+            cur.execute(sql,(restypeid, name, contentId))
+            sql2='''SELECT currval('t_resource_id_seq');'''
             cur.execute(sql2)
             r = cur.fetchone()
-            sql3='''select id from t_permission where resource_type_id = %s;'''
+            sql3='''select id from t_resource_type_permission where resource_type_id = %s;'''
             cur.execute(sql3,(restypeid,))
             r2 = cur.fetchall()
             for i in r2:
                 sql4=''' INSERT INTO t_role_permission_resource ( role_id,permission_id,resource_id) VALUES
                 ((select role_id from t_user_role where user_id= %s ),%s,%s); '''
                 cur.execute(sql4,(userId,i,r[0]))
+
             #增加删除这个新增资源的权限
             sql5 = '''INSERT INTO t_role_permission_resource ( role_id,permission_id,resource_id) VALUES
                 ((select role_id from t_user_role where user_id= %s ),24,%s);'''
@@ -211,13 +165,11 @@ class mysql(object):
         finally:
             cur.close()
 
-
-
     def insertRole(self, rolename):
+        cur = self.conn.cursor()
         try:
-            cur = self.conn.cursor()
-            sql = '''INSERT INTO t_role(role_name) VALUES (%s );'''
-            cur.execute(sql,(rolename,))
+            sql = '''INSERT INTO t_role(role_name) VALUES ({0});'''.format(rolename)
+            cur.execute(sql)
             sql2 = '''  SELECT currval('t_role_id_seq');'''
             cur.execute(sql2 )
             r = cur.fetchone()
@@ -230,16 +182,15 @@ class mysql(object):
         finally:
             cur.close()
 
-
-
     def insertUser(self,name, phoneNumber, password, privateKey, publicKey):
         cur = self.conn.cursor()
         try:
-            sql = '''INSERT INTO t_user (name, phone_number,password, private_key, public_key) VALUES (%s,%s,%s,%s,%s);'''
-            cur.execute(sql,(name, phoneNumber, password, privateKey, publicKey))
+            sql = '''INSERT INTO t_user (name, phone_number,password, private_key, public_key)
+                     VALUES ({0},{1},{2},{3},{4});'''.format(name, phoneNumber, password, privateKey, publicKey)
+            cur.execute(sql)
             sql2 = '''  SELECT currval('t_user_id_seq');'''
-            cur.execute(sql2 )
-            r =cur.fetchone()
+            cur.execute(sql2)
+            r = cur.fetchone()
             self.conn.commit()
             return r
         except Exception as e:
@@ -249,13 +200,12 @@ class mysql(object):
         finally:
             cur.close()
 
-
-
-    def insertPermission(self,name, description, resourceTypeId ):
+    def insertPermission(self, name, description, resourceTypeId):
         cur = self.conn.cursor()
         try:
-            sql = '''INSERT INTO t_permission (name, description, resource_type_id) VALUES (%s,%s,%s);'''
-            cur.execute(sql,( name, description, resourceTypeId))
+            sql = '''INSERT INTO t_permission (name, description, resource_type_id)
+                    VALUES ({0},{1},{2});'''.format(name, description, resourceTypeId)
+            cur.execute(sql)
             self.conn.commit()
         except Exception as e:
             print e
@@ -263,11 +213,12 @@ class mysql(object):
         finally:
             cur.close()
 
-    def insertRPR(self,roleId, permissionId, resourceId):
+    def insertRPR(self, roleId, permissionId, resourceId):
         cur = self.conn.cursor()
         try:
-            sql='''INSERT INTO t_role_permission_resource (role_id, permission_id, resource_id) VALUES (%s, %s, %s);'''
-            cur.execute(sql,(roleId, permissionId, resourceId))
+            sql = '''INSERT INTO t_role_permission_resource (role_id, permission_id, resource_id)
+                   VALUES ({0}, {1}, {2});'''.format(roleId, permissionId, resourceId)
+            cur.execute(sql)
             self.conn.commit()
         except Exception as e:
             print e
@@ -275,11 +226,11 @@ class mysql(object):
         finally:
             cur.close()
 
-    def grantUserRole(self,userId,roleId):
+    def setRoleToUser(self, userId, roleId):
+        cur = self.conn.cursor()
         try:
-            cur = self.conn.cursor()
-            sql='''INSERT INTO t_user_role (user_id, role_id) VALUES (%s, %s);'''
-            cur.execute(sql,(userId,roleId))
+            sql = '''INSERT INTO t_user_role (user_id, role_id) VALUES ({0}, {1});'''.format(userId, roleId)
+            cur.execute(sql)
             self.conn.commit()
             return True
         except Exception as e:
@@ -289,14 +240,27 @@ class mysql(object):
         finally:
             cur.close()
 
-
-
-    def changePassword(self,userId,password):
+    def clearRoleOfUser(self, userId, roleId):
+        cur = self.conn.cursor()
         try:
-            cur = self.conn.cursor()
-            sql='''UPDATE t_user SET password=%s WHERE id=%s;'''
-            cur.execute(sql,(password,userId))
-            if cur.rowcount ==0:
+            sql = '''DELETE FROM t_user_role
+                     WHERE t_user_role.user_id={0} AND t_user_role.role_id={1};'''.format(userId, roleId)
+            cur.execute(sql)
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print e
+            self.conn.rollback()
+            return False
+        finally:
+            cur.close()
+
+    def changePassword(self, userId, password):
+        cur = self.conn.cursor()
+        try:
+            sql = '''UPDATE t_user SET password=%s WHERE id=%s;'''
+            cur.execute(sql, (password, userId))
+            if cur.rowcount == 0:
                 raise Exception('object does not exist')
             self.conn.commit()
             return True
@@ -307,15 +271,13 @@ class mysql(object):
         finally:
             cur.close()
 
-
-
     def listRole(self):
         cur = self.conn.cursor()
         try:
             self.conn.commit()
             sql = '''SELECT * FROM t_role; '''
             cur.execute(sql,)
-            r =cur.fetchall()
+            r = cur.fetchall()
             return r
         except Exception as e:
             print e
@@ -323,12 +285,12 @@ class mysql(object):
         finally:
             cur.close()
 
-
     def listResource(self, userId):
         cur = self.conn.cursor()
         try:
-            sql = '''SELECT id, name FROM t_resource WHERE id in (SELECT resource_id FROM t_role_permission_resource
-                    WHERE role_id = (SELECT role_id FROM t_user_role WHERE user_id = %s) ); '''
+            sql = '''SELECT DISTINCT id, name FROM t_resource WHERE id in (SELECT resource_id FROM t_role_permission_resource
+                    WHERE role_id = (SELECT parent_role_id FROM t_role_memberof
+                    WHERE child_role_id = (SELECT role_id FROM t_user_role WHERE user_id = %s))); '''
             cur.execute(sql,(userId,))
             r =cur.fetchall()
             return r
@@ -352,14 +314,12 @@ class mysql(object):
         finally:
             cur.close()
 
-
-
     def listUser(self):
         cur = self.conn.cursor()
         try:
             sql = '''SELECT id, name FROM t_user; '''
             cur.execute(sql)
-            r =cur.fetchall()
+            r = cur.fetchall()
             return r
         except Exception as e:
             print e
@@ -367,12 +327,11 @@ class mysql(object):
         finally:
             cur.close()
 
-
-    def grantPermission(self,roleId,permissionId,resourceId):
+    def grantPermission(self, roleId, permissionId, resourceId):
+        cur = self.conn.cursor()
         try:
-            cur = self.conn.cursor()
             sql='''INSERT INTO t_role_permission_resource (role_id, permission_id, resource_id) VALUES (%s, %s, %s);'''
-            cur.execute(sql,(roleId, permissionId, resourceId))
+            cur.execute(sql, (roleId, permissionId, resourceId))
             self.conn.commit()
             return  True
         except Exception as e:
@@ -385,17 +344,16 @@ class mysql(object):
     def listPermission(self, userId):
         cur = self.conn.cursor()
         try:
-            sql='''SELECT id, name FROM t_permission WHERE id in (SELECT permission_id FROM t_role_permission_resource
+            sql = '''SELECT id, name FROM t_permission WHERE id in (SELECT permission_id FROM t_role_permission_resource
                     WHERE role_id = (SELECT role_id FROM t_user_role WHERE user_id = %s));'''
-            cur.execute(sql,(userId,))
-            r=cur.fetchall()
+            cur.execute(sql, (userId,))
+            r = cur.fetchall()
             return r
         except Exception as e:
             print e
             return False
         finally:
             cur.close()
-
 
     def listSBPermission(self,roleId):
         cur = self.conn.cursor()
@@ -410,7 +368,6 @@ class mysql(object):
             return False
         finally:
             cur.close()
-
 
     def changeUserName(self,sessUserId, userName):
         cur = self.conn.cursor()
@@ -428,24 +385,21 @@ class mysql(object):
         finally:
             cur.close()
 
-
-
-    def changeRoleName(self,roleId,roleName):
+    def changeRoleName(self, roleId, roleName):
         cur = self.conn.cursor()
         try:
             sql='''UPDATE t_role SET role_name=%s WHERE id=%s;'''
-            cur.execute(sql,(roleName,roleId))
-            if cur.rowcount ==0:
+            cur.execute(sql, (roleName, roleId))
+            if cur.rowcount == 0:
                 raise Exception('object does not exist')
             self.conn.commit()
-            return  True
+            return True
         except Exception as e:
             print e
             self.conn.rollback()
             return False
         finally:
             cur.close()
-
 
     def changePublicKey(self,userId,publicKey):
         cur = self.conn.cursor()
@@ -463,7 +417,6 @@ class mysql(object):
         finally:
             cur.close()
 
-
     def changePrivateKey(self,userId,privateKey):
         cur = self.conn.cursor()
         try:
@@ -472,7 +425,7 @@ class mysql(object):
             if cur.rowcount ==0:
                 raise Exception('object does not exist')
             self.conn.commit()
-            return  True
+            return True
         except Exception as e:
             print e
             self.conn.rollback()
@@ -480,24 +433,37 @@ class mysql(object):
         finally:
             cur.close()
 
+    def getPublicKey(self, userId):
+        cur = self.conn.cursor()
+        try:
+            sql = '''SELECT public_key FROM t_user WHERE (id={0});'''.format(userId)
+            cur.execute(sql)
+            publickey = cur.fetchone()
+            if publickey is None:
+                raise Exception("ERROR: User: {0} has no public key!!!".format(userId))
+            return [True, publickey[0]]
+        except Exception as e:
+            print e
+            self.conn.rollback()
+            return [False, str(e)]
+        finally:
+            cur.close()
 
     def deleteResource(self, resourceId):
         cur = self.conn.cursor()
         try:
             sql = '''DELETE FROM t_resource WHERE (id=%s); '''
-            cur.execute(sql,(resourceId,))
-            if cur.rowcount ==0:
+            cur.execute(sql, (resourceId,))
+            if cur.rowcount == 0:
                 raise Exception('object does not exist')
             self.conn.commit()
-            return  True
+            return True
         except Exception as e:
             print e
             self.conn.rollback()
             return False
         finally:
             cur.close()
-
-
 
     def deleteUser(self, userId):
         cur = self.conn.cursor()
@@ -516,16 +482,15 @@ class mysql(object):
         finally:
             cur.close()
 
-
     def deleteRole(self, roleId):
         cur = self.conn.cursor()
         try:
-            sql = '''DELETE FROM t_role WHERE (id=%s); '''
-            cur.execute(sql,(roleId,))
+            sql = '''DELETE FROM t_role WHERE (id={0}); '''.format(roleId)
+            cur.execute(sql)
             if cur.rowcount ==0:
                 raise Exception('object does not exist')
             self.conn.commit()
-            return  True
+            return True
         except Exception as e:
             print e
             self.conn.rollback()
@@ -547,16 +512,18 @@ class mysql(object):
         finally:
             cur.close()
 
-
-    def inheritPermission(self,prole,crole):
+    def grantRoleToRole(self,childRole_id, parentRoleIdTuple):
         cur = self.conn.cursor()
         try:
-            sql = '''SELECT * FROM t_role_permission_resource WHERE role_id= %s;'''
-            cur.execute(sql,(prole,))
-            r1 = cur.fetchall()
-            for i in r1:
-                sql2 = ''' INSERT INTO t_role_permission_resource (role_id, permission_id, resource_id) VALUES (%s, %s, %s);'''
-                cur.execute(sql2,(crole,i[1],i[2]))
+            vals = ""
+            for i, ID in enumerate(parentRoleIdTuple):
+                if i == 0:
+                    vals += "({0},{1})".format(childRole_id, ID)
+                else:
+                    vals += ",({0},{1})".format(childRole_id, ID)
+
+            sql = '''INSERT INTO t_role_memberof(child_role_id, parent_role_id) VALUES {0};'''.format(vals)
+            cur.execute(sql)
             self.conn.commit()
             return True
         except Exception as e:
@@ -566,15 +533,13 @@ class mysql(object):
         finally:
             cur.close()
 
-
-    def releaseRole(self, roleId):
+    def revokeRoleFromRole(self, childRole_id, parentRoleIdTuple):
         cur = self.conn.cursor()
         try:
-            sql = '''DELETE FROM t_user_role WHERE (role_id=%s);
-                     DELETE FROM t_role_permission_resource WHERE (role_id=%s)  ; '''
-            cur.execute(sql,(roleId,roleId))
-            if cur.rowcount ==0:
-                raise Exception('object does not exist')
+            sql = '''DELETE FROM t_role_memberof
+                     WHERE t_role_memberof.child_role_id={0}
+                     AND t_role_memberof.parent_role_id IN {1};'''.format(childRole_id, str(parentRoleIdTuple))
+            cur.execute(sql)
             self.conn.commit()
             return True
         except Exception as e:
@@ -584,8 +549,7 @@ class mysql(object):
         finally:
             cur.close()
 
-
-    def myRole (self,userId):
+    def myRole(self, userId):
         cur = self.conn.cursor()
         try:
             sql = ''' select role_id, role_name from t_role as r inner join t_user_role as ur on  r.id = ur.role_id
@@ -598,7 +562,6 @@ class mysql(object):
             return False
         finally:
             cur.close()
-
 
     def listResourceType(self):
         cur = self.conn.cursor()

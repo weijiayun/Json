@@ -112,19 +112,19 @@ struct AddUserResponse
     3:i32 userId;
 }
 
-//-------------------Grant role----------------------------------
+//-------------------Set Role To User----------------------------------
 
 
-const i32 ACLPROTO_MESSAGE_GRANT_ROLE = 100008
+const i32 ACLPROTO_MESSAGE_SET_ROLE_TO_USER = 100008
 
-struct GrantRole
+struct SetRoleToUser
 {
 	1: required LoginSession session;
     2: required i32 userId;
     3: required i32 roleId;
 }
 
-struct GrantRoleResponse
+struct SetRoleToUserResponse
 {
 	1:i32 status;
     2:string message;
@@ -823,6 +823,78 @@ struct AllResourceInformationResponse
 }
 
 
+//-----------------------Get Public Key----------------------------
+
+
+const i32 ACLPROTO_MESSAGE_GET_PUBLIC_KEY = 100066
+
+struct GetPublicKey
+{
+	1: required LoginSession session;
+	2: required i32 userId;
+}
+
+
+struct GetPublicKeyResponse
+{
+	1: i32 status;
+	2: string message;
+	3: string publicKey;
+}
+
+//-------------------Clear Role Of User----------------------------------
+
+
+const i32 ACLPROTO_MESSAGE_CLEAR_ROLE_OF_USER = 100068
+
+struct ClearRoleOfUser
+{
+	1: required LoginSession session;
+    2: required i32 userId;
+    3: required i32 roleId;
+}
+
+struct ClearRoleOfUserResponse
+{
+	1:i32 status;
+    2:string message;
+}
+
+//-------------------Grant To Role----------------------------------
+
+
+const i32 ACLPROTO_MESSAGE_GRANT_TO_ROLE = 100070
+
+struct GrantToRole
+{
+	1: required LoginSession session;
+    2: required i32 roleId;
+    3: required list<i32> parentsRoleId
+}
+
+struct GrantToRoleResponse
+{
+	1:i32 status;
+    2:string message;
+}
+
+//-------------------Revoke From Role----------------------------------
+
+
+const i32 ACLPROTO_MESSAGE_REVOKE_FROM_ROLE = 100072
+
+struct RevokeFromRole
+{
+	1: required LoginSession session;
+    2: required i32 roleId;
+    3: required list<i32> parentsRoleId
+}
+
+struct RevokeFromRoleResponse
+{
+	1:i32 status;
+    2:string message;
+}
 
 
 

@@ -47,6 +47,7 @@ struct DeleteConfigure
 {
     1: required ACLProto.LoginSession session;
     2: required configure Configure;
+
 }
 
 struct DeleteConfigureResponse
@@ -63,6 +64,7 @@ struct CreateObject
 {
     1: required ACLProto.LoginSession session;
     2: required list<objectContent> ObjectList;
+    3: required string publicKey;
 }
 
 struct CreateObjectResponse
@@ -96,6 +98,7 @@ struct GetObjects
 {
     1: required ACLProto.LoginSession session;
     2: required list<object> ObjectList;
+    3: required string privateKey;
 }
 
 struct GetObjectsResponse
@@ -112,6 +115,7 @@ struct GetConfigure
 {
     1: required ACLProto.LoginSession session;
     2: required configure Configure;
+    3: required string privateKey;
 
 }
 
@@ -133,6 +137,8 @@ struct GrantObjectsToOthers
 	1: required ACLProto.LoginSession session;
 	2: required i32 OthersId;
 	3: required list<object> ObjectList;
+	4: required string privateKey;
+	5: required string othersPublicKey;
 }
 
 struct GrantObjectsToOthersResponse
@@ -167,6 +173,8 @@ struct GrantConfigureToOthers
     1: required ACLProto.LoginSession session;
     2: required i32 OthersId;
     3: required list<configure> ConfigureList;
+    4: required string privateKey;
+	5: required string othersPublicKey;
 
 }
 struct GrantConfigureToOthersResponse

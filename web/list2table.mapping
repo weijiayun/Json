@@ -1,9 +1,0 @@
-{
-    "AccountPosition":{"PortfolioId":"Portfolio","FeedCode":"FeedCode","YstdLongPos":"YesterdayLong","YstdShortPos":"YesterdayShort","TodayLongPos":"TodayLong","TodayShortPos":"TodayShort"},
-    "PortfolioPosition":{"PortfolioName":"Portfolio","FeedCode":"FeedCode","YstdNetPos":"YesterdayNet","TodayBuyPos":"TodayBuy","TodaySellPos":"TodaySell"},
-    "OnlineApplication":{ "Description":"Description", "ConnId":"ConnId", "AppGroupId":"AppGroupId", "TTId":"TTId", "AppId":"AppId", "Name":"Name" },
-    "SoftLimitsStatusItem":{"Id":"Id", "Name":"Name", "LimitName":"LimitName", "IsEnabled":"IsEnabled" },
-    "SignalStatusItem":{ "Id":"Id", "SignalName":"SignalName", "IsEnabled":"IsEnabled"},
-    "StrategyStatusItem": {"Id":"Id", "StrategyName":"StrategyName", "PortfolioId":"PortfolioId", "IsEnabled":"IsEnabled"}
-}
-

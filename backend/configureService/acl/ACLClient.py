@@ -51,6 +51,8 @@ class ACLClient(MessagePlugin):
 
         self.handle('changeprivatekey:aclproto', False, self._onChangePrivateKey)
 
+        self.handle('getpublickey:aclproto', False, self._onGetPublicKey)
+
         self.handle('deleteresource:aclproto', False, self._onDeleteResource)
 
         self.handle('deleteuser:aclproto', False, self._onDeleteUser)
@@ -514,7 +516,7 @@ class ACLClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.status )
+                p.fulfill(body.status)
 
     def changePrivateKey(self, session,privateKey):
         try:
@@ -525,7 +527,27 @@ class ACLClient(MessagePlugin):
             self.changePrivateKeyResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
-        except Exception as e :
+        except Exception as e:
+            print e
+
+    def _onGetPublicKey(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.publicKey)
+
+    def getPublicKey(self, session, userId):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("getpublickey:aclproto", True)
+            rRequest.userId = userId
+            rRequest.session = session
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
             print e
 
     def _onDeleteResource(self, proto, spec, message, body):
@@ -535,10 +557,9 @@ class ACLClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.status )
+                p.fulfill(body.status)
 
-
-    def deleteResource(self, session,resourceId):
+    def deleteResource(self, session, resourceId):
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("deleteresource:aclproto", True)
@@ -754,7 +775,6 @@ class ACLClient(MessagePlugin):
                 p.reject(Exception(body.message))
             else:
                 p.fulfill(body.information)
-
 
     def myInformation(self, session, reqName):
         try:

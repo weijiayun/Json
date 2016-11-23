@@ -1,5 +1,0 @@
-struct TradingRange(struct:struct)
-{
-    required string End reference DateTime;
-    required string Start reference DateTime;
-};
