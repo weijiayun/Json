@@ -11,7 +11,7 @@ CREATE TABLE t_resource_type_permission(
   FOREIGN KEY (resource_type_id) REFERENCES t_resource_type(id) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (permission_id) REFERENCES t_permission(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
-DROP TABLE t_resource_type_permission;
+
 CREATE TABLE t_role_memberOf(
   child_role_id int,
   parent_role_id int,
@@ -19,7 +19,7 @@ CREATE TABLE t_role_memberOf(
   FOREIGN KEY (parent_role_id) REFERENCES t_role(id) ON DELETE CASCADE ON UPDATE CASCADE,
   PRIMARY KEY (child_role_id,parent_role_id)
 );
-DROP TABLE t_role_memberOf;
+
 
 CREATE TABLE t_role_permission_resource(
   role_id int,
@@ -67,16 +67,16 @@ INSERT INTO t_resource(name, resource_type_id, content_id, is_group) VALUES
 INSERT INTO t_group_resource(group_id, resource_id) VALUES (5,6),(5,7),(5,8),(5,9);
 INSERT INTO t_permission (name,description) VALUES
   ('r', 'a'),('w', 'b'),('e', 'c'),
-        ('AddResourceType', 's'),('AddResource', 's'),('AddRole', 's'),('AddUser', 's'),
-        ('GrantRole', 's'),('ChangePassword', 's'),('Login', 's'),('Logout', 's'),
-        ('ListResource', 's'),('GrantPermission', 's'),('ListRole', 's'),('ListUser', 's'),
-        ('ListPermission', 's'),('ChangeUserName', 's'),('ChangeRoleName', 's'),
-        ('ChangePublicKey', 's'),('ChangePrivateKey', 's'),('DeleteResource', 's'),
-        ('DeleteUser', 's'),('DeleteRole', 's'),('ListLogin', 's'),
-        ('ListOtherResource', 's'),('ListOtherPermission', 's'),('InheritPermission', 's'),('ReleaseRole', 's'),
-        ('MyRole', 's'),('ListResourceType', 's'),('HasPermission', 's'),('ListTypeResource', 's');
+  ('AddResourceType', 's'),('AddResource', 's'),('AddRole', 's'),('AddUser', 's'),
+  ('GrantRole', 's'),('ChangePassword', 's'),('Login', 's'),('Logout', 's'),
+  ('ListResource', 's'),('GrantPermission', 's'),('ListRole', 's'),('ListUser', 's'),
+  ('ListPermission', 's'),('ChangeUserName', 's'),('ChangeRoleName', 's'),
+  ('ChangePublicKey', 's'),('ChangePrivateKey', 's'),('DeleteResource', 's'),
+  ('DeleteUser', 's'),('DeleteRole', 's'),('ListLogin', 's'),
+  ('ListOtherResource', 's'),('ListOtherPermission', 's'),('InheritPermission', 's'),('ReleaseRole', 's'),
+  ('MyRole', 's'),('ListResourceType', 's'),('HasPermission', 's'),('ListTypeResource', 's');
 
-INSERT INTO t_role(role_name) VALUES ('itLeader3'),('reachLeader3');
+INSERT INTO t_role(role_name) VALUES ('RM'),('IM'),('itLeader1'),('reachLeader1'),('itLeader2'),('reachLeader2'),('itLeader4'),('reachLeader4');
 INSERT INTO t_role_memberOf(child_role_id, parent_role_id)
 VALUES(1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8);
 
@@ -88,3 +88,4 @@ INSERT INTO t_role_permission_resource(role_id, permission_id, resource_id) VALU
   (2,1,4),(2,2,4),
   (3,1,3),(3,2,3),(3,1,4),(3,2,4),(3,3,4),
   (4,1,5),(4,2,5),(4,3,5);
+INSERT INTO t_group_resource(group_id, resource_id) VALUES(5,6),(5,7),(5,8),(5,9);
