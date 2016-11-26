@@ -4,7 +4,7 @@ class Role(object):
     def __init__(self, roleId, roleName):
         self.id = roleId
         self.name = roleName
-        self.parents = {}
+        self.parents = {self.id:self}
         self.parentTree = {}
         self.resources = {}
         self.resourcePerms = {}
@@ -48,53 +48,48 @@ class Role(object):
             dictmerged.update(parent.getResources())
         return dictmerged
 
-
-    def addResourcePerms(self,resourcePermCouple):
-        if isinstance(resourcePermCouple, list):
-            for res, perms in resourcePermCouple:
-                if not res.getId() in self.resourcePerms:
-                    self.resourcePerms[res.getId()] = (res, perms)
-        else:
-            if not resourcePermCouple[0].getId() in self.resourcePerms:
-                self.resourcePerms[resourcePermCouple[0].getId()] = resourcePermCouple
-
-    def removeResourcePerms(self, resourcePermCouple):
-        if isinstance(resourcePermCouple, list) or isinstance(resourcePermCouple, tuple):
-            for res, perms in resourcePermCouple:
-                if res.getId() in self.resourcePerms:
-                    del self.resourcePerms[res.getId()]
-        else:
-            if resourcePermCouple[0].getId() in self.resourcePerms:
-                del self.resourcePerms[resourcePermCouple[0].getId()]
-
     def addParent(self, parentRoles):
         if isinstance(parentRoles, list) or isinstance(parentRoles, tuple):
             for pRole in parentRoles:
                 if not pRole.getId() in self.parents:
                     self.parents[pRole.getId()] = pRole
+                    for resId,resPermCp in pRole.getResources().items():
+                        resPermCp[0].addRole(self)
         else:
             if not parentRoles.getId() in self.parents:
                 self.parents[parentRoles.getId()] = parentRoles
+                for resId,resPermCp in parentRoles.getResources().items():
+                    resPermCp[0].addRole(self)
 
     def removeParent(self, parentRoles):
         if isinstance(parentRoles, list) or isinstance(parentRoles, tuple):
             for pRole in parentRoles:
                 if pRole.getId() in self.parents:
                     del self.parents[pRole.getId()]
+                    for resId, resPermCp in pRole.getResources().items():
+                        resPermCp[0].removeRole(self)
         else:
             if parentRoles.getId() in self.parents:
                 del self.parents[parentRoles.getId()]
+                for resId,resPermCp in parentRoles.getResources().items():
+                    resPermCp[0].removeRole(self)
 
-    def addResource(self, resources):
-        if isinstance(resources, list) or isinstance(resources, tuple):
-            for res in resources:
-                if not res.getId() in self.resources:
-                    self.resources[res.getId()] = res
-                    res.addRole(self)
+    def addResource(self, resourcePermCouple):
+        if isinstance(resourcePermCouple, list):
+            for res, perms in resourcePermCouple:
+                if isinstance(res, Resource):
+                    if not res.getId() in self.resources:
+                        self.resources[res.getId()] = (res, perms)
+                        res.addRole(self)
+                else:
+                    raise TypeError("please input the instance of type Role")
         else:
-            if not resources.getId() in self.resources:
-                self.resources[resources.getId()] = resources
-                resources.addRole(self)
+            if isinstance(resourcePermCouple[0], Resource):
+                if not resourcePermCouple[0].getId() in self.resources:
+                    self.resources[resourcePermCouple[0].getId()] = resourcePermCouple
+                    resourcePermCouple[0].addRole(self)
+            else:
+                raise TypeError("please input the instance of type Role")
 
     def removeResource(self, resources):
         if isinstance(resources, list) or isinstance(resources, tuple):
@@ -107,16 +102,14 @@ class Role(object):
                 del self.resources[resources.getId()]
                 resources.removeRole(self)
 
-    def hasPermisiion(self, resourceId, permisiion):
+    def hasPermission(self, resourceId, permisiion):
         self.parentTree.clear()
         self.__getAllParents(self)
+        result = False
         for pId, pRole in self.parentTree.items():
             if resourceId in pRole.getResources():
-                return permisiion in pRole.getResourcePerms()[resourceId][1]
-        return False
-
-
-
+                result = result or permisiion in pRole.getResources()[resourceId][1]
+        return result
 
 class Resource(object):
     def __init__(self, resId, name, resourceType, contentId, isGroup):
@@ -210,13 +203,64 @@ class RoleManager(object):
                 for resId, res in self.resourceContainer.items():
                     row = res[0]
                     perms = map(lambda x:self.permissionTable[x]["name"],res[1])
-                    role.addResource(self.allResources[resId])
-                    role.addResourcePerms((self.allResources[resId],perms))
-                self.allRoles[rname] = role
+                    role.addResource((self.allResources[resId],perms))
         except Exception as e:
             print e
         finally:
             self.db.close()
+
+    def registRole(self,role):
+        if isinstance(role, Role):
+            if not role.getName() in self.allRoles:
+                self.allRoles[role.getName()] = role
+            else:
+                raise Exception("Error: Role: {0} has already been registed, and cannot add a new role".format(role.getName()))
+        else:
+            raise TypeError("please input the instance of type Role")
+
+    def removeRole(self,role):
+        if isinstance(role, Role):
+            if role.getName() in self.allRoles:
+                del self.allRoles[role.getName()]
+            else:
+                raise KeyError("Error: Role: {0} has not been registed when trying to remove it".format(role.getName()))
+        else:
+            raise TypeError("please input the instance of type Role")
+
+    def registResource(self,resources):
+        if isinstance(resources, tuple) or isinstance(resources, list):
+            for res in resources:
+                if isinstance(res,Resource):
+                    if not res.getId() in self.allResources:
+                        self.allResources[res.getId()] = res
+                    else:
+                        raise KeyError("resource: <id:{0}, name:{1}> has been registed".format(res.getId(), res.getName()))
+                else:
+                    raise TypeError("Need to input Resource type when regist resources")
+        else:
+            if isinstance(resources, Resource):
+                self.allResources[resources.getId()] = resources
+            else:
+                raise TypeError("Need to input Resource type when regist resources")
+
+    def removeResource(self, resources):
+        if isinstance(resources, tuple) or isinstance(resources, list):
+            for res in resources:
+                if isinstance(res,Resource):
+                    if res.getId() in self.allResources:
+                        del self.allResources[res.getId()]
+                    else:
+                        raise KeyError("resource: <id:{0}, name:{1}> has not been regiested!!!".format(res.getId(), res.getName()))
+                else:
+                    raise TypeError("Need to input Resource type when regist resources")
+        else:
+            if isinstance(resources, Resource):
+                if resources.getId() in self.allResources:
+                    self.allResources[resources.getId()] = resources
+                else:
+                    raise KeyError("resource: <id:{0}, name:{1}> has not been regiested!!!".format(resources.getId(), resources.getName()))
+            else:
+                raise TypeError("Need to input Resource type when regist resources")
 
     def getResources(self, roleId, resourceOfRole, groupPerms=None):
         for resId in resourceOfRole:
@@ -302,12 +346,23 @@ class RoleManager(object):
 if __name__ == '__main__':
     RM = RoleManager()
     a = RM.allRoles["IM"]
+    print a.hasPermission(1,'r')
     a.removeParent([RM.allRoles["RM"], RM.allRoles["itLeader3"]])
     a = RM.allRoles["RM"]
     a.addParent(RM.allRoles["IM"])
-
+    print RM.allResources
+    print RM.allRoles
     print a.getParents()
-    print a.hasPermisiion(7, "e")
     print a.getAllResources()
+    role = Role(5,"Master")
+    resource = Resource(10,"M1",1,100,0)
+    role.addResource((resource,['r','w','e']))
+    RM.registRole(role)
+    print RM.allRoles["IM"].hasPermission(10, "w")
+    RM.allRoles["IM"].addParent(role)
+    print RM.allRoles["IM"].hasPermission(10, "w")
+    RM.allRoles["IM"].removeParent(role)
+    RM.allRoles["Master"].removeParent(role)
+    print resource.byRoles()
 
 
