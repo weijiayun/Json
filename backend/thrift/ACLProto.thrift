@@ -10,18 +10,12 @@ struct LoginSession
     2: i32 seqId;
 }
 
-struct Permission
-{
-    1: required string name;
-    2: optional string description;
-}
-
 struct AddResourceType                                                                       
 {    
 	1: required LoginSession session;
     2: string name;
 	3: string description;
-    4: list<Permission> permissions;
+    4: list<i32> permissions;
 	
 }
 
@@ -34,20 +28,16 @@ struct AddResourceTypeResponse
 
 //----------------Add resource--------------------------
 
-
-
 const i32 ACLPROTO_MESSAGE_ADD_RESOURCE = 100002
-
-
 
 struct AddResource
 {
 	1: required LoginSession session;
-    2: required i32 resourceTypeId;
-    3: required string name;
-    4: optional string description;
+	2: required string name;
+    3: required i32 resourceTypeId;
+    4: optional string contentId;
+    5: required i32 isGroup;
 }
-
 
 struct AddResourceResponse
 {
@@ -61,25 +51,10 @@ struct AddResourceResponse
 
 const i32 ACLPROTO_MESSAGE_ADD_ROLE = 100004
 
-
-
-struct PId
-{
-    1: required i32 permissionId;
-}
-
-struct ResourcePermission
-{
-    1: required i32 resourceId;
-    2: optional list<PId> permissionIds;
-}
-
-
 struct AddRole
 {
 	1: required LoginSession session;
     2: required string roleName;
-    3: optional list<ResourcePermission> resourcePermissions;
 }
 
 struct AddRoleResponse
@@ -90,7 +65,6 @@ struct AddRoleResponse
 }
 
 //--------------------Add user------------------------------------
-
 
 const i32 ACLPROTO_MESSAGE_ADD_USER = 100006
 
@@ -113,7 +87,6 @@ struct AddUserResponse
 }
 
 //-------------------Set Role To User----------------------------------
-
 
 const i32 ACLPROTO_MESSAGE_SET_ROLE_TO_USER = 100008
 
@@ -160,14 +133,6 @@ struct Login
     2: required binary password;
 }
 
-/*
-struct LoginSession
-{
-    1: i32 userId;
-    2: i32 seqId;
-}
-*/
-
 struct LoginResponse
 {
     1: i32 status;
@@ -190,96 +155,56 @@ struct LogoutResponse
 	1: i32 status;
 	2: string message;
 }
+//-----------------------Has Permission------------------------
 
-//-----------------------List resource------------------------------
-
-
-const i32 ACLPROTO_MESSAGE_LIST_RESOURCE = 100016
+const i32 ACLPROTO_MESSAGE_HAS_PERMISSION = 100016
 
 
-struct ListResource
+struct HasPermission
 {
 	1: required LoginSession session;
-	//2: optional i32 roleId;
+    2: required  i32 resourceId;
+    3: required string permission;
 }
-
-struct Resource
-{
-	1: i32 resourceId;
-	2: string resourceName;
-}
-struct ListResourceResponse
+struct HasPermissionResponse
 {
 	1: i32 status;
-	2: string message;
-    3: list<Resource> resources;
+    2: string message;
+    3: i32 hasPerm;
 }
 
+//-----------------------Grant Resource To Role------------------------
 
-//-----------------------List other resource------------------------
+const i32 ACLPROTO_MESSAGE_GRANT_RESOURCE_TO_ROLE = 100018
 
-
-const i32 ACLPROTO_MESSAGE_LIST_OTHER_RESOURCE = 100017
-
-
-struct ListOtherResource
-{
-	1: required LoginSession session;
-	2: optional i32 roleId;
-}
-
-
-struct ListOtherResourceResponse
-{
-	1: i32 status;
-	2: string message;
-    3: list<Resource> resources;
-}
-
-
-
-//-----------------------Grant permission------------------------
-
-const i32 ACLPROTO_MESSAGE_GRANT_PERMISSION = 100018
-
-
-struct GrantPermission
+struct GrantResourceToRole
 {
 	1: required LoginSession session;
 	2: required i32 roleId;
     3: required  i32 resourceId;
-    4: required i32 permissionId;
+    4: required list<i32> permissionIds;
 }
 
-struct GrantPermissionResponse
+struct GrantResourceToRoleResponse
 {
 	1: i32 status;
     2: string message;
 }
+//-----------------------Revoke Resource From Role------------------------
 
-//-----------------------List role-------------------------------
+const i32 ACLPROTO_MESSAGE_REVOKE_RESOURCE_FROM_ROLE = 100020
 
-
-const i32 ACLPROTO_MESSAGE_LIST_ROLE = 100020
-
-
-struct ListRole
+struct RevokeResourceFromRole
 {
-    1: required LoginSession session;
+	1: required LoginSession session;
+	2: required i32 roleId;
+    3: required  i32 resourceId;
 }
 
-struct Role
+struct RevokeResourceFromRoleResponse
 {
-	1: i32 roleId;
-	2: string roleName;
-	
-}
-
-struct ListRoleResponse
-{
-    1: i32 status;
+	1: i32 status;
     2: string message;
-	3: list<Role> roles;
 }
 
 //------------------------List user---------------------------
@@ -307,57 +232,31 @@ struct ListUserResponse
 	3: list<User> users;
 }
 
-//---------------List permission--------------------------------
 
 
-const i32 ACLPROTO_MESSAGE_LIST_PERMISSION = 100024
-
-
-struct ListPermission
+//----------------Get Resources------------------------------
+const i32 ACLPROTO_MESSAGE_GET_RESOURCES = 100024
+struct GetResources
 {
 	1: required LoginSession session;
-//	2: optional i32 roleId;
 }
-
-struct P
+struct Res
 {
-	1: i32 permissionId;
-	2: string name;
+    1: required i32 id;
+    2: required string name;
+    3: required i32 resourceTypeId;
+    4: optional string contentId;
+    5: required i32 isGroup;
 }
-
-
-struct LISTPermissionResponse
+struct GetResourcesResponse
 {
-	1: i32 status;
+    1: i32 status;
 	2: string message;
-  	3: list<P> permissions;
+	3: list<Res> resources;
 }
-
-//---------------List other permission-----------------------------
-
-
-const i32 ACLPROTO_MESSAGE_LIST_OTHER_PERMISSION = 100025
-
-
-struct ListOtherPermission
-{
-	1: required LoginSession session;
-	2: optional i32 roleId;
-}
-
-struct ListOtherPermissionResponse
-{
-	1: i32 status;
-	2: string message;
-  	3: list<P> permissions;
-}
-
-
-
 
 
 //----------------Change userName------------------------------
-
 
 const i32 ACLPROTO_MESSAGE_CHANGE_USER_NAME = 100026
 
@@ -365,7 +264,6 @@ const i32 ACLPROTO_MESSAGE_CHANGE_USER_NAME = 100026
 struct ChangeUserName
 {
 	1: required LoginSession session;
-//    2: optional i32 userId;
 	2: required string userName;
 }
 
@@ -416,7 +314,6 @@ struct ChangePublicKeyResponse
 
 //----------------Change privatekey------------------------------
 
-
 const i32 ACLPROTO_MESSAGE_CHANGE_PRIVATE_KEY = 100032
 
 
@@ -424,9 +321,6 @@ struct ChangePrivateKey
 {   
 	1: required LoginSession session;
 	2: required binary privateKey;
-//	3: optional i32 userId;
-    
-
 }
 
 struct ChangePrivateKeyResponse
@@ -494,10 +388,7 @@ struct DeleteRoleResponse
 
 //-------------------List login------------------------------
 
-
 const i32 ACLPROTO_MESSAGE_LIST_LOGIN = 100040
-
-
 
 struct ListLogin
 {
@@ -517,47 +408,61 @@ struct ListLoginResponse
 	3: list<Logged> logins;
 }
 
-//-----------------Inherit permission-------------------------
+//-------------------Add Resource To Group------------------------------
 
-const i32 ACLPROTO_MESSAGE_INHERIT_PERMISSION = 100042
+const i32 ACLPROTO_MESSAGE_ADD_RESOURCE_TO_GROUP = 100042
 
-
-struct InheritPermission
+struct AddResourceToGroup
 {
 	1: required LoginSession session;
-	2: i32 pRoleId;
-	3: i32 cRoleId;
+	2: required i32 groupId;
+	3: required list<i32> resourceIds;
 }
 
-
-struct InheritPermissionResponse
+struct AddResourceToGroupResponse
 {
 	1: i32 status;
 	2: string message;
 }
 
-//-----------------Release role-------------------------
+//-------------------Remove Resource From Group------------------------------
 
-const i32 ACLPROTO_MESSAGE_RELEASE_ROLE = 100044
+const i32 ACLPROTO_MESSAGE_REMOVE_RESOURCE_FROM_GROUP = 100044
 
-
-struct ReleaseRole
+struct RemoveResourceFromGroup
 {
 	1: required LoginSession session;
-	2: i32 roleId;
+	2: required i32 groupId;
+	3: required list<i32> resourceIds;
 }
 
-
-struct ReleaseRoleResponse
+struct RemoveResourceFromGroupResponse
 {
 	1: i32 status;
 	2: string message;
+}
+
+//-------------------Get Group------------------------------
+
+const i32 ACLPROTO_MESSAGE_GET_GROUP = 100046
+
+struct GetGroup
+{
+	1: required LoginSession session;
+	2: required i32 groupId;
+}
+
+struct GetGroupResponse
+{
+	1: i32 status;
+	2: string message;
+	3: list<Res> resources;
 }
 
 //-----------------------My role----------------------------
 
 
-const i32 ACLPROTO_MESSAGE_MY_ROLE = 100046
+const i32 ACLPROTO_MESSAGE_MY_ROLE = 100048
 
 
 struct MyRole
@@ -574,79 +479,23 @@ struct MyRoleResponse
 	4: string roleName;
 }
 
-//-----------------------List resourcetype-------------------------
- 
+// -------------------Delete resource type------------------------
 
-const i32 ACLPROTO_MESSAGE_LIST_RESOURCE_TYPE = 100048
+const i32 ACLPROTO_MESSAGE_DELETE_RESOURCE_TYPE = 100050
 
-
-struct ListResourceType
+struct DeleteResourceType
 {
 	1: required LoginSession session;
+    2: required string resourceTypeId;
+    3: optional bool force=0;
 }
 
-
-struct ResourceType
+struct DeleteResourceTypeResponse
 {
-	1: i32 id;
-	2: string name;
-}
-
-struct ListResourceTypeResponse
-{
-	1: i32 status;
-	2: string message;
-	3: list<ResourceType> resourceTypes;
-}
-
-
-//-----------------------Has permission------------------------
-
-
-const i32 ACLPROTO_MESSAGE_HAS_PERMISSION = 100050
-
-
-struct HasPermission
-{
-	1: required LoginSession session;
-	2: required i32 roleId;
-    3: required  i32 resourceId;
-    4: required i32 permissionId;
-}
-
-struct HasPermissionResponse
-{
-	1: i32 status;
+    1: i32 status;
     2: string message;
-	3: bool result;
 }
 
-
-//-----------------------List type resource-------------------------
-
-
-const i32 ACLPROTO_MESSAGE_LIST_TYPE_RESOURCE = 100052
-
-
-struct ListTypeResource
-{
-	1: required LoginSession session;
-	2: required i32 resourceTypeId;
-}
-
-/*
-struct Resource
-{
-	1: i32 resourceId;
-	2: string resourceName;
-}
-*/
-struct ListTypeResourceResponse
-{
-	1: i32 status;
-	2: string message;
-    3: list<Resource> resources;
-}
 
 
 //-----------------------My information----------------------------
@@ -674,9 +523,6 @@ struct MyInformation
 	2: required list<RequestName> reqName;
 }
 
-
-
-
 struct MyInformationResponse
 {
 	1: i32 status;
@@ -696,9 +542,6 @@ struct ChangeMyInformation
 	1: required LoginSession session;
 	2: required map<RequestName, string> reqDic;
 }
-
-
-
 
 struct ChangeMyInformationResponse
 {
@@ -725,27 +568,10 @@ struct ChangeMyPasswordResponse
 }
 
 
-
 //-----------------------Other information----------------------------
 
 
 const i32 ACLPROTO_MESSAGE_OTHER_INFORMATION = 100060
-
-/*
-enum RequestName
-{
-    name =1,
-    phone_number=2,
-    email=3,
-    intro=4,
-    password=5,
-    private_key=6,
-    public_key=7,
-    avatar=8,
-    id=9,
-}
-
-*/
 
 struct OtherInformation
 {
@@ -770,22 +596,6 @@ struct OtherInformationResponse
 
 const i32 ACLPROTO_MESSAGE_ALL_USER_INFORMATION = 100062
 
-/*
-enum RequestName
-{
-    name =1,
-    phone_number=2,
-    email=3,
-    intro=4,
-    password=5,
-    private_key=6,
-    public_key=7,
-    avatar=8,
-    id=9,
-}
-
-*/
-
 
 struct AllUserInformation
 {
@@ -796,26 +606,6 @@ struct AllUserInformation
 typedef list<string>  Lists
 
 struct AllUserInformationResponse
-{
-	1: i32 status;
-	2: string message;
-	3: list<Lists> information;
-}
-
-
-//-----------------------All resource information----------------------------
-
-
-const i32 ACLPROTO_MESSAGE_ALL_RESOURCE_INFORMATION = 100064
-
-struct AllResourceInformation
-{
-	1: required LoginSession session;
-}
-
-//typedef list<string>  Lists
-
-struct AllResourceInformationResponse
 {
 	1: i32 status;
 	2: string message;
@@ -869,7 +659,7 @@ struct GrantToRole
 {
 	1: required LoginSession session;
     2: required i32 roleId;
-    3: required list<i32> parentsRoleId
+    3: required list<i32> parentsRoleId;
 }
 
 struct GrantToRoleResponse
@@ -887,7 +677,7 @@ struct RevokeFromRole
 {
 	1: required LoginSession session;
     2: required i32 roleId;
-    3: required list<i32> parentsRoleId
+    3: required list<i32> parentsRoleId;
 }
 
 struct RevokeFromRoleResponse

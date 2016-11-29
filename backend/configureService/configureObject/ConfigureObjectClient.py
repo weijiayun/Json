@@ -116,7 +116,7 @@ class ConfigureObjectClient(MessagePlugin):
             else:
                 p.fulfill(body.message)
 
-    def createObject(self, session, objectList):
+    def createObject(self, session, objectList, publicKey):
 
         ''' session: the information of login user
             objectList: object list --> [[Name, Date, Version, Content],..]
@@ -143,6 +143,7 @@ class ConfigureObjectClient(MessagePlugin):
                 f.append(ins)
             rRequest.ObjectList = f
             rRequest.session = session
+            rRequest.publicKey = publicKey
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e:
@@ -194,7 +195,7 @@ class ConfigureObjectClient(MessagePlugin):
             else:
                 p.fulfill(body.Content)
 
-    def getObjects(self, session, objectList):
+    def getObjects(self, session, objectList, privateKey):
 
         '''session: the information of login user
            objectList: object list --> [[Name, Date, Version],..]'''
@@ -214,7 +215,7 @@ class ConfigureObjectClient(MessagePlugin):
                 ins.append(f)
             rRequest.ObjectList = ins
             rRequest.session = session
-
+            rRequest.privateKey = privateKey
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e:
@@ -232,7 +233,7 @@ class ConfigureObjectClient(MessagePlugin):
             else:
                 p.fulfill(body.Content)
 
-    def getConfigure(self, session, name, createDate, version):
+    def getConfigure(self, session, name, createDate, version, privateKey):
 
         '''session: the information of login user
            name: configure's name
@@ -247,6 +248,7 @@ class ConfigureObjectClient(MessagePlugin):
             ins.Version = version
             rRequest.Configure = ins
             rRequest.session = session
+            rRequest.privateKey = privateKey
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e:
@@ -261,7 +263,7 @@ class ConfigureObjectClient(MessagePlugin):
             else:
                 p.fulfill(body.message)
 
-    def grantObjectsToOthers(self, session, othersId, objectList):
+    def grantObjectsToOthers(self, session, othersId, objectList, privateKey, othersPublicKey):
 
         '''session: the information of login user
             otherId: the Id of user who is going to grant the authority of object in objectList
@@ -282,7 +284,8 @@ class ConfigureObjectClient(MessagePlugin):
                 f.CollectionName = i[5]
                 ins.append(f)
             rRequest.ObjectList = ins
-
+            rRequest.privateKey = privateKey
+            rRequest.othersPublicKey = othersPublicKey
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e:
@@ -332,7 +335,7 @@ class ConfigureObjectClient(MessagePlugin):
             else:
                 p.fulfill(body.message)
 
-    def grantConfigureToOthers(self, session, othersId, configureList):
+    def grantConfigureToOthers(self, session, othersId, configureList, privateKey, othersPublicKey):
 
         '''session: the infomation of login user
            othersId: the user who is going to be granted authority of configures
@@ -350,6 +353,8 @@ class ConfigureObjectClient(MessagePlugin):
                 f.Version = i[2]
                 ins.append(f)
             rRequest.ConfigureList = ins
+            rRequest.privateKey = privateKey
+            rRequest.othersPublicKey = othersPublicKey
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e:

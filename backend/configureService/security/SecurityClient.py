@@ -155,6 +155,7 @@ class SecClient(MessagePlugin):
                 grants( body.keys)
                 p.fulfill('getkeysuccess')
 
+
     def _onPutKeys(self, proto, spec, message, body):
         requestId = message.getRequestId()
         if requestId in self.requests:

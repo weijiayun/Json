@@ -4,11 +4,10 @@ __author__ = 'jiayun.wei'
 
 from MessageHandler import MessagePlugin
 from ConfigObjectPostgres import ConfigureObjectSql
-import psycopg2,hashlib,os,time,logging
+import psycopg2, logging
 from configureService.security.SecurityClient import SecClient
-from configureService.acl.ACLClient import ACLClient
 import json
-import random,string
+import random, string
 
 class ConfigureObjectServer(MessagePlugin):
 
@@ -33,19 +32,11 @@ class ConfigureObjectServer(MessagePlugin):
 
     def onConnectionOpened(self, proto):
         print '----begin login-----'
-        self.aclClient = ACLClient(proto, self.mesgHandle, 609)##myclient
-        self.securityClient = SecClient(proto, self.mesgHandle, 609)
-        self.session = self.aclClient.login('aa', '1231')
-        if 0 == self.session.userId and 0 == self.session.seqId:
-            print '----login failed-----'
-        else:
-            print '----login success----'
-
-    def onConnectionClosed(self, proto, reason):
-        print '----begin logout-----'
-        if self.session is not None:
-            self.aclClient.logout(self.session)
-        print '---logout success---'
+        try:
+            self.securityClient = SecClient(proto, self.mesgHandle, 609)
+            print '----securityClient connected successfully'
+        except Exception as e:
+            print e
 
     def write_log(self, log_type, userId, message, operation):
         logger = '\n用户ID：%s\n错误信息：%s\n%s\n执行操作：%s\n' % (userId, message, operation, '-' * 50)
@@ -122,16 +113,13 @@ class ConfigureObjectServer(MessagePlugin):
             secList = [["-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName]),
                         elem.Content, getkey()] for elem in body.ObjectList]
 
-            with open('tests/master-public.pem') as f:
-                publicKey1 = f.read()
-
             def putContentSuccess(nameIdDict):
                 self.buildInT_Object(message, proto, nameIdDict)
 
             def putContentFailed(errMesg):
                 print 'putSeriesContent failed: %s' % errMesg
 
-            self.securityClient.putSeriesContent(self.session, secList, publicKey1)\
+            self.securityClient.putSeriesContent(body.session, secList, body.publicKey)\
                 .then(putContentSuccess)\
                 .catch(putContentFailed)
 
@@ -182,7 +170,7 @@ class ConfigureObjectServer(MessagePlugin):
 
             def deleteContentFailed(errMsg):
                 print errMsg+'delete Content is Faild!!!'
-            self.securityClient.deleteContent(self.session, secIdList)\
+            self.securityClient.deleteContent(body.session, secIdList)\
                 .then(deleteContentSuccess).catch(deleteContentFailed)
             print '---------------end Create Configure Object---------------'
         except Exception as e:
@@ -215,8 +203,7 @@ class ConfigureObjectServer(MessagePlugin):
                          for elem in body.ObjectList]
             if len(secIdList) == 0:
                 raise Exception("Error: getting Object {0} is failed".format(body.ObjectName))
-            with open('tests/master-private.pem') as f:
-                privateKey1 = f.read()
+
             (responseSpec, successResponse) = self.create("getobjects:configureobjectproto", False)
 
             def getContentSuccess(Content):
@@ -228,7 +215,7 @@ class ConfigureObjectServer(MessagePlugin):
             def getContentFailed(errMsg):
                 print 'put content of object is failed!!!'
 
-            self.securityClient.getSeriesContent(self.session, secIdList, privateKey1)\
+            self.securityClient.getSeriesContent(body.session, secIdList, body.privateKey)\
                 .then(getContentSuccess)\
                 .catch(getContentFailed)
             print '---------------end Query Configure Object---------------'
@@ -255,11 +242,9 @@ class ConfigureObjectServer(MessagePlugin):
                        for elem in json.loads(objectList[0])]
 
             if len(secList) == 0:
-                raise Exception("Error: getting Configure <Name: {0}, Date: {1}, Version: {2}> is failed".format(body.Configure.Name,
-                                                                                                                 body.Configure.Date,
-                                                                                                                 body.Configure.Version))
-            with open('tests/master-private.pem') as f:
-                privateKey1 = f.read()
+                raise Exception("Error: getting Configure "
+                                "<Name: {0}, Date: {1}, Version: {2}> is failed".format(body.Configure.Name, body.Configure.Date, body.Configure.Version))
+
             (responseSpec, successResponse) = self.create("getconfigure:configureobjectproto", False)
 
             def getContentSuccess(Content):
@@ -271,7 +256,7 @@ class ConfigureObjectServer(MessagePlugin):
             def getContentFailed(errMsg):
                 print 'put content of configure is failed!!!'
 
-            self.securityClient.getSeriesContent(self.session, secList, privateKey1) \
+            self.securityClient.getSeriesContent(body.session, secList, body.privateKey) \
                 .then(getContentSuccess) \
                 .catch(getContentFailed)
             print '---------------end Query Configure---------------'
@@ -297,12 +282,6 @@ class ConfigureObjectServer(MessagePlugin):
             if len(secIdDict) == 0:
                 raise Exception("Objects <{0}> is not exist when query the database".format(body.ObjectList))
 
-            with open('tests/master-private.pem') as f:
-                myPrivateKey = f.read()
-            # require publickey from otherId
-            with open('tests/ghost-public.pem') as f:
-                othersPublicKey = f.read()
-
             (responseSpec, successResponse) = self.create("grantobjectstoothers:configureobjectproto", False)
 
             def grantOtherSuccess(Msg):
@@ -317,11 +296,11 @@ class ConfigureObjectServer(MessagePlugin):
                 failedResponse.message = 'Error: grant objects to others is failed!!!'
                 self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-            self.securityClient.grantSeriesToOther(self.session,
+            self.securityClient.grantSeriesToOther(body.session,
                                                    secIdDict,
                                                    body.OthersId,
-                                                   myPrivateKey,
-                                                   othersPublicKey).then(grantOtherSuccess).catch(grantOtherFailed)
+                                                   body.privateKey,
+                                                   body.othersPublicKey).then(grantOtherSuccess).catch(grantOtherFailed)
         except Exception as e:
             (responseSpec, failedResponse) = self.create("grantobjectstoothers:configureobjectproto", False)
             print "Error: {0}".format(e)
@@ -358,7 +337,7 @@ class ConfigureObjectServer(MessagePlugin):
                 failedResponse.message = 'Error: Ungrant objects to others is failed!!!'
                 self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-            self.securityClient.revokeGrant(self.session,
+            self.securityClient.revokeGrant(body.session,
                                             secIdDict,
                                             body.OthersId,
                                             ).then(grantOtherSuccess).catch(grantOtherFailed)
@@ -392,12 +371,6 @@ class ConfigureObjectServer(MessagePlugin):
                                                                                       body.Configure.Date,
                                                                                       body.Configure.Version))
 
-            with open('tests/master-private.pem') as f:
-                myPrivateKey = f.read()
-
-            with open('tests/ghost-public.pem') as f:
-                othersPublicKey = f.read()
-
             (responseSpec, successResponse) = self.create("grantconfiguretoothers:configureobjectproto", False)
 
             def grantOtherSuccess(Msg):
@@ -412,11 +385,11 @@ class ConfigureObjectServer(MessagePlugin):
                 failedResponse.message = 'Error: grant configure object to others is failed!!!'
                 self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-            self.securityClient.grantSeriesToOther(self.session,
+            self.securityClient.grantSeriesToOther(body.session,
                                                    secIdDict,
                                                    body.OthersId,
-                                                   myPrivateKey,
-                                                   othersPublicKey).then(grantOtherSuccess).catch(grantOtherFailed)
+                                                   body.privateKey,
+                                                   body.othersPublicKey).then(grantOtherSuccess).catch(grantOtherFailed)
         except Exception as e:
             (responseSpec, failedResponse) = self.create("grantconfiguretoothers:configureobjectproto", False)
             print "Error: {0}".format(e)
@@ -461,7 +434,7 @@ class ConfigureObjectServer(MessagePlugin):
                 failedResponse.message = 'Error: Ungrant configure<{0}> object to others is failed!!!'.format(body.ConfigureList)
                 self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-            self.securityClient.revokeGrant(self.session,
+            self.securityClient.revokeGrant(body.session,
                                             secIdDict,
                                             body.OthersId,
                                             ).then(grantOtherSuccess).catch(grantOtherFailed)
@@ -487,7 +460,7 @@ class ConfigureObjectServer(MessagePlugin):
                 failedResponse.message = 'Error: listting object is failed!!!'
                 self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-            self.securityClient.listContent(self.session).then(listObjectsSuccess).catch(listObjectsFailed)
+            self.securityClient.listContent(body.session).then(listObjectsSuccess).catch(listObjectsFailed)
             print '---------------end List Object---------------'
 
         except Exception as e:
@@ -542,7 +515,7 @@ class ConfigureObjectServer(MessagePlugin):
                     failedResponse.message = "Error: Getting sharer list is failed!!!"
                     self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-                self.securityClient.checkSharer(self.session, secId).then(getSharersSuccess).catch(getSharersFailed)
+                self.securityClient.checkSharer(body.session, secId).then(getSharersSuccess).catch(getSharersFailed)
 
             else:
                 (responseSpec, failedResponse) = self.create("getauthoritysharers:configureobjectproto", False)

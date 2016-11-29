@@ -13,35 +13,43 @@ class ACLClient(MessagePlugin):
         super(ACLClient, self).__init__(messageHandle)
         self.proto = proto
 
-
         self.handle('login:aclproto', False, self._onLogin)
+
         self.handle('logout:aclproto', False, self._onLogout)
 
         self.handle('addresourcetype:aclproto', False, self._onAddResourceType)
 
+        self.handle('deleteresourcetype:aclproto', False, self._onDeleteResourceType)
+
         self.handle('addresource:aclproto', False, self._onAddResource)
+
+        self.handle('getresources:aclproto', False, self._onGetResources)
+
+        self.handle('addresourcetogroup:aclproto', False, self._onAddResourceToGroup)
+
+        self.handle('removeresourcefromgroup:aclproto', False, self._onRemoveResourceFromGroup)
+
+        self.handle('haspermission:aclproto', False, self._onHasPermission)
 
         self.handle('addrole:aclproto', False, self._onAddRole)
 
         self.handle('adduser:aclproto', False, self._onAddUser)
 
-        self.handle('grantrole:aclproto', False, self._onGrantRole)
+        self.handle('setroletouser:aclproto', False, self._onSetRoleToUser)
+
+        self.handle('clearroleofuser:aclproto', False, self._onClearRoleFromUser)
+
+        self.handle('granttorole:aclproto', False, self._onGrantToRole)
+
+        self.handle('revokefromrole:aclproto', False, self._onRevokeFromRole)
+
+        self.handle('grantresourcetorole:aclproto', False, self._onGrantResourceToRole)
+
+        self.handle('revokeresourcefromrole:aclproto', False, self._onRevokeResourceFromRole)
 
         self.handle('changepassword:aclproto', False, self._onChangePassword)
 
-        self.handle('listresource:aclproto', False, self._onListResource)
-
-        self.handle('listotherresource:aclproto', False, self._onListOtherResource)
-
-        self.handle('grantpermission:aclproto', False, self._onGrantPermission)
-
-        self.handle('listrole:aclproto', False, self._onListRole)
-
         self.handle('listuser:aclproto', False, self._onListUser)
-
-        self.handle('listpermission:aclproto', False, self._onListPermission)
-
-        self.handle('listotherpermission:aclproto', False, self._onListOtherPermission)
 
         self.handle('changeusername:aclproto', False, self._onChangeUserName)
 
@@ -61,17 +69,7 @@ class ACLClient(MessagePlugin):
 
         self.handle('listlogin:aclproto', False, self._onListLogin)
 
-        self.handle('inheritpermission:aclproto', False, self._onInheritPermission)
-
-        self.handle('releaserole:aclproto', False, self._onReleaseRole)
-
         self.handle('myrole:aclproto', False, self._onMyRole)
-
-        self.handle('listresourcetype:aclproto', False, self._onListResourceType)
-
-        self.handle('haspermission:aclproto', False, self._onHasPermission)
-
-        self.handle('listtyperesource:aclproto', False, self._onListTypeResource)
 
         self.handle('myinformation:aclproto', False, self._onMyInformation)
 
@@ -82,9 +80,6 @@ class ACLClient(MessagePlugin):
         self.handle('otherinformation:aclproto', False, self._onOtherInformation)
 
         self.handle('alluserinformation:aclproto', False, self._onAllUserInformation)
-
-        self.handle('allresourceinformation:aclproto', False, self._onAllResourceInformation)
-
 
         self.currentRequestId = 1
         self.requests = {}
@@ -105,7 +100,6 @@ class ACLClient(MessagePlugin):
             (loginSpec, loginRequest) = self.create("login:aclproto", True)
             loginRequest.userName = userName
             loginRequest.password = password
-            self.loginResponse = None
 
             import threading
             self.loginEvent = threading.Event()
@@ -131,7 +125,6 @@ class ACLClient(MessagePlugin):
         try:
             (logoutSpec, logoutRequest) = self.create("logout:aclproto", True)
             logoutRequest.session = session
-            self.logoutResponse = None
             import threading
             self.logoutEvent = threading.Event()
             self.send(self.serverId, self.proto, logoutSpec, logoutRequest, self._getRequestId(logoutRequest))
@@ -141,7 +134,7 @@ class ACLClient(MessagePlugin):
                 raise Exception(self.logoutResponse.message)
             else:
                 return self.logoutResponse.message
-        except Exception as e :
+        except Exception as e:
             print e
 
     def _onAddResourceType(self, proto, spec, message, body):
@@ -151,27 +144,41 @@ class ACLClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.resourceTypeId)
+                p.fulfill(body.resourceTypeId)
 
-    def addResourceType(self,  session, name, description, permissions):
+    def addResourceType(self, session, name, description, permissions):
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("addresourcetype:aclproto", True)
             rRequest.session = session
             rRequest.name = name
             rRequest.description = description
-            permission=[]
-            for i in permissions:
-                perm = self.createGeneric("Permission:ACLProto")
-                perm.name = i[0]
-                perm.description = i[1]
-                permission.append(perm)
-            rRequest.permissions = permission
+            rRequest.permissions = permissions
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e :
             print e
 
+    def _onDeleteResourceType(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.message)
+
+    def deleteResourceType(self, session, resourceTypeId, force=False):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("deleteresourcetype:aclproto", True)
+            rRequest.session = session
+            rRequest.resourceTypeId = resourceTypeId
+            rRequest.force = force
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
+            print e
 
     def _onAddResource(self, proto, spec, message, body):
         # self.addResourceResponse = body
@@ -183,18 +190,100 @@ class ACLClient(MessagePlugin):
             else:
                 p.fulfill(body.resourceId)
 
-    def addResource(self, session ,resourceTypeId, name, description):
+    def addResource(self, session, name, resourceTypeId, contentId, isGroup):
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("addresource:aclproto", True)
             rRequest.session = session
             rRequest.resourceTypeId = resourceTypeId
             rRequest.name = name
-            rRequest.description = description
-            self.addResourceResponse = None
+            rRequest.contentId = contentId
+            rRequest.isGroup = isGroup
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e :
+            print e
+
+    def _onGetResources(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.resources)
+
+    def getResources(self, session, roleId, resourceId, permissionIds):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("getresources:aclproto", True)
+            rRequest.session = session
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
+            print e
+
+    def _onAddResourceToGroup(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.message)
+
+    def addResourceToGroup(self, session, groupId, resourceIds):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("addresourcetogroup:aclproto", True)
+            rRequest.session = session
+            rRequest.groupId = groupId
+            rRequest.resourceIds = resourceIds
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
+            print e
+
+    def _onRemoveResourceFromGroup(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.message)
+
+    def removeResourceFromGroup(self, session, groupId, resourceIds):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("removeresourcefromgroup:aclproto", True)
+            rRequest.session = session
+            rRequest.groupId = groupId
+            rRequest.resourceIds = resourceIds
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
+            print e
+
+    def _onHasPermission(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.hasPerm)
+
+    def hasPermission(self, session, resourceId, permission):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("haspermission:aclproto", True)
+            rRequest.session = session
+            rRequest.resourceId = resourceId
+            rRequest.permission = permission
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
             print e
 
     def _onAddRole(self, proto, spec, message, body):
@@ -204,31 +293,18 @@ class ACLClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.roleId)
+                p.fulfill(body.roleId)
 
-    def addRole(self, session ,roleName, resourcePermissions):
+    def addRole(self, session, roleName):
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("addrole:aclproto", True)
             rRequest.session = session
             rRequest.roleName = roleName
-            rp=[]
-            for i in resourcePermissions:
-                r = self.createGeneric("ResourcePermission:ACLProto")
-                r.resourceId = i[0]
-                r.permissionIds = []
-                for j in i[1]:
-                    perm= self.createGeneric("PId:ACLProto")
-                    perm.permissionId = j
-                    r.permissionIds.append(perm)
-                rp.append(r)
-            rRequest.resourcePermissions = rp
-            self.addRoleResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return  p
         except Exception as e :
             print e
-
 
     def _onAddUser(self, proto, spec, message, body):
         requestId = message.getRequestId()
@@ -237,7 +313,7 @@ class ACLClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.userId)
+                p.fulfill(body.userId)
 
     def addUser(self, session ,userName, phoneNumber, privateKey, publicKey, password):
         try:
@@ -249,39 +325,142 @@ class ACLClient(MessagePlugin):
             rRequest.privateKey = privateKey
             rRequest.publicKey = publicKey
             rRequest.password = password
-            self.addUserResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
-        except Exception as e :
+        except Exception as e:
             print e
 
-    def _onGrantRole(self, proto, spec, message, body):
+    def _onSetRoleToUser(self, proto, spec, message, body):
         requestId = message.getRequestId()
         if requestId in self.requests:
             p = self.requests[requestId]
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.status )
+                p.fulfill(body.message)
 
-
-    def grantRole(self, session ,userId, roleId):
+    def setRoleToUser(self, session, userId, roleId):
         try:
             p = Promise()
-            (rSpec, rRequest) = self.create("grantrole:aclproto", True)
+            (rSpec, rRequest) = self.create("setroletouser:aclproto", True)
             rRequest.session = session
             rRequest.userId = userId
             rRequest.roleId = roleId
-            self.grantRoleResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
-        except Exception as e :
+        except Exception as e:
+            print e
+
+    def _onClearRoleFromUser(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.message)
+
+    def clearRoleFromUser(self, session, userId, roleId):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("clearroleofuser:aclproto", True)
+            rRequest.session = session
+            rRequest.userId = userId
+            rRequest.roleId = roleId
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
+            print e
+
+    def _onGrantToRole(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.message)
+
+    def grantToRole(self, session, roleId, parentRoleIds):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("granttorole:aclproto", True)
+            rRequest.session = session
+            rRequest.roleId = roleId
+            rRequest.parentsRoleId = parentRoleIds
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
+            print e
+
+    def _onRevokeFromRole(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.message)
+
+    def revokeFromRole(self, session, roleId, parentRoleIds):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("revokefromrole:aclproto", True)
+            rRequest.session = session
+            rRequest.roleId = roleId
+            rRequest.parentsRoleId = parentRoleIds
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
+            print e
+
+    def _onGrantResourceToRole(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.message)
+
+    def grantResourceToRole(self, session, roleId, resourceId, permissionIds):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("grantresourcetorole:aclproto", True)
+            rRequest.session = session
+            rRequest.roleId = roleId
+            rRequest.resourceId = resourceId
+            rRequest.permissionIds = permissionIds
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
+            print e
+
+    def _onRevokeResourceFromRole(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.message)
+
+    def revokeResourceFromRole(self, session, roleId, resourceId):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("revokeresourcefromrole:aclproto", True)
+            rRequest.session = session
+            rRequest.roleId = roleId
+            rRequest.resourceId = resourceId
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
             print e
 
     def _onChangePassword(self, proto, spec, message, body):
         requestId = message.getRequestId()
         if requestId in self.requests:
-            p  = self.requests[requestId]
+            p = self.requests[requestId]
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
@@ -293,7 +472,6 @@ class ACLClient(MessagePlugin):
             (rSpec, rRequest) = self.create("changepassword:aclproto", True)
             rRequest.session = session
             rRequest.password = password
-            self.changePasswordResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e :
@@ -313,7 +491,6 @@ class ACLClient(MessagePlugin):
             p = Promise()
             (rSpec, rRequest) = self.create("listresource:aclproto", True)
             rRequest.session = session
-            self.listResourceResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e :
@@ -334,10 +511,9 @@ class ACLClient(MessagePlugin):
             (rSpec, rRequest) = self.create("listotherresource:aclproto", True)
             rRequest.session = session
             rRequest.roleId = roleId
-            self.listOtherResourceResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return  p
-        except Exception as e :
+            return p
+        except Exception as e:
             print e
 
     def _onGrantPermission(self, proto, spec, message, body):
@@ -347,9 +523,9 @@ class ACLClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.status )
+                p.fulfill(body.status)
 
-    def grantPermission(self, session ,roleId, resourceId, permissionId):
+    def grantPermission(self, session, roleId, resourceId, permissionId):
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("grantpermission:aclproto", True)
@@ -357,27 +533,6 @@ class ACLClient(MessagePlugin):
             rRequest.roleId = roleId
             rRequest.resourceId = resourceId
             rRequest.permissionId = permissionId
-            self.grantPermissionResponse = None
-            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return p
-        except Exception as e :
-            print e
-
-    def _onListRole(self, proto, spec, message, body):
-        requestId = message.getRequestId()
-        if requestId in self.requests:
-            p = self.requests[requestId]
-            if 0 != body.status:
-                p.reject(Exception(body.message))
-            else:
-                p.fulfill(body.roles)
-
-    def listRole(self, session):
-        try:
-            p = Promise()
-            (rSpec, rRequest) = self.create("listrole:aclproto", True)
-            rRequest.session = session
-            self.listRoleResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e :
@@ -397,49 +552,6 @@ class ACLClient(MessagePlugin):
             p = Promise()
             (rSpec, rRequest) = self.create("listuser:aclproto", True)
             rRequest.session = session
-            self.listUserResponse = None
-            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return p
-        except Exception as e :
-            print e
-
-
-    def _onListPermission(self, proto, spec, message, body):
-        requestId = message.getRequestId()
-        if requestId in self.requests:
-            p = self.requests[requestId]
-            if 0 != body.status:
-                p.reject(Exception(body.message))
-            else:
-                p.fulfill(body.permissions)
-
-    def listPermission(self, session):
-        try:
-            p = Promise()
-            (rSpec, rRequest) = self.create("listpermission:aclproto", True)
-            rRequest.session = session
-            self.listPermissionResponse = None
-            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return p
-        except Exception as e :
-            print e
-
-    def _onListOtherPermission(self, proto, spec, message, body):
-        requestId = message.getRequestId()
-        if requestId in self.requests:
-            p  = self.requests[requestId]
-            if 0 != body.status:
-                p.reject(Exception(body.message))
-            else:
-                p.fulfill( body.permissions)
-
-    def listOtherPermission(self, session,roleId):
-        try:
-            p = Promise()
-            (rSpec, rRequest) = self.create("listotherpermission:aclproto", True)
-            rRequest.session = session
-            rRequest.roleId = roleId
-            self.listOtherPermissionResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e :
@@ -460,7 +572,6 @@ class ACLClient(MessagePlugin):
             (rSpec, rRequest) = self.create("changeusername:aclproto", True)
             rRequest.session = session
             rRequest.userName = userName
-            self.changeUserNameResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e :
@@ -482,7 +593,6 @@ class ACLClient(MessagePlugin):
             rRequest.session = session
             rRequest.roleId = roleId
             rRequest.roleName = roleName
-            self.changeRoleNameResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e :
@@ -495,7 +605,7 @@ class ACLClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.status )
+                p.fulfill(body.status)
 
     def changePublicKey(self, session,publicKey):
         try:
@@ -503,7 +613,6 @@ class ACLClient(MessagePlugin):
             (rSpec, rRequest) = self.create("changepublickey:aclproto", True)
             rRequest.session = session
             rRequest.publicKey = publicKey
-            self.changePublicKeyResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e :
@@ -524,7 +633,6 @@ class ACLClient(MessagePlugin):
             (rSpec, rRequest) = self.create("changeprivatekey:aclproto", True)
             rRequest.session = session
             rRequest.privateKey = privateKey
-            self.changePrivateKeyResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e:
@@ -565,7 +673,6 @@ class ACLClient(MessagePlugin):
             (rSpec, rRequest) = self.create("deleteresource:aclproto", True)
             rRequest.session = session
             rRequest.resourceId = resourceId
-            self.deleteResourceResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e :
@@ -578,16 +685,14 @@ class ACLClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.status )
+                p.fulfill(body.status)
 
-
-    def deleteUser(self, session,userId):
+    def deleteUser(self, session, userId):
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("deleteuser:aclproto", True)
             rRequest.session = session
             rRequest.userId = userId
-            self.deleteUserResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e :
@@ -600,7 +705,7 @@ class ACLClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.status )
+                p.fulfill(body.status)
 
     def deleteRole(self, session,roleId):
         try:
@@ -608,12 +713,10 @@ class ACLClient(MessagePlugin):
             (rSpec, rRequest) = self.create("deleterole:aclproto", True)
             rRequest.session = session
             rRequest.roleId = roleId
-            self.deleteRoleResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return  p
         except Exception as e :
             print e
-
 
     def _onListLogin(self, proto, spec, message, body):
         requestId = message.getRequestId()
@@ -629,56 +732,10 @@ class ACLClient(MessagePlugin):
             p = Promise()
             (rSpec, rRequest) = self.create("listlogin:aclproto", True)
             rRequest.session = session
-            self.listLoginResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e :
             print e
-
-    def _onInheritPermission(self, proto, spec, message, body):
-        requestId = message.getRequestId()
-        if requestId in self.requests:
-            p = self.requests[requestId]
-            if 0 != body.status:
-                p.reject(Exception(body.message))
-            else:
-                p.fulfill( body.status )
-
-    def inheritPermission(self, session,pRoleId,cRoleId):
-        try:
-            p = Promise()
-            (rSpec, rRequest) = self.create("inheritpermission:aclproto", True)
-            rRequest.session = session
-            rRequest.pRoleId = pRoleId
-            rRequest.cRoleId = cRoleId
-            self.inheritPermissionResponse = None
-            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return p
-        except Exception as e :
-            print e
-
-
-    def _onReleaseRole(self, proto, spec, message, body):
-        requestId = message.getRequestId()
-        if requestId in self.requests:
-            p = self.requests[requestId]
-            if 0 != body.status:
-                p.reject(Exception(body.message))
-            else:
-                p.fulfill( body.status )
-
-    def releaseRole(self, session,roleId):
-        try:
-            p = Promise()
-            (rSpec, rRequest) = self.create("releaserole:aclproto", True)
-            rRequest.session = session
-            rRequest.roleId = roleId
-            self.releaseRoleResponse = None
-            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return p
-        except Exception as e :
-            print e
-
 
     def _onMyRole(self, proto, spec, message, body):
         requestId = message.getRequestId()
@@ -694,74 +751,6 @@ class ACLClient(MessagePlugin):
             p = Promise()
             (rSpec, rRequest) = self.create("myrole:aclproto", True)
             rRequest.session = session
-            self.myRoleResponse = None
-            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return p
-        except Exception as e :
-            print e
-
-    def _onListResourceType(self, proto, spec, message, body):
-        requestId = message.getRequestId()
-        if requestId in self.requests:
-            p = self.requests[requestId]
-            if 0 != body.status:
-                p.reject(Exception(body.message))
-            else:
-                p.fulfill( body.resourceTypes)
-
-    def listResourceType(self, session):
-        try:
-            p = Promise()
-            (rSpec, rRequest) = self.create("listresourcetype:aclproto", True)
-            rRequest.session = session
-            self.listResourceTypeResponse = None
-            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return p
-        except Exception as e :
-            print e
-
-
-    def _onHasPermission(self, proto, spec, message, body):
-        requestId = message.getRequestId()
-        if requestId in self.requests:
-            p = self.requests[requestId]
-            if 0 != body.status:
-                p.reject(Exception(body.message))
-            else:
-                p.fulfill( body.result)
-
-
-    def hasPermission(self, session,roleId,resourceId,permissionId):
-        try:
-            p = Promise()
-            (rSpec, rRequest) = self.create("haspermission:aclproto", True)
-            rRequest.session = session
-            rRequest.roleId = roleId
-            rRequest.resourceId = resourceId
-            rRequest.permissionId = permissionId
-            self.hasPermissionResponse = None
-            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return  p
-        except Exception as e :
-            print e
-
-
-    def _onListTypeResource(self, proto, spec, message, body):
-        requestId = message.getRequestId()
-        if requestId in self.requests:
-            p = self.requests[requestId]
-            if 0 != body.status:
-                p.reject(Exception(body.message))
-            else:
-               p.fulfill( body.resources)
-
-    def listTypeResource(self, session,resourceTypeId):
-        try:
-            p = Promise()
-            (rSpec, rRequest) = self.create("listtyperesource:aclproto", True)
-            rRequest.session = session
-            rRequest.resourceTypeId = resourceTypeId
-            self.listTypeResourceResponse = None
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e :
@@ -784,7 +773,7 @@ class ACLClient(MessagePlugin):
             rRequest.reqName = reqName
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
-        except Exception as e :
+        except Exception as e:
             print e
 
     def _onChangeMyInformation(self, proto, spec, message, body):
@@ -795,7 +784,6 @@ class ACLClient(MessagePlugin):
                 p.reject(Exception(body.message))
             else:
                 p.fulfill(body.message)
-
 
     def changeMyInformation(self, session, reqDic):
         try:
@@ -808,11 +796,10 @@ class ACLClient(MessagePlugin):
         except Exception as e :
             print e
 
-
     def _onChangeMyPassword(self, proto, spec, message, body):
         requestId = message.getRequestId()
         if requestId in self.requests:
-            p  = self.requests[requestId]
+            p = self.requests[requestId]
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
@@ -829,7 +816,6 @@ class ACLClient(MessagePlugin):
             return p
         except Exception as e :
             print e
-
 
     def _onOtherInformation(self, proto, spec, message, body):
         requestId = message.getRequestId()
@@ -852,7 +838,6 @@ class ACLClient(MessagePlugin):
         except Exception as e:
             print e
 
-
     def _onAllUserInformation(self, proto, spec, message, body):
         requestId = message.getRequestId()
         if requestId in self.requests:
@@ -872,29 +857,5 @@ class ACLClient(MessagePlugin):
             return p
         except Exception as e:
             print e
-
-
-    def _onAllResourceInformation(self, proto, spec, message, body):
-        requestId = message.getRequestId()
-        if requestId in self.requests:
-            p = self.requests[requestId]
-            if 0 != body.status:
-                p.reject(Exception(body.message))
-            else:
-                p.fulfill(body.information)
-
-
-    def allResourceInformation(self, session):
-        try:
-            p = Promise()
-            (rSpec, rRequest) = self.create("allresourceinformation:aclproto", True)
-            rRequest.session = session
-            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
-            return p
-        except Exception as e:
-            print e
-
-
-
 
 

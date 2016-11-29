@@ -1,13 +1,5 @@
 #coding: utf-8
 import psycopg2
-import hashlib
-import time
-import logging
-import os
-import threading
-'''
-创建所需数据表，完成数据插入、查找、删除、修改等功能
-'''
 
 class mysql2(object):
 
@@ -15,7 +7,7 @@ class mysql2(object):
         self.conn = conn
         self.conn2 = conn2
 
-    def putContent(self,userId, content, key ):
+    def putContent(self, userId, content, key):
         cur = self.conn.cursor()
         try:
             sql = '''INSERT INTO t_content(content) VALUES (%s);'''
@@ -63,8 +55,6 @@ class mysql2(object):
         finally:
             cur.close()
 
-
-
     def putKey(self, key, contentId, userId):
         cur = self.conn.cursor()
         try:
@@ -81,7 +71,6 @@ class mysql2(object):
             return False
         finally:
             cur.close()
-
 
     def putKeys(self, userId, KeyContentIds):
         cur = self.conn.cursor()
@@ -104,14 +93,6 @@ class mysql2(object):
         finally:
             cur.close()
 
-
-
-
-
-
-
-
-
     def getSeriesContent(self,userId, contentIds):
         cur = self.conn.cursor()
         result= []
@@ -132,14 +113,13 @@ class mysql2(object):
         finally:
             cur.close()
 
-
     def getContent(self, contentId, userId):
         cur = self.conn.cursor()
         try:
             sql = '''SELECT content FROM t_content where id =%s ; '''
             cur.execute(sql,(contentId,))
-            r1 =cur.fetchone()
-            sql2 =  '''SELECT enkey FROM t_key where content_id =%s and possessor_id =%s ; '''
+            r1 = cur.fetchone()
+            sql2 = '''SELECT enkey FROM t_key where content_id =%s and possessor_id =%s ; '''
             cur.execute(sql2,(contentId,userId))
             r2 =cur.fetchone()
             return r1[0], r2[0]
@@ -179,11 +159,6 @@ class mysql2(object):
         finally:
             cur.close()
 
-
-
-
-
-
     def deleteContent(self, contentId):
         cur = self.conn.cursor()
         try:
@@ -193,14 +168,13 @@ class mysql2(object):
                 if cur.rowcount ==0:
                     raise Exception('contentId does not exist')
             self.conn.commit()
-            return  True
+            return True
         except Exception as e:
             print e
             self.conn.rollback()
             return False
         finally:
             cur.close()
-
 
     def listContent(self, userId):
         cur = self.conn.cursor()
@@ -214,9 +188,6 @@ class mysql2(object):
             return False
         finally:
             cur.close()
-
-
-
 
     def revokeGrant(self,userId, contentIds, otherUserId):
         cur = self.conn.cursor()
@@ -234,7 +205,6 @@ class mysql2(object):
             return False
         finally:
             cur.close()
-
 
     def checkSharer(self, contentId):
         cur1 = self.conn.cursor()
@@ -258,15 +228,6 @@ class mysql2(object):
             cur2.close()
 
 
-if __name__=='__main__':
-
-    #from mypostgresql import sql
-        #sql.addresource(body.resourceTypeId, body.name, body.description )
-    conn = psycopg2.connect(database="sec1", user="postgres", password="powerup", host="127.0.0.1", port="5432")
-    # aa = mysql(conn)
-    aa=mysql2(conn)
-    c= aa.putContent(1,'dfgd','ddfg')
-    print c
 
 
 
