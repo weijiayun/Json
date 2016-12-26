@@ -73,10 +73,9 @@ struct AddUser
 {
 	1: required LoginSession session;
     2: required string userName;
-    3: optional binary phoneNumber;
-    4: required binary privateKey;
-    5: required binary publicKey;
-	6: required binary password;
+    3: required string email;
+    4: required string password;
+	5: required i32 roleId;
 }
 
 struct AddUserResponse
@@ -216,13 +215,21 @@ const i32 ACLPROTO_MESSAGE_LIST_USER = 100022
 struct ListUser
 {
 	1: required LoginSession session;
-//	2: required i32 roleId;  
+	2: optional i32 userId;
 }
 
 struct User
 {
 	1: i32 userId;
     2: string userName;
+    3: string phoneNumber;
+    4: string password;
+    5: string privateKey;
+    6: string publicKey;
+    7: string email;
+    8: string description;
+    9: string avatar;
+    10: string roleName;
 }
 
 struct ListUserResponse
@@ -244,8 +251,8 @@ struct Res
 {
     1: required i32 id;
     2: required string name;
-    3: required i32 resourceTypeId;
-    4: optional string contentId;
+    3: required string resourceType;
+    4: required i32 contentId;
     5: required i32 isGroup;
 }
 struct GetResourcesResponse
@@ -496,6 +503,27 @@ struct DeleteResourceTypeResponse
     2: string message;
 }
 
+// -------------------list resource type------------------------
+
+const i32 ACLPROTO_MESSAGE_LIST_RESOURCE_TYPE = 100052
+
+struct ListResourceType
+{
+	1: required LoginSession session;
+}
+struct ResType {
+    1: required i32 id;
+    2: required string name;
+    3: required string description;
+    4: required list<string> permissions;
+}
+struct ListResourceTypeResponse
+{
+    1: i32 status;
+    2: string message;
+    3: list<ResType> resourceTypes;
+}
+
 
 
 //-----------------------My information----------------------------
@@ -611,6 +639,29 @@ struct AllUserInformationResponse
 	2: string message;
 	3: list<Lists> information;
 }
+//-----------------------List Roles----------------------------
+
+
+const i32 ACLPROTO_MESSAGE_LIST_ROLES = 100064
+
+
+struct ListRoles
+{
+	1: required LoginSession session;
+}
+struct Role{
+    1: required i32 id;
+    2: required string name;
+    3: required list<string> parents;
+    4: required list<Res> resources;
+}
+struct ListRolesResponse
+{
+	1: i32 status;
+	2: string message;
+	3: list<Role> roles;
+}
+
 
 
 //-----------------------Get Public Key----------------------------
@@ -686,7 +737,23 @@ struct RevokeFromRoleResponse
     2:string message;
 }
 
+//-------------------Change Role of User----------------------------------
 
+
+const i32 ACLPROTO_MESSAGE_CHANGE_ROLE_OF_USER = 100074
+
+struct ChangeRoleOfUser
+{
+	1: required LoginSession session;
+    2: required i32 roleId;
+    3: required i32 userId;
+}
+
+struct ChangeRoleOfUserResponse
+{
+	1:i32 status;
+    2:string message;
+}
 
 
 

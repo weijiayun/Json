@@ -1,0 +1,601 @@
+.header11111111
+{
+    font-size: 200%;
+    margin: 20px 20px;
+}
+
+.hx-login-form
+{
+    margin-left:90px;
+    padding-left: 20rem;
+    padding-right: 20rem;
+
+}
+
+.hx-sign-in
+{
+     padding-left: 30rem;
+    padding-right: 20rem;
+
+}
+
+
+.hx-footer
+{
+    clear:both;
+    margin-top: 20px;
+    margin-bottom:50px;
+    text-align: center;
+}
+
+.hx-edit-profile
+{
+    width:1080px;
+    margin-left: 50px;
+
+}
+
+
+
+
+.hx-avatar
+{
+   width:100px;
+   height:100px;
+   border-radius:100px;
+}
+
+
+.hx-center
+{
+    position: absolute;
+    right: 10%;
+}
+
+.hx-rmmargin
+{
+    margin-top: 0 ;
+    margin-bottom: 0;
+    min-height: 25px;
+}
+
+.hx-fixwidth
+{
+    width : 130px;
+}
+
+.hx-showdetail
+{
+    position: fixed;
+    right: 5%;
+    top: 20%;
+    width : 130px;
+    z-index: 1;
+}
+
+.mask
+{
+    display: none;
+    position: fixed;
+    top:0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background: rgba(0,0,0,0.15);
+    z-index: 1;
+}
+
+
+.hx-fix-menu {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    background: #0c80ba;
+    _position: absolute;
+    _top: expression(documentElement.scrollTop + "px");
+    z-index: 1;
+
+}
+
+.hx-box
+{
+    margin: 15px 20px;
+}
+.hx-pic
+{
+    border: 1px solid #f3f3f3;
+    width: 200px;
+    height: 130px;
+}
+
+
+.hx-img
+{
+    /*width:auto;*/
+    /*height:auto;*/
+    max-width:100%;
+    max-height:100%;
+}
+
+
+
+.hx-clearfloat
+{
+    clear:both;
+
+}
+
+/*aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa*/
+
+#showInfo
+{
+   /* display: none;  */
+    position: fixed;
+    top: 25%;
+    bottom: 0;
+    margin: 0 0;
+    right: -1000px;
+    width: 900px;
+    /*height: 600px;*!*/
+    background: #f3f3f3;
+    color: #000000;
+    transition: right 0.4s;
+    z-index: 2;
+
+
+}
+
+
+.am-scrollable-vertical
+{
+    height: 95% ;
+
+}
+
+.hx-btn-center
+{
+    margin: 20px auto;
+    position: absolute;
+    right: 50%;
+}
+
+
+
+td {
+  white-space:nowrap;
+  min-height:25px;
+  position:relative;
+}
+
+.long {
+    overflow-x:hidden;
+    width:90px;
+}
+
+.long:hover {
+   position:absolute;
+   z-index:10;
+   top:0;
+   left:0;
+   width:200px;
+   background-color:#c0c0c0;
+   border:1px solid #000000;
+   overflow-x:visible
+}
+
+
+
+
+
+
+
+/*
+.clearfix:after
+{
+    content: '';
+    display: block;
+    clear: both;
+}
+
+h2
+{
+    font-size: 30px;
+}
+h3
+{
+    font-size:  24px;
+}
+
+p
+{
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+ul
+{
+    margin: 0;
+}
+
+nav
+{
+    background: #f3f3f3;
+    height: 50px;
+}
+
+
+
+
+#banner
+{
+     background: rgba(0,0,0,0.2);
+    height: 50px;
+}
+header #banner ul
+{
+    list-style: none;
+    margin: 0;
+    float: right;
+
+
+}
+
+header #banner ul li, #banner .logo
+{
+    display: inline-block;
+    line-height: 50px;
+    margin-right: 20px;
+}
+
+header #banner ul li a
+{
+    line-height: inherit;
+    text-decoration: none;
+    display: inline-block;
+    height: inherit;
+    color: #fff;
+
+}
+
+header #banner ul li.logo
+{
+    float: left;
+    padding: 10px;
+}
+
+
+#banner2
+{
+
+    background: rgba(0,0,0,0.01);
+    height: 900px;
+}
+
+#banner .inner
+{
+    max-width: 300px;
+    text-align: center;
+    margin: 0 auto;
+    position: relative;
+     top: 10px;
+
+}
+
+.sub-heading
+{
+    line-height: 20px;
+    margin: 20px 0;
+}
+
+
+
+
+#banner2 .inner h1
+{
+    margin: 0;
+
+}
+
+
+button
+{
+    border: none;
+    background: #333;
+    color: #EEE;
+    padding: 20px ;
+}
+#banner2 button
+{
+    padding: 10px 40px;
+}
+
+#banner2 .inner .more
+{
+    margin-top: 20px;
+}
+
+
+.logo
+{
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.logo a
+{
+        color: #fff;
+}
+
+.green-section
+{
+    background: #0D959F;
+    color:#fff;
+    text-align: center;
+    padding: 100px 0;
+
+}
+
+
+.hr
+{
+    width: 100%;
+    height: 2px;
+    margin:20px auto;
+
+}
+
+.sub-heading
+{
+    font-size: 20px;
+}
+
+
+.green-section .hr
+{
+    background: #0AD3ED;
+    width: 60%;
+}
+
+.wrapper
+{
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+.icon-group
+{
+    margin-top: 20px;
+}
+
+.green-section  .icon-group .icon
+{
+    display: inline-block;
+    width: 80;
+    height: 80;
+    border:2px solid #32F800;
+    transform: rotate(45deg);
+    margin: 20px;
+}
+
+.gray-section
+{
+    background: #252F34;
+    color: #fff;
+}
+
+
+.gray-section .img-section
+{
+    width: 45%;
+}
+
+.img-section img
+{
+    width: 100%;
+}
+
+.gray-section .text-section
+{
+    width: 55%;
+    background: #12478D;
+
+}
+
+
+.article-preview > div
+{
+    float:left;
+    font-size: 0;
+}
+
+.article-preview:nth-child(odd)
+{
+    background-color: rgba(255,255,255,0.05)
+}
+
+.article-preview:after
+{
+    content: '';
+    display: block;
+    clear: both;
+}
+
+.text-section
+{
+    position: relative;
+    top: 100px;
+    left: 0px;
+}
+
+.text-section h2
+{
+    margin-top: 20px;
+}
+
+.text-section .sub-heading
+{
+    font-size: 24px;
+    margin-top: 0;
+}
+
+.text-section p
+{
+    font-size:16px;
+    letter-spacing: 1px;
+}
+
+
+.text-section > * {
+    padding: 10;
+
+}
+
+
+.purple-section
+{
+    padding: 80;
+    background:#262149;
+    color: #fff;
+}
+
+.purple-section .heading-wrapper
+{
+    text-align: center;
+}
+
+.heading-wrapper .hr
+{
+    background: #2E2662;
+    width: 60%;
+}
+
+
+.card
+{
+    float: left;
+    width:50%;
+    min-height: 200px;
+    padding: 50px;
+    box-sizing: border-box;
+
+}
+
+
+.card:first-child
+{
+    background: rgba(0,0,0,0.05)
+}
+
+.card:nth-child(2)
+{
+    background: rgba(0,0,0,0.1)
+}
+
+.card:nth-child(3)
+{
+    background: rgba(0,0,0,0.15)
+}
+
+.card:nth-child(4)
+{
+    background: rgba(0,0,0,0.2)
+}
+
+footer
+{
+    background: #333;
+    color: #fff;
+    min-height:200px;
+    text-align: center;
+}
+
+
+ul.share-group
+{
+    display: block;
+    width: 1080px;
+    margin: 0 auto;
+    padding: 50px;
+}
+
+ul.share-group li
+{
+    display: inline-block;
+    padding: 10px;
+}
+
+.copy
+{
+    padding-bottom:20px;
+}
+
+.main-wrapper
+{
+    background: #444 url(../img/aa.jpg) ;
+
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+}
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

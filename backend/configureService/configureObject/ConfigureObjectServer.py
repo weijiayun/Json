@@ -6,6 +6,7 @@ from MessageHandler import MessagePlugin
 from ConfigObjectPostgres import ConfigureObjectSql
 import psycopg2, logging
 from configureService.security.SecurityClient import SecClient
+from configureService.acl.ACLClient import ACLClient
 import json
 import random, string
 
@@ -19,24 +20,53 @@ class ConfigureObjectServer(MessagePlugin):
 
         self.handle('createconfigure:configureobjectproto', True, self.onCreateConfigure)
         self.handle('deleteconfigure:configureobjectproto', True, self.onDeleteConfigure)
-        self.handle('createobject:configureobjectproto', True, self.onCreateObject)
-        self.handle('deleteobject:configureobjectproto', True, self.onDeleteObject)
+        self.handle('createcollection:configureobjectproto', True, self.onCreateCollection)
+        self.handle('deletecollection:configureobjectproto', True, self.onDeleteCollection)
         self.handle('getconfigure:configureobjectproto', True, self.onGetConfigure)
-        self.handle('getobjects:configureobjectproto', True, self.onGetObjects)
-        self.handle('grantobjectstoothers:configureobjectproto', True, self.onGrantObjectsToOthers)
-        self.handle('ungrantobjectsofothers:configureobjectproto', True, self.onUnGrantObjectsOfOthers)
-        self.handle('grantconfiguretoothers:configureobjectproto', True, self.onGrantConfigureToOthers)
-        self.handle('ungrantconfigureofothers:configureobjectproto', True, self.onUnGrantConfigureOfOthers)
-        self.handle('listobjects:configureobjectproto', True, self.onListObjects)
+        self.handle('getcollection:configureobjectproto', True, self.onGetCollection)
+        self.handle('grantcollection:configureobjectproto', True, self.onGrantCollection)
+        self.handle('revokecollection:configureobjectproto', True, self.onRevokeCollection)
+        self.handle('granconfigure:configureobjectproto', True, self.onGrantConfigure)
+        self.handle('revokeConfigure:configureobjectproto', True, self.onRevokeCollection)
+        self.handle('listcollections:configureobjectproto', True, self.onListCollections)
         self.handle('listauthoritysharers:configureobjectproto', True, self.onListAuthoritySharers)
 
     def onConnectionOpened(self, proto):
-        print '----begin login-----'
         try:
             self.securityClient = SecClient(proto, self.mesgHandle, 609)
             print '----securityClient connected successfully'
+            self.aclClient = ACLClient(proto, self.mesgHandle, 609)
+            print '----ACLClient connected successfully'
         except Exception as e:
             print e
+
+    #@staticmethod
+    def checkPermission(resourceId, permission):
+        def decorator(func):
+            def wrapper(self, proto, spec, message, body):
+                def successCheckPermission(hasP):
+                    if hasP:
+                        func(self, proto, spec, message, body)
+                    else:
+                        (responseSpec, failedResponse) = self.create(spec.messageName, False)
+                        failedResponse.status = 1
+                        failedResponse.message = '<User: {0}> has no permission to {1}'.format(
+                            body.session.userId, func.__name__)
+                        self.write_log('error', body.session.userId, failedResponse.message)
+                        self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+                def FailedCheckPermission(hasP):
+                    (responseSpec, failedResponse) = self.create(spec.messageName, False)
+                    failedResponse.status = 1
+                    failedResponse.message = hasP
+                    self.write_log('error', body.session.userId, failedResponse.message)
+                    self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+                self.aclClient.hasPermission(body.session, resourceId, permission)\
+                    .then(successCheckPermission)\
+                    .catch(FailedCheckPermission)
+            return wrapper
+        return decorator
 
     def write_log(self, log_type, userId, message, operation):
         logger = '\n用户ID：%s\n错误信息：%s\n%s\n执行操作：%s\n' % (userId, message, operation, '-' * 50)
@@ -48,14 +78,13 @@ class ConfigureObjectServer(MessagePlugin):
             print '-------------begin Delete Configure In Grid---------------'
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
             print 'Configure: {0}'.format(body.Configure)
-            print 'Object: {0}'.format(body.ObjectList)
+            print 'Object: {0}'.format(body.CollectionList)
 
-            secIdList = [self.configsql3.getObject(elem.Name,
-                                                   elem.Date,
-                                                   elem.Version,
-                                                   elem.TemplateName,
-                                                   elem.CollectionName,
-                                                   elem.Category)[0] for elem in body.ObjectList]
+            secIdList = [self.configsql3.getCollection(elem.Name,
+                                                       elem.Date,
+                                                       elem.Version,
+                                                       elem.TemplateName,
+                                                       elem.CollectionName)[1] for elem in body.CollectionList]
 
             IsCreateConfigureInstance = self.configsql3.createConfigure(json.dumps(secIdList),
                                                                         body.Configure.Name,
@@ -98,27 +127,24 @@ class ConfigureObjectServer(MessagePlugin):
         except Exception as e:
             print e
 
-    def onCreateObject(self, proto, spec, message, body):
+    def onCreateCollection(self, proto, spec, message, body):
         try:
             print '-------------begin Create  Object---------------'
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Object: {0}'.format(body.ObjectList)
-
+            
             def getkey():
                 passwd = string.join(
                     random.sample(list('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-+'), 16)) \
                     .replace(" ", "")
                 return passwd
-
-            secList = [["-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName]),
-                        elem.Content, getkey()] for elem in body.ObjectList]
+            secList = [["-".join([body.Collection.Name, body.Collection.Date, body.Collection.Version, body.Collection.Category, body.Collection.TemplateName]),
+                        body.Collection.Content, getkey()]]
 
             def putContentSuccess(nameIdDict):
-                self.buildInT_Object(message, proto, nameIdDict)
+                self.registCollectionInT_Collection(message, proto, nameIdDict)
 
             def putContentFailed(errMesg):
                 print 'putSeriesContent failed: %s' % errMesg
-
             self.securityClient.putSeriesContent(body.session, secList, body.publicKey)\
                 .then(putContentSuccess)\
                 .catch(putContentFailed)
@@ -126,63 +152,62 @@ class ConfigureObjectServer(MessagePlugin):
             print '---------------end Create Configure Object---------------'
         except Exception as e:
             print 'error: {0}'.format(e)
-            (responseSpec, failedResponse) = self.create("createobject:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("createcollection:configureobjectproto", False)
             failedResponse.status = 1
             failedResponse.message = e
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-    def buildInT_Object(self, message, proto, nameIdDict):
+    def registCollectionInT_Collection(self, message, proto, nameIdDict):
         try:
-            IsCreateObject = self.configsql3.createObject(nameIdDict)
+            IsCreateObject = self.configsql3.createCollection(nameIdDict)
             if IsCreateObject[0]:
-                (responseSpec, successResponse) = self.create("createobject:configureobjectproto", False)
+                (responseSpec, successResponse) = self.create("createcollection:configureobjectproto", False)
                 successResponse.status = 0
                 successResponse.message = IsCreateObject[1]
                 self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
             else:
-                (responseSpec, failedResponse) = self.create("createobject:configureobjectproto", False)
+                (responseSpec, failedResponse) = self.create("createcollection:configureobjectproto", False)
                 failedResponse.status = 1
                 failedResponse.message = IsCreateObject[1]
                 self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
         except Exception as e:
             print e
-            (responseSpec, failedResponse) = self.create("createobject:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("createcollection:configureobjectproto", False)
             failedResponse.status = 1
             failedResponse.message = str(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-    def onDeleteObject(self, proto, spec, message, body):
+    def onDeleteCollection(self, proto, spec, message, body):
         try:
             print '-------------begin Delete Configure Object---------------'
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Configure Object Name: {0}'.format(body.ObjectList)
-
-            secIdList = [self.configsql3.getObject(elem.Name,
-                                                   elem.Date,
-                                                   elem.Version,
-                                                   elem.Category,
-                                                   elem.TemplateName,
-                                                   elem.CollectionName)[0] for elem in body.ObjectList]
-
+            print 'Configure Object Name: {0}'.format(body.Collections)
+    
+            secIdList = [self.configsql3.getCollection(elem.Name,
+                                                       elem.Date,
+                                                       elem.Version,
+                                                       elem.Category,
+                                                       elem.TemplateName)[1] for elem in body.Collections]
+    
             def deleteContentSuccess(successMsg):
-                self.deleteObjectInMapping(message, proto, secIdList)
-
+                self.deleteCollectionInT_Collection(message, proto, secIdList)
+    
             def deleteContentFailed(errMsg):
                 print errMsg+'delete Content is Faild!!!'
             self.securityClient.deleteContent(body.session, secIdList)\
                 .then(deleteContentSuccess).catch(deleteContentFailed)
             print '---------------end Create Configure Object---------------'
         except Exception as e:
-            (responseSpec, failedResponse) = self.create("deleteobject:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("deletecollection:configureobjectproto", False)
             failedResponse.status = 1
-            failedResponse.message = 'error: delete configure object and {0}'.format(e)
+            failedResponse.message = 'error: {0}'.format(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-
-    def deleteObjectInMapping(self, message, proto, secIdList):
-        IsDeleteObject = self.configsql3.deleteObject(secIdList)
+    
+    def deleteCollectionInT_Collection(self, message, proto, secIdList):
+        IsDeleteObject = self.configsql3.deleteCollection(secIdList)
         if IsDeleteObject[0]:
-            (responseSpec, successResponse) = self.create("deleteobject:configureobjectproto", False)
+            (responseSpec, successResponse) = self.create("deletecollection:configureobjectproto", False)
             successResponse.status = 0
             successResponse.message = IsDeleteObject[1]
             self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
@@ -192,45 +217,45 @@ class ConfigureObjectServer(MessagePlugin):
             failedResponse.message = IsDeleteObject[1]
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-    def onGetObjects(self, proto, spec, message, body):
+    # @checkPermission(38, 'GETOBJECTS')
+    def onGetCollection(self, proto, spec, message, body):
         print '-------------Begin To Get Object---------------'
         print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-        print 'Configure Object Id: {0}'.format(body.ObjectList)
-
+        print 'Configure Object Id: {0}'.format(body.Collections)
         try:
-            secIdList = [["-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName]),
-                          self.configsql3.getObject(elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName)[0]]
-                         for elem in body.ObjectList]
+            secIdList = [["-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName]),
+                          self.configsql3.getCollection(elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName)[1]]
+                         for elem in body.Collections]
             if len(secIdList) == 0:
                 raise Exception("Error: getting Object {0} is failed".format(body.ObjectName))
-
-            (responseSpec, successResponse) = self.create("getobjects:configureobjectproto", False)
+            
+            (responseSpec, successResponse) = self.create("getcollection:configureobjectproto", False)
 
             def getContentSuccess(Content):
                 successResponse.status = 0
                 successResponse.message = "get object successfully!!!"
                 successResponse.Content = Content
                 self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-
+                
             def getContentFailed(errMsg):
                 print 'put content of object is failed!!!'
 
             self.securityClient.getSeriesContent(body.session, secIdList, body.privateKey)\
                 .then(getContentSuccess)\
                 .catch(getContentFailed)
-            print '---------------end Query Configure Object---------------'
+            print '---------------end Query Get Collection---------------'
         except Exception as e:
             print "Error: {0}".format(e)
-            (responseSpec, failedResponse) = self.create("getobjects:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("getcollection:configureobjectproto", False)
             failedResponse.status = 1
-            failedResponse.message = 'Error: get configure object,Detail: {0}'.format(e)
+            failedResponse.message = 'Error: get Collection, Detail: {0}'.format(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     def onGetConfigure(self, proto, spec, message, body):
         print '-------------Begin Get Object---------------'
         print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
         print 'Collection Name: {0}'.format(body.Configure)
-
+        
         try:
             objectList = self.configsql3.getConfigure(body.Configure.Name,
                                                       body.Configure.Date,
@@ -267,72 +292,72 @@ class ConfigureObjectServer(MessagePlugin):
             failedResponse.message = 'Error: getting Configure is failed!!!\n,Detail: {0}'.format(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-    def onGrantObjectsToOthers(self, proto, spec, message, body):
+    def onGrantCollection(self, proto, spec, message, body):
         try:
             print '---------------Begin Grant Object To Others---------------'
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Object Name: {0}'.format(body.ObjectList)
+            print 'Object Name: {0}'.format(body.CollectionList)
             print 'Object OthersId: {0}'.format(body.OthersId)
             print '---------------end Query Configure Object---------------'
 
-            secIdDict = {"-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName]):
-                             self.configsql3.getObject(elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName,elem.CollectionName)[0]
-                         for elem in body.ObjectList}
+            secIdDict = {"-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName]):
+                             self.configsql3.getCollection(elem.Name, elem.Date,
+                                                           elem.Version, elem.Category, 
+                                                           elem.TemplateName)[1] for elem in body.CollectionList}
 
             if len(secIdDict) == 0:
-                raise Exception("Objects <{0}> is not exist when query the database".format(body.ObjectList))
+                raise Exception("Objects <{0}> is not exist when query the database".format(body.Collection))
 
-            (responseSpec, successResponse) = self.create("grantobjectstoothers:configureobjectproto", False)
+            (responseSpec, successResponse) = self.create("grantcollection:configureobjectproto", False)
 
             def grantOtherSuccess(Msg):
                 successResponse.status = 0
                 successResponse.message = "Grant object to other is successfully!!!"
                 self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
 
-            (responseSpec, failedResponse) = self.create("grantobjectstoothers:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("grantcollection:configureobjectproto", False)
 
             def grantOtherFailed(errMsg):
                 failedResponse.status = 1
                 failedResponse.message = 'Error: grant objects to others is failed!!!'
                 self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-
             self.securityClient.grantSeriesToOther(body.session,
                                                    secIdDict,
                                                    body.OthersId,
                                                    body.privateKey,
                                                    body.othersPublicKey).then(grantOtherSuccess).catch(grantOtherFailed)
         except Exception as e:
-            (responseSpec, failedResponse) = self.create("grantobjectstoothers:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("grantcollection:configureobjectproto", False)
             print "Error: {0}".format(e)
             failedResponse.status = 1
             failedResponse.message = str(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-    def onUnGrantObjectsOfOthers(self, proto, spec, message, body):
+    def onRevokeCollection(self, proto, spec, message, body):
         try:
             print '---------------Begin Ungrant Object To Others---------------'
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Object Name: {0}'.format(body.ObjectList)
+            print 'Object Name: {0}'.format(body.CollectionList)
             print 'Object OthersId: {0}'.format(body.OthersId)
             print '---------------end Ungrant Configure Object---------------'
 
-            secIdDict = {"-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName]):
-                             self.configsql3.getObject(elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName, elem.CollectionName)[0]
-                         for elem in body.ObjectList}
+            secIdDict = {"-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName]):
+                             self.configsql3.getCollection(elem.Name, elem.Date,
+                                                           elem.Version, elem.Category, elem.TemplateName)[1] for elem in body.CollectionList}
 
             if len(secIdDict) == 0:
                 raise Exception("Objects <{0}> is not exist when query the database".format(body.ObjectList))
 
-            (responseSpec, successResponse) = self.create("ungrantobjectsofothers:configureobjectproto", False)
+            (responseSpec, successResponse) = self.create("revokecollection:configureobjectproto", False)
 
-            def grantOtherSuccess(Msg):
+            def revokeSuccess(Msg):
                 successResponse.status = 0
                 successResponse.message = "Ungrant object to other is successfully!!!"
                 self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
 
-            (responseSpec, failedResponse) = self.create("ungrantobjectsofothers:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("revokecollection:configureobjectproto", False)
 
-            def grantOtherFailed(errMsg):
+            def revokeFailed(errMsg):
                 failedResponse.status = 1
                 failedResponse.message = 'Error: Ungrant objects to others is failed!!!'
                 self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
@@ -340,15 +365,15 @@ class ConfigureObjectServer(MessagePlugin):
             self.securityClient.revokeGrant(body.session,
                                             secIdDict,
                                             body.OthersId,
-                                            ).then(grantOtherSuccess).catch(grantOtherFailed)
+                                            ).then(revokeSuccess).catch(revokeFailed)
         except Exception as e:
-            (responseSpec, failedResponse) = self.create("ungrantobjectsofothers:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("revokecollection:configureobjectproto", False)
             print "Error: {0}".format(e)
             failedResponse.status = 1
             failedResponse.message = str(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-    def onGrantConfigureToOthers(self, proto, spec, message, body):
+    def onGrantConfigure(self, proto, spec, message, body):
         try:
             print '---------------Begin Grant Object To Others---------------'
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
@@ -371,14 +396,14 @@ class ConfigureObjectServer(MessagePlugin):
                                                                                       body.Configure.Date,
                                                                                       body.Configure.Version))
 
-            (responseSpec, successResponse) = self.create("grantconfiguretoothers:configureobjectproto", False)
+            (responseSpec, successResponse) = self.create("grantconfigure:configureobjectproto", False)
 
             def grantOtherSuccess(Msg):
                 successResponse.status = 0
                 successResponse.message = "Grant configure to other is successfully!!!"
                 self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
 
-            (responseSpec, failedResponse) = self.create("grantconfiguretoothers:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("granconfigure:configureobjectproto", False)
 
             def grantOtherFailed(Msg):
                 failedResponse.status = 1
@@ -391,13 +416,13 @@ class ConfigureObjectServer(MessagePlugin):
                                                    body.privateKey,
                                                    body.othersPublicKey).then(grantOtherSuccess).catch(grantOtherFailed)
         except Exception as e:
-            (responseSpec, failedResponse) = self.create("grantconfiguretoothers:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("granconfigure:configureobjectproto", False)
             print "Error: {0}".format(e)
             failedResponse.status = 1
             failedResponse.message = str(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-    def onUnGrantConfigureOfOthers(self, proto, spec, message, body):
+    def onUnGrantConfigure(self, proto, spec, message, body):
         try:
             print '---------------Begin Revoke Grant Object To Others---------------'
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
@@ -420,14 +445,14 @@ class ConfigureObjectServer(MessagePlugin):
                                                                                         body.Configure.Date,
                                                                                         body.Configure.Version))
 
-            (responseSpec, successResponse) = self.create("ungrantconfigureofothers:configureobjectproto", False)
+            (responseSpec, successResponse) = self.create("revokeConfigure:configureobjectproto", False)
 
             def grantOtherSuccess(Msg):
                 successResponse.status = 0
                 successResponse.message = "Ungrant configure<{0}> to other is successfully!!!".format(body.ConfigureList)
                 self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
 
-            (responseSpec, failedResponse) = self.create("ungrantconfigureofothers:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("revokeConfigure:configureobjectproto", False)
 
             def grantOtherFailed(Msg):
                 failedResponse.status = 1
@@ -439,48 +464,59 @@ class ConfigureObjectServer(MessagePlugin):
                                             body.OthersId,
                                             ).then(grantOtherSuccess).catch(grantOtherFailed)
         except Exception as e:
-            (responseSpec, failedResponse) = self.create("ungrantconfigureofothers:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("revokeConfigure:configureobjectproto", False)
             print "Error: {0}".format(e)
             failedResponse.status = 1
             failedResponse.message = str(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-    def onListObjects(self, proto, spec, message, body):
+    def onListCollections(self, proto, spec, message, body):
         try:
             print '---------------Begin List Object To Others---------------'
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
 
-            def listObjectsSuccess(contentIdList):
-                self.getListObjects(proto, message, contentIdList)
+            def listCollectionsSuccess(contentIdList):
+                self.__getListCollection(proto, message, contentIdList)
 
-            (responseSpec, failedResponse) = self.create("listobjects:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("listcollections:configureobjectproto", False)
 
-            def listObjectsFailed(Msg):
+            def listCollectionsFailed(Msg):
                 failedResponse.status = 1
                 failedResponse.message = 'Error: listting object is failed!!!'
                 self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-            self.securityClient.listContent(body.session).then(listObjectsSuccess).catch(listObjectsFailed)
+            self.securityClient.listContent(body.session).then(listCollectionsSuccess).catch(listCollectionsFailed)
             print '---------------end List Object---------------'
 
         except Exception as e:
             print "Error: {0}".format(e)
-            (responseSpec, failedResponse) = self.create("listobjects:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("listcollections:configureobjectproto", False)
             failedResponse.status = 1
             failedResponse.message = str(e)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-    def getListObjects(self, proto, message, contentIdList):
+    def __getListCollection(self, proto, message, contentIdList):
         contentIdList = [e.contentId for e in contentIdList]
         categoryDict = self.configsql3.getAll(contentIdList)
         if categoryDict[0]:
-            (responseSpec, successResponse) = self.create("listobjects:configureobjectproto", False)
-            successResponse.CategoryDict = categoryDict[1]
+            (responseSpec, successResponse) = self.create("listcollections:configureobjectproto", False)
+            temp = {}
+            for key, val in categoryDict[1].items():
+                temp[key] = []
+                for elem in val:
+                    col = self.createGeneric("collection:ConfigureObjectProto")
+                    col.Name = elem[0]
+                    col.Date = elem[1]
+                    col.Version = elem[2]
+                    col.Category = elem[3]
+                    col.TemplateName = elem[4]
+                    temp[key].append(col)
+            successResponse.collections = temp
             successResponse.status = 0
             successResponse.message = "list objects successfully!!!"
             self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
         else:
-            (responseSpec, failedResponse) = self.create("listobjects:configureobjectproto", False)
+            (responseSpec, failedResponse) = self.create("listcollections:configureobjectproto", False)
             failedResponse.status = 1
             failedResponse.message = categoryDict[1]
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
@@ -489,15 +525,14 @@ class ConfigureObjectServer(MessagePlugin):
         try:
             print '---------------Begin List Authority Sharers---------------'
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Object: <{0}>'.format(body.Object)
+            print 'Object: <{0}>'.format(body.Collection)
             print '--------------- End List Authority Sharers---------------'
 
-            isGetObject = self.configsql3.getObject(body.Object.Name, 
-                                                    body.Object.Date, 
-                                                    body.Object.Version,
-                                                    body.Object.Category,
-                                                    body.Object.TemplateName,
-                                                    body.Object.CollectionName)
+            isGetObject = self.configsql3.getCollection(body.Collection.Name,
+                                                        body.Collection.Date,
+                                                        body.Collection.Version,
+                                                        body.Collection.Category,
+                                                        body.Collection.TemplateName)[1]
 
             if isGetObject:
                 secId = isGetObject[0]

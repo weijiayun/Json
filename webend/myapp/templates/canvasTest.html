@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="mycanvas" width="400" height="400" style="border: 1px solid #0E2D5F"></canvas>
+<script>
+    var canvasDom=document.getElementById("mycanvas");
+    var ctx=canvasDom.getContext("2d");
+    function dynamicFont(ctx,scaleX,scaleY,coorX,coorY,string) {
+            ctx.save();
+            ctx.font = 50+"px serif";
+            ctx.scale(scaleX, scaleY);
+            ctx.fillText(string, coorX/scaleX, coorY/scaleY);
+            ctx.restore();
+    }
+    function discriptScaledView(ctx,data){
+        var x = 1;
+        var y = 1;
+        var width = 300;
+        var height = 140;
+        if(data.length == 1){
+            height = 60;
+            y=50;
+        }
+        ctx.strokeRect(x,y,width,height);
+        for(var j=1;j<data.length;j++) {
+            ctx.moveTo(x, y + j * Math.floor(height / data.length));
+            ctx.lineTo(x + width, y + j * Math.floor(height /data.length));
+        }
+        for(var i=1;i<data[0].length;i++){
+            ctx.moveTo(x+i*Math.floor(width/data[0].length),y);
+            ctx.lineTo(x+i*Math.floor(width/data[0].length),y+height);
+            ctx.stroke();
+        }
+        for(j=0;j<data.length;j++){
+            for(i=0;i<data[0].length;i++) {
+                if(data[j][i] == null)
+                    data[j][i] = "";
+
+                var textlen = String(data[j][i]).length;
+
+                var scaleX = 1;
+                var scaleY = 1;
+                if(textlen>2){
+                    scaleX = 2/textlen;
+                    scaleY = 2/textlen;
+                    if(data.length>2){
+                        scaleY = 2/data.length;
+                        scaleX = 2/data.length;
+                    }
+                }
+                else if(data.length>2){
+                    scaleY = 2/data.length;
+                    scaleX = 2/data.length;
+                }
+                var centerX =  x + i*width/data[0].length+width/data[0].length/32;
+                var centerY = y + (j+1)*height/data.length-height/data.length/4;
+                dynamicFont(ctx, scaleX, scaleY, centerX, centerY,data[j][i]);
+            }
+        }
+    }
+    var data1 = [[1,2,5],[4434,2345,4345],[4434,2345,4345],[4434,2345,4345]];
+    discriptScaledView(ctx, data1);
+</script>
+</body>
+</html>

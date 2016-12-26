@@ -37,7 +37,7 @@ class SecClient(MessagePlugin):
             else:
                 p.fulfill('delete content success!')
 
-    def deleteContent(self,  session, contentId):
+    def deleteContent(self, session, contentId):
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("deletecontent:securityproto", True)

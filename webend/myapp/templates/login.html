@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+ <br>
+    <div class="am-u-lg-6 am-u-md-8 am-u-sm-centered">
+        <div class=" am-u-sm-centered ">
+            <div class="hx-sign-in">
+                <h1>Sign In</h1>
+            </div>
+        </div >
+        <div class="hx-login-form">
+            <form  method="post"  class="am-form">
+                {{form.hidden_tag()}}
+                <label for="username">Username:</label>
+                 <input id="username" type="text" name="username">
+                <br>
+                <label for="password">Password :</label>
+                 <input id="password" type="password" name="password">
+                <br>
+                 <p>{{ form.remember_me }} Remember Me </p>
+                <div class="am-cf">
+                <input  type="submit" value="Sign In" class="am-btn am-btn-primary am-btn-sm am-fl">
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
+{% endblock %}
+

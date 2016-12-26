@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>DFC</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link href="../static/csswei/jsonedit.css" rel="stylesheet">
+      <link type="text/css" rel="stylesheet" href="../static/csswei/bootstrap.css" >
+      <link type="text/css" rel="stylesheet" href="../static/csswei/bootstrap-tagsinput.css" >
+      <link rel="stylesheet" type="text/css" href="../static/csswei/jquery.multiselect.css" />
+      <link rel="stylesheet" type="text/css" href="../static/csswei/jquery.multiselect.filter.css" />
+      <link rel="stylesheet" href="../static/csswei/tabBlock.css" media="screen" type="text/css" />
+      <link rel="stylesheet" href="../static/csswei/BootSideMenu.css">
+      <link rel="stylesheet" href="../static/csswei/BootDefault.css">
+      <link rel="stylesheet" type="text/css" href="../static/csswei/jquery-ui.css" />
+      <link rel="stylesheet" href="../static/csswei/amazeui.css">
+      <link rel="stylesheet" href="../static/csswei/LeftMenu.css">
+      <link rel="stylesheet" href="../static/csswei/customtooltip.css">
+      <link data-jsfiddle="common" rel="stylesheet" media="screen" href="../static/dist/handsontable.css">
+      <link data-jsfiddle="common" rel="stylesheet" media="screen" href="../static/dist/pikaday/pikaday.css">
+      <link rel="stylesheet" type="text/css" href="../static/csswei/context.standalone.css">
+      <script type="text/javascript" src="../static/jswei/baseFunctions.js"></script>
+      <script src="../static/jswei/amazeui.js"></script>
+      <script type="text/javascript" src="../static/jswei/jquery.min.js"></script>
+      <script type="text/javascript" src="../static/jswei/bootstrap.js"></script>
+      <script type="text/javascript" src="../static/jswei/bootstrap-tagsinput.js"></script>
+      <script type="text/javascript" src="../static/jswei/jquery-ui.js"></script>
+      <script type="text/javascript" src="../static/jswei/jquery.multiselect.js"></script>
+      <script type="text/javascript" src="../static/jswei/jquery.multiselect.filter.js"></script>
+      <script type="text/javascript" src="../static/jswei/jquery.tips.js"></script>
+      <script type="text/javascript" src="../static/jswei/moment.js"></script>
+      <script type="text/javascript" src="../static/jswei/jsoncsv.editor.js"></script>
+      <script type="text/javascript" src="../static/jswei/MVC.js"></script>
+      <script type="text/javascript" src="../static/jswei/handsonTblComponents.js" ></script>
+      <script data-jsfiddle="common" src="../static/dist/pikaday/pikaday.js"></script>
+      <script data-jsfiddle="common" src="../static/dist/moment/moment.js"></script>
+      <script data-jsfiddle="common" src="../static/dist/zeroclipboard/ZeroClipboard.js"></script>
+      <script data-jsfiddle="common" src="../static/dist/numbro/numbro.js"></script>
+      <script data-jsfiddle="common" src="../static/dist/numbro/languages.js"></script>
+      <script data-jsfiddle="common" src="../static/dist/handsontable.js"></script>
+      <script type="text/javascript" src="../static/jswei/bootstrap-treeview.js"></script>
+      <script src="../static/jswei/context.js"></script>
+  </head>
+
+<body style="background-color: #ffffff;height: 100%;overflow: hidden">
+{% include 'header.html' %}
+      <div class="am-g" style="height: 100px">
+          <div class="am-u-sm-2" style="height: 100%">
+              <div class="LeftMenu">
+                  <div class="form-group" style="height: 55px;position: relative" >
+                      <label >Search Tree:</label>
+                      <input type="text" class="form-control" id="input-search" placeholder="Type to search..." value="">
+                      <span class="glyphicon glyphicon-remove-sign" id="clear-search" style="cursor: pointer;position: absolute;right: 5px;top: 40px"></span>
+                  </div>
+                  <div class="checkbox">
+                      <label>
+                          <input type="checkbox" class="checkbox" id="chk-ignore-case" value="false">
+                          Ignore Case
+                      </label>
+                      <label>
+                          <input type="checkbox" class="checkbox" id="chk-exact-match" value="false">
+                          Exact Match
+                      </label>
+                  </div>
+                 <!--<button type="button" class="btn btn-default" id="btn-clear-search">Clear</button>!-->
+                  <div id="left-collection-tree" style="margin-top: 20px"></div>
+                  <script src="../static/jswei/left-collection-tree-context.js"></script>
+                  <script type="text/javascript" src="../static/jswei/left-tree-structure.js"></script>
+              </div>
+          </div>
+          <div class="am-u-sm-10 RightArea">
+              <button class="sendCollectionData" style="position: absolute;right: 10px;width: 60px">
+                  <span class="glyphicon glyphicon-send"></span>
+              </button>
+              <script>
+                  $(".sendCollectionData").on("click",function () {
+                      var $activeTab = $("li.tabBlock-tab.is-active");
+                      var tabId = $activeTab.attr("tabblock-id");
+                      var tmplName = $activeTab.attr("tabblock-tmpl-name");
+                      var version = $activeTab.attr("tabblock-tmpl-version");
+                      var category = $activeTab.attr("tabblock-tmpl-category");
+                      var datalist = configureObjectContext.getCollectionData(tabId);
+                      var collectionName = $activeTab.find("span.tabBlock-tab-name").text();
+                      var leftTree = $("#left-collection-tree");
+                      var curtDate = moment().format('YYYYMMDD');
+                      leftTree.treeview("insertColFromTbl",[datalist,curtDate,version,category,tmplName,collectionName]);
+                  });
+              </script>
+              <div style="clear:both;width:95%">
+                  <figure class="tabBlock">
+                      <ul class="tabBlock-tabs"></ul>
+                      <div class="tabBlock-content"></div>
+                  </figure>
+                  <script>
+                      $.ajax("collection/templates", {
+                          dataType: 'json'
+                      }).done(function (data) {
+                          var templateNameList = [],templ,struct;
+                          for(struct in data) {
+                              var temp = [];
+                              for (templ in data[struct]) {
+                                  temp.push({
+                                      text: templ,
+                                      action: function (event) {
+                                          var $activeTab = $("li.tabBlock-tab.is-active");
+                                          var tabName = $activeTab.attr("tabblock-id");
+                                          var structName = $(event.target).parent().parent().siblings("a").text();
+                                          configureObjectContext.init({
+                                              tabName: tabName,
+                                              templateData: JSON.parse(JSON.stringify(data[structName][event.target.text])),
+                                              selectedTemplate: event.target.text
+                                          });
+                                          $activeTab.addClass(event.target.text);
+                                          $activeTab.attr("tabblock-tmpl-name", event.target.text);
+                                          $activeTab.attr("tabblock-tmpl-category", structName);
+                                          $activeTab.attr("tabblock-tmpl-version", "version0.1");//data[event.target.text][event.target.text].Version);
+                                          configureObjectContext.create();
+                                          configureObjectContext.setting({data: null});
+                                      }
+                                  });
+                              }
+                              templateNameList.push({
+                                  text:struct,
+                                  nodes:temp
+                              })
+                          }
+                          context.init({preventDoubleContext: false});
+                          context.settings({compress: true, contextMenu: "click"});
+                          context.attach('#tabBlock-tab-plus', [
+                              {header: 'operating'},
+                              {
+                                  text: 'add collection', nodes:templateNameList
+                              }
+                          ]);
+                      }).fail(function (xhr, status) {
+                          alert("Failed: {0}\n Reason: {1}\n".format(xhr.status, status));
+                      });
+                  </script>
+                  <script src="../static/jswei/tabnavigator.js"></script>
+              </div>
+          </div>
+          <div id="jsonlog-right" style="min-width: 600px;" ></div>
+          <script src="../static/jswei/BootSideMenu.js"></script>
+          <script type="text/javascript">
+              $(document).ready(function(){
+                  $('#jsonlog-right').BootSideMenu({side:"right", autoClose:true});
+              });
+              $("body").bind("keypress",function () {
+                  $("div.wtHolder").css("height","auto");
+              });
+              $("#jsonlog-right").bind("click",function () {
+                  $("div.wtHolder").css("height","auto");
+              })
+          </script>
+      </div>
+
+      <div id="popupContainer" style="display: none">
+          <table width="" border="0" cellspacing="0" cellpadding="0" align="center" class="popupPopup">
+              <tr>
+                  <td class="corner topLeft"></td>
+                  <td class="top"></td>
+                  <td class="corner topRight"></td>
+              </tr>
+              <tr>
+                  <td class="left">&nbsp;</td>
+                  <td><div id="popupContent"></div></td>
+                  <td class="right">&nbsp;</td>
+              </tr>
+              <tr>
+                  <td class="corner bottomLeft">&nbsp;</td>
+                  <td class="bottom">&nbsp;</td>
+                  <td class="corner bottomRight"></td>
+              </tr>
+          </table>
+      </div>
+  {% include "footer.html" %}
+  </body>
+</html>

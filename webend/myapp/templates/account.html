@@ -1,0 +1,74 @@
+<!-- extend base layout -->
+<!--{% extends "base.html" %}-->
+
+{% block content %}
+
+
+<h1>Edit Your Account</h1>
+<div class="hx-edit-account ">
+    <div class="am-u-md-10 am-u-lg-7 am-u-sm-centered ">
+        <form action="{{ url_for('password')}}" method="post" class="am-form am-form-horizontal">
+            {{form_password.hidden_tag()}}
+            <div class="am-form-group">
+                <label for="oldpassword" class="am-u-sm-3 am-form-label">Old password</label>
+                <div class="am-u-sm-9">
+                    <input id="oldpassword"  name="oldpassword"  type="password">
+                </div>
+            </div>
+
+            <div class="am-form-group">
+                <label for="newpassword" class="am-u-sm-3 am-form-label">New password</label>
+                <div class="am-u-sm-9">
+                    <input id="newpassword" name="newpassword"   type="password">
+                </div>
+            </div>
+
+
+            <div class="am-form-group">
+                <label for="confirmpassword" class="am-u-sm-3 am-form-label">Confirm new password</label>
+                <div class="am-u-sm-9">
+                    <input id="confirmpassword"  name="confirmpassword"  type="password">
+                </div>
+            </div>
+
+
+            <div class="am-form-group">
+                <div class="am-u-sm-9 am-u-sm-push-3 ">
+                    <button type="submit"  name="Update password" class="am-btn am-btn-primary ">Update password</button>
+                </div>
+            </div>
+        </form>
+        <hr>
+        <br>
+        <form action="{{ url_for('key')}}"  method="post" class="am-form am-form-horizontal">
+            {{form_key.hidden_tag()}}
+            <div class="am-form-group">
+                <label for="publickey" class="am-u-sm-3 am-form-label">Public key</label>
+                <div class="am-u-sm-9">
+                    <textarea id="publickey" name="publickey"  rows="5" >{{user.public_key}}</textarea>
+                </div>
+            </div>
+
+
+            <div class="am-form-group">
+                <label for="privatekey" class="am-u-sm-3 am-form-label">Private key</label>
+                <div class="am-u-sm-9">
+                    <textarea id="privatekey" name="privatekey"  rows="5" >{{user.private_key}}</textarea>
+                    <!--<p id="privatekey">{{user.public_key}}</p>-->
+                </div>
+            </div>
+
+
+            <div class="am-form-group">
+                <div class="am-u-sm-9 am-u-sm-push-3 ">
+                    <button type="submit"  name="Add key" class="am-btn am-btn-primary">Update key</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
+

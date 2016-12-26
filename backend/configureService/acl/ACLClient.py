@@ -13,72 +13,51 @@ class ACLClient(MessagePlugin):
         super(ACLClient, self).__init__(messageHandle)
         self.proto = proto
 
-        self.handle('login:aclproto', False, self._onLogin)
-
-        self.handle('logout:aclproto', False, self._onLogout)
-
         self.handle('addresourcetype:aclproto', False, self._onAddResourceType)
-
         self.handle('deleteresourcetype:aclproto', False, self._onDeleteResourceType)
+        self.handle('listresourcetype:aclproto', False, self._onListResourceType)
 
         self.handle('addresource:aclproto', False, self._onAddResource)
-
+        self.handle('deleteresource:aclproto', False, self._onDeleteResource)
         self.handle('getresources:aclproto', False, self._onGetResources)
 
         self.handle('addresourcetogroup:aclproto', False, self._onAddResourceToGroup)
-
         self.handle('removeresourcefromgroup:aclproto', False, self._onRemoveResourceFromGroup)
 
         self.handle('haspermission:aclproto', False, self._onHasPermission)
 
         self.handle('addrole:aclproto', False, self._onAddRole)
+        self.handle('deleterole:aclproto', False, self._onDeleteRole)
+        self.handle('listroles:aclproto', False, self._onListRoles)
 
         self.handle('adduser:aclproto', False, self._onAddUser)
+        self.handle('deleteuser:aclproto', False, self._onDeleteUser)
 
         self.handle('setroletouser:aclproto', False, self._onSetRoleToUser)
 
-        self.handle('clearroleofuser:aclproto', False, self._onClearRoleFromUser)
-
         self.handle('granttorole:aclproto', False, self._onGrantToRole)
-
         self.handle('revokefromrole:aclproto', False, self._onRevokeFromRole)
-
         self.handle('grantresourcetorole:aclproto', False, self._onGrantResourceToRole)
-
         self.handle('revokeresourcefromrole:aclproto', False, self._onRevokeResourceFromRole)
 
-        self.handle('changepassword:aclproto', False, self._onChangePassword)
-
+        self.handle('login:aclproto', False, self._onLogin)
+        self.handle('logout:aclproto', False, self._onLogout)
+        self.handle('listlogin:aclproto', False, self._onListLogin)
         self.handle('listuser:aclproto', False, self._onListUser)
 
+        self.handle('changeroleofuser:aclproto', False, self._onChangeRoleOfUser)
+        self.handle('changepassword:aclproto', False, self._onChangePassword)
         self.handle('changeusername:aclproto', False, self._onChangeUserName)
-
+        self.handle('changemyinformation:aclproto', False, self._onChangeMyInformation)
+        self.handle('changemypassword:aclproto', False, self._onChangeMyPassword)
         self.handle('changerolename:aclproto', False, self._onChangeRoleName)
-
         self.handle('changepublickey:aclproto', False, self._onChangePublicKey)
-
         self.handle('changeprivatekey:aclproto', False, self._onChangePrivateKey)
-
         self.handle('getpublickey:aclproto', False, self._onGetPublicKey)
 
-        self.handle('deleteresource:aclproto', False, self._onDeleteResource)
-
-        self.handle('deleteuser:aclproto', False, self._onDeleteUser)
-
-        self.handle('deleterole:aclproto', False, self._onDeleteRole)
-
-        self.handle('listlogin:aclproto', False, self._onListLogin)
-
         self.handle('myrole:aclproto', False, self._onMyRole)
-
         self.handle('myinformation:aclproto', False, self._onMyInformation)
-
-        self.handle('changemyinformation:aclproto', False, self._onChangeMyInformation)
-
-        self.handle('changemypassword:aclproto', False, self._onChangeMyPassword)
-
         self.handle('otherinformation:aclproto', False, self._onOtherInformation)
-
         self.handle('alluserinformation:aclproto', False, self._onAllUserInformation)
 
         self.currentRequestId = 1
@@ -175,6 +154,25 @@ class ACLClient(MessagePlugin):
             rRequest.session = session
             rRequest.resourceTypeId = resourceTypeId
             rRequest.force = force
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
+            print e
+
+    def _onListResourceType(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.resourceTypes)
+
+    def listResourceType(self, session):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("listresourcetype:aclproto", True)
+            rRequest.session = session
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e:
@@ -315,16 +313,15 @@ class ACLClient(MessagePlugin):
             else:
                 p.fulfill(body.userId)
 
-    def addUser(self, session ,userName, phoneNumber, privateKey, publicKey, password):
+    def addUser(self, session, userName, email, password, initalRole):
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("adduser:aclproto", True)
             rRequest.session = session
             rRequest.userName = userName
-            rRequest.phoneNumber = phoneNumber
-            rRequest.privateKey = privateKey
-            rRequest.publicKey = publicKey
+            rRequest.email = email
             rRequest.password = password
+            rRequest.roleId = initalRole
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e:
@@ -457,6 +454,27 @@ class ACLClient(MessagePlugin):
         except Exception as e:
             print e
 
+    def _onChangeRoleOfUser(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.status)
+
+    def changeRoleOfUser(self, session, userId, roleId):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("changeroleofuser:aclproto", True)
+            rRequest.session = session
+            rRequest.userId = userId
+            rRequest.roleId = roleId
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e :
+            print e
+
     def _onChangePassword(self, proto, spec, message, body):
         requestId = message.getRequestId()
         if requestId in self.requests:
@@ -477,23 +495,23 @@ class ACLClient(MessagePlugin):
         except Exception as e :
             print e
 
-    def _onListResource(self, proto, spec, message, body):
+    def _onGetResources(self, proto, spec, message, body):
         requestId = message.getRequestId()
         if requestId in self.requests:
             p = self.requests[requestId]
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill( body.resources)
+                p.fulfill(body.resources)
 
-    def listResource(self, session):
+    def getResources(self, session):
         try:
             p = Promise()
-            (rSpec, rRequest) = self.create("listresource:aclproto", True)
+            (rSpec, rRequest) = self.create("getresources:aclproto", True)
             rRequest.session = session
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
-        except Exception as e :
+        except Exception as e:
             print e
 
     def _onListOtherResource(self, proto, spec, message, body):
@@ -547,11 +565,12 @@ class ACLClient(MessagePlugin):
             else:
                 p.fulfill(body.users)
 
-    def listUser(self, session):
+    def listUser(self, session, userId=0):
         try:
             p = Promise()
             (rSpec, rRequest) = self.create("listuser:aclproto", True)
             rRequest.session = session
+            rRequest.userId = userId
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return p
         except Exception as e :
@@ -716,6 +735,25 @@ class ACLClient(MessagePlugin):
             self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
             return  p
         except Exception as e :
+            print e
+
+    def _onListRoles(self, proto, spec, message, body):
+        requestId = message.getRequestId()
+        if requestId in self.requests:
+            p = self.requests[requestId]
+            if 0 != body.status:
+                p.reject(Exception(body.message))
+            else:
+                p.fulfill(body.roles)
+
+    def listRoles(self, session):
+        try:
+            p = Promise()
+            (rSpec, rRequest) = self.create("listroles:aclproto", True)
+            rRequest.session = session
+            self.send(self.serverId, self.proto, rSpec, rRequest, self._getRequestId(p))
+            return p
+        except Exception as e:
             print e
 
     def _onListLogin(self, proto, spec, message, body):

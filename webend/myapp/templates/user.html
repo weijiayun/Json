@@ -1,0 +1,108 @@
+<!-- extend base layout -->
+<!--{% extends "base.html" %}-->
+
+{% block content %}
+
+<div class="am-cf admin-main">
+
+  <div class="admin-content">
+    <div class="admin-content-body">
+      <div class="am-cf am-padding am-padding-bottom-0">
+        <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">个人资料</strong> / <small>Personal information</small></div>
+      </div>
+
+      <hr>
+
+      <div class="am-g">
+        <div class="am-u-sm-12 am-u-md-4 am-u-md-push-8">
+          <div class="am-panel am-panel-default">
+            <div class="am-panel-bd">
+              <div class="am-g">
+                <div class="am-u-md-6">
+                  <div class="hx-avatar">
+                    <img class="am-img-circle am-img-thumbnail" src="{{user.avatar}}" alt="">
+                  </div>
+                </div>
+
+                <div class="am-u-md-6">
+                  <p>你可以使用本地上传头像。 </p>
+                  <form class="am-form" method="post" action="/avatar/" enctype="multipart/form-data">
+                    {{form.hidden_tag()}}
+                    <div class="am-form-group">
+                      <input id="user-pic" type="file" name="avatar" accept="image/*" >
+                      <p class="am-form-help">请选择要上传的文件...</p>
+                    </div>
+
+                    <div class="am-form-group">
+                      <button type="submit" name="save avatar" class="am-btn am-btn-primary am-btn-xs">保存/Save</button>
+                    </div>
+
+
+                  </form>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+        <div class="am-u-sm-12 am-u-md-8 am-u-md-pull-4">
+
+          <form method="post" action="/user/{{user.name}}" class="am-form am-form-horizontal">
+            {{form.hidden_tag()}}
+            <div class="am-form-group">
+              <label for="username" class="am-u-sm-3 am-form-label">姓名 / Name</label>
+              <div class="am-u-sm-9">
+                <input id="username"  name="username" value="{{user.name}}" type="text">
+              </div>
+            </div>
+
+            <div class="am-form-group">
+              <label for="email" class="am-u-sm-3 am-form-label">电子邮件 / Email</label>
+              <div class="am-u-sm-9">
+                <input id="email" name="email"  value="{{user.email}}" type="email">
+              </div>
+            </div>
+
+
+            <div class="am-form-group">
+              <label for="telephone" class="am-u-sm-3 am-form-label">电话 / Telephone</label>
+              <div class="am-u-sm-9">
+                <input id="telephone"  name="telephone" value="{{user.phone_number}}" type="tel">
+              </div>
+            </div>
+
+
+            <div class="am-form-group">
+              <label for="introduction" class="am-u-sm-3 am-form-label">简介 / Intro</label>
+              <div class="am-u-sm-9">
+                <textarea class="" name="introduction" rows="5" id="introduction" >{{user.intro}}</textarea>
+              </div>
+            </div>
+
+            <div class="am-form-group">
+              <div class="am-u-sm-9 am-u-sm-push-3  ">
+                <button type="submit"  name="submit" class="am-btn am-btn-primary ">Save Changes</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+
+  </div>
+
+
+</div>
+
+
+{% endblock %}
+
+
+
+
+

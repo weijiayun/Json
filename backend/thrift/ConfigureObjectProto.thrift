@@ -5,22 +5,20 @@ struct configure{
     2: required string Date;
     3: required string Version;
 }
-struct object{
+struct collection{
     1: required string Name;
     2: required string Date;
     3: required string Version;
     4: required string TemplateName;
-    5: required string CollectionName;
-    6: required string Category;
+    5: required string Category;
 }
-struct objectContent{
+struct collectionContent{
     1: required string Name;
     2: required string Date;
     3: required string Version;
     4: required string Content;
     5: required string TemplateName;
-    6: required string CollectionName;
-    7: required string Category;
+    6: required string Category;
 }
 
 // -------------------------Create Configure-----------------------------
@@ -30,7 +28,7 @@ struct CreateConfigure
 {
     1: required ACLProto.LoginSession session;
     2: required configure Configure;
-    3: required list<object> ObjectList;
+    3: required list<collection> ObjectList;
 }
 
 struct CreateConfigureResponse
@@ -56,52 +54,52 @@ struct DeleteConfigureResponse
     2: string message;
 }
 
-// -------------------------Create Object-----------------------------
+// -------------------------Create Collection-----------------------------
 
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_CREATE_OBJECT = 310020
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_CREATE_COLLECTION = 310020
 
-struct CreateObject
+struct CreateCollection
 {
     1: required ACLProto.LoginSession session;
-    2: required list<objectContent> ObjectList;
+    2: required collectionContent Collection;
     3: required string publicKey;
 }
 
-struct CreateObjectResponse
+struct CreateCollectionResponse
 {
     1: i32 status;
     2: string message;
 }
 
-// -------------------------Delete Object-----------------------------
+// -------------------------Delete Collection-----------------------------
 
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_DELETE_OBJECT = 310022
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_DELETE_COLLECTION = 310022
 
-struct DeleteObject
+struct DeleteCollection
 {
     1: required ACLProto.LoginSession session;
-    2: required list<object> ObjectList;
+    2: required list<collection> Collections;
 
 }
 
-struct DeleteObjectResponse
+struct DeleteCollectionResponse
 {
     1: i32 status;
     2: string message;
 }
 
-// -------------------------Get Objects-----------------------------
+// -------------------------Get Collection-----------------------------
 
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_GET_OBJECTS = 310024
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_GET_COLLECTION = 310024
 
-struct GetObjects
+struct GetCollection
 {
     1: required ACLProto.LoginSession session;
-    2: required list<object> ObjectList;
+    2: required list<collection> Collections;
     3: required string privateKey;
 }
 
-struct GetObjectsResponse
+struct GetCollectionResponse
 {
     1: i32 status;
     2: string message;
@@ -128,36 +126,36 @@ struct GetConfigureResponse
 }
 
 
-// -------------------------Grant Objects To Others-----------------------------
+// -------------------------Grant Collection-----------------------------
 
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_GRANT_OBJECTS_TO_OTHERS = 310032
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_GRANT_COLLECTION = 310032
 
-struct GrantObjectsToOthers
+struct GrantCollection
 {
 	1: required ACLProto.LoginSession session;
 	2: required i32 OthersId;
-	3: required list<object> ObjectList;
+	3: required list<collection> CollectionList;
 	4: required string privateKey;
 	5: required string othersPublicKey;
 }
 
-struct GrantObjectsToOthersResponse
+struct GrantCollectionResponse
 {
 	1: i32 status;
     2: string message;
 }
 
-// -------------------------UnGrant Objects of Others-----------------------------
+// -------------------------Revoke Collection-----------------------------
 
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_UN_GRANT_OBJECTS_OF_OTHERS = 310034
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_REVOKE_COLLECTION = 310034
 
-struct UnGrantObjectsOfOthers
+struct RevokeCollection
 {
     1: required ACLProto.LoginSession session;
 	2: required i32 OthersId;
-	3: required list<object> ObjectList;
+	3: required list<collection> CollectionList;
 }
-struct UnGrantObjectsOfOthersResponse
+struct RevokeCollectionResponse
 {
 	1: i32 status;
     2: string message;
@@ -203,21 +201,20 @@ struct UnGrantConfigureOfOthersResponse
 }
 
 
-// -------------------------List Objects-----------------------------
+// -------------------------List Collections-----------------------------
 
-const i32 CONFIGUREOBJECTPROTO_MESSAGE_LIST_OBJECTS = 310040
+const i32 CONFIGUREOBJECTPROTO_MESSAGE_LIST_COLLECTIONS = 310040
 
-struct ListObjects
+struct ListCollections
 {
     1: required ACLProto.LoginSession session;
 }
-typedef list<string> objectAttr
-typedef map<string,objectAttr> collection
-struct ListObjectsResponse
+typedef list<collection> cols
+struct ListCollectionsResponse
 {
 	1: i32 status;
     2: string message;
-    3: map<string,collection> CategoryDict;
+    3: map<string, cols> collections;
 }
 
 // -------------------------List Authority Sharers-----------------------------
@@ -227,7 +224,7 @@ const i32 CONFIGUREOBJECTPROTO_MESSAGE_LIST_AUTHORITY_SHARERS = 310042
 struct ListAuthoritySharers
 {
     1: required ACLProto.LoginSession session;
-    2: required object Object;
+    2: required collection Object;
 }
 
 struct ListAuthoritySharersResponse

@@ -1,0 +1,758 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+<ul id="myTab" class="nav nav-tabs">
+    <li><a href="#BBBBB" data-toggle="tab">User</a></li>
+	<li><a href="#CCCCC" data-toggle="tab">Resource</a></li>
+	<li><a href="#AAAAA" data-toggle="tab">Role</a>	</li>
+	<li><a href="#DDDDD" data-toggle="tab">Resource type</a></li>
+</ul>
+
+<div id="userList" style="display: none">{{userList}}</div>
+
+<div id="myTabContent" class="tab-content">
+    <br>
+    <div class="tab-pane fade" id="AAAAA">
+        <br>
+        <div class="am-u-sm-12">
+            <a class="am-btn am-btn-warning hx-fixwidth" id="addRole"  onclick="change(this)" data-am-collapse="{parent: '#collapase-nav-1', target: '#role-nav'}">+ New ...</a>
+            <a class="am-btn am-btn-default hx-fixwidth" onclick="delTr('roleTable','ckb')">- Delete ...</a>
+            <ul class="am-list am-collapse admin-sidebar-sub" id="role-nav">
+                <li>
+                    <table id="addRoleTable" class="am-table am-table-bd am-table-striped admin-content-table  " >
+                        <thead><tr><th width="10%"></th><th width="30%">Name</th><th width="30%">Resource</th><th width="30%"></th></tr></thead>
+                        <tbody>
+                        <tr id="newRole">
+                            <td spellcheck="false" >1</td>
+                            <td spellcheck="false"><input type="text" onkeydown="preventEnterSpace(event)" placeholder="role name" style="border:0; height :100%;width:100%" ></td>
+                            <td id="RoleSectionResourceSelect"></td>
+                            <td><button class=" am-btn am-btn-secondary" type="button" onclick="editRolePermission()" >Commit</button></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </li>
+            </ul>
+            <hr>
+            <div id="roleTable" class="hx-activeTable">  </div>
+        </div>
+    </div>
+    
+<script>
+    function change(btn) {
+        var a = $(btn).text();
+        if (a == "+ New ...") {
+            $(btn).text("close")
+        }
+        else
+        {
+            $(btn).text("+ New ...")
+        }
+    }
+    function preventEnterSpace(e) {
+        var keynum;
+        keynum = window.event ? e.keyCode : e.which;
+        if (keynum == 13 || keynum == 32) {
+            e.preventDefault();
+        }
+
+    }
+    function delTr(table,ckbname){
+        var ckbs=$("#"+table+" input[name="+ckbname+"]:checked");
+        if(ckbs.size()==0){
+            alert("Please select at least one row to delete!");
+            return;}
+        ckbs.each(function(){
+            $(this).parent().parent().parent().remove();
+        });
+    }
+
+    function addF1(tab,  trHtml){
+        var f1=$("#"+tab+" tbody");
+        f1.append(trHtml);
+    };
+
+    function addTr(tab, row, trHtml){
+        var $tr=$("#"+tab+" tr").eq(row);
+        if($tr.size()==0){
+            alert("table id or row does not exist.");
+            return;}
+        $tr.after(trHtml);
+    };
+
+
+    function resetAddRoleTable() {
+        var selectId2='newSelectResource';
+        var optionList2= ['aa', 'bb', 'cc'];
+        $("#newRole").empty();
+        var html = '<td spellcheck="false" width="10%">1</td>';
+        html +='<td spellcheck="false"><input type="text" onkeydown="preventEnterSpace(event)" placeholder="role name" style="border:0; height :100%;width:100%" ></td>'
+        html +="<td><select id='{0}' multiple='multiple' size='2'>".format(selectId2);
+        for (var i in optionList2) {
+            html += "<option value='{0}'>{0}</option>".format(optionList2[i]);                }
+        html += '</select></td>';
+        html += '<td><button class=" am-btn am-btn-secondary" type="button" onclick="editRolePermission()" >Commit</button></td>'
+        $("#newRole").append(html)
+        $("#{0}".format(selectId2)).multiselect({
+            checkAllText: "CheckAll", uncheckAllText: "UnCheckAll", selectedList: 3})
+
+        var showInfo=$("#showInfo"),
+                mask=$(".mask"),
+                showTriggerBtn=$("#showTriggerBtn");
+        mask.fadeOut();
+        showInfo.css("right",-showInfo.width());
+        showTriggerBtn.text("< Show Details")
+    }
+
+    function addRoleTr(tab, row){
+        var data = getNewRoleInfor();
+        resetAddRoleTable()
+        var trHtml = '<tr onclick="setActive(this)" ondblclick="dblclickToShow()"><td><label class="am-checkbox hx-rmmargin"><input name="ckb" type="checkbox"/> </label></td>';
+        trHtml+="<td>IDDDD</td>"
+        trHtml +='<td>{0}</td>'.format(data[0])
+        for (var i=0; i<data.length-2; i++ )
+        {
+            trHtml+="<td>" + data[i]+ "</td>";
+        }
+        var selectId2='roleTableNewResource{0}'.format(data[0]) ;
+        var optionList2= ['aa', 'bb', 'cc'];
+        var  selectedData2=[];
+        var len=data[1].length
+        for(var j=0; j<len; j++) {
+            selectedData2.push(data[1][j][0])
+        }
+
+        trHtml += "<td><select id='{0}' multiple='multiple' size='2'>".format(selectId2);
+        for (var i in optionList2) {
+            var cccc=i
+            trHtml += "<option value='{0}'>{0}</option>".format(optionList2[i]);
+        }
+        trHtml += '</select></td></tr>';
+
+
+
+        addTr(tab, row, trHtml);
+
+        selectedData2= ','+ selectedData2 +',';
+        $( "#{0} option".format(selectId2) ).each(function(){
+            if(selectedData2.indexOf(','+this.value+',')!=-1)this.selected=true;
+        });
+        $("#{0}".format(selectId2)).multiselect({
+            checkAllText: "CheckAll",
+            uncheckAllText: "UnCheckAll",
+            selectedList:3
+        });
+
+
+    }
+
+    function rmPerm(obj) {
+        $(obj).parent().remove();
+    }
+
+    function rmTable(obj) {
+        $(obj).parent().parent().parent().parent().remove();
+    }
+
+
+
+    function editRolePermission(){
+        var showInfo=$("#showInfo"),
+                mask=$(".mask"),
+                showInfo_trigger = $("#showInfo_trigger"),
+                showTriggerBtn=$("#showTriggerBtn");
+        showInfo.children().remove()
+
+        var selectedResource= $("#newSelectResource").multiselect("getChecked").map(function(){return this.value;}).get();
+
+        var objName=JSON.stringify(selectedResource);
+        if (selectedResource){
+            $.ajax("/editRole/{0}".format(objName), {dataType:'json', async: true
+            }).done(function (data) {
+
+                $('#showInfo').children().remove()
+                var rData= data;
+                var html = '<div class=" am-u-md-11 hx-box am-scrollable-vertical RightMenu">'
+                html +='<div id="editRole" class=" am-u-md-8" >';
+                html +='<h1>Edit Role</h1>';
+
+
+                for(var i=0; i<selectedResource.length; i++){
+                    html +='<table id="editResource{0}" class="am-table am-table-bd am-table-striped admin-content-table rpTable" >'.format(rData[i][0]);
+                    html +='<tr ><th width=50%>Resource :</th><td width=50% >{0}<span  onclick="rmTable(this)" class="am-icon-minus" style="float:right;cursor:pointer;"></span></td></tr>'.format(rData[i][0]);
+                    html +='<tr ><th rowspan="999" width=50%>Permissions :</th></tr>';
+                    for(var j=0; j<rData[i][1].length; j++){
+                        html +='<tr><td class="pN" width=50% contenteditable=\'true\' spellcheck="false">{0}<span onclick="rmPerm(this)" class="am-icon-minus" style="float:right;cursor:pointer;"></span></td>'.format(rData[i][1][j]);
+                    }
+                    html +='</table>';
+                }
+                html +='<div class="hx-btn-center" > <button class=" am-btn am-btn-secondary " type="button" onclick="addRoleTr(\'roleTable\',\'-1\')" >Save</button></div>'
+                showInfo.append(html) ;
+                mask.fadeIn();
+                showInfo.css("right",0);
+                showTriggerBtn.text("> Hide Details");
+            }).fail(function (xhr,atatus) {
+                alert("Failed: {0}\n Reason: {1}\n".format(xhr.status,status));
+            })
+        }
+    }
+
+
+    function getNewRoleInfor(){
+        var newRole = [];
+        var roleName=$("#newRole").children().eq(1).children().val();
+        newRole.push(roleName);
+        var resNumber = $("#showInfo").find('.rpTable').length;
+        var resourcePermission=[]
+        for(var i=0; i<resNumber; i++){
+
+            var rName=  $("#showInfo").find('.rpTable').eq(i).children().eq(0).children().eq(0).children().eq(1).text();
+
+            var pNumber= $("#showInfo").find('.rpTable').eq(i).find('.pN').length;
+            var p=[];
+            for(var j=0; j<pNumber; j++){
+                var pName= $("#showInfo").find('.rpTable').eq(i).find('.pN').eq(j).text();
+                p.push(pName)
+            }
+            resourcePermission.push([rName, p])
+        }
+        newRole.push(resourcePermission);
+
+        return newRole;
+    }
+
+</script>
+    
+    <div class="tab-pane fade" id="BBBBB">
+        <br>
+        <div class="am-u-sm-12">
+            <a class="am-btn am-btn-warning hx-fixwidth" id="addUser"  onclick="change(this)" data-am-collapse="{parent: '#collapase-nav-1', target: '#user-nav'}">+ New ...</a>
+            <a class="am-btn am-btn-default hx-fixwidth" onclick="adminContext.deleteUser()">- Delete ...</a>
+            <ul class="am-list am-collapse admin-sidebar-sub" id="user-nav">
+                <li>
+                    <table id="addUserTable" class="am-table am-table-bd am-table-striped admin-content-table">
+                        <thead><tr><th></th><th>Name</th><th>Password</th><th>Email</th><th>Own Roles</th><th></th></tr></thead>
+                        <tbody>
+                        <tr id="newUser">
+                            <td  contenteditable='true' spellcheck="false">1</td>
+                            <td  spellcheck="false"><input type="text" onkeydown="preventEnterSpace(event)" style="border:0; height :100%;width:100%" placeholder="user name"></td>
+                            <td  spellcheck="false"><input type="text" onkeydown="preventEnterSpace(event)" style="border:0; height :100%;width:100%" placeholder="password"></td>
+                            <td  spellcheck="false"><input type="text" onkeydown="preventEnterSpace(event)" style="border:0; height :100%;width:100%" placeholder="xx@xx.com"></td>
+                            <td id="roleSelect"></td>
+                            <td><button class=" am-btn am-btn-secondary" type="button" onclick="adminContext.addUser()" >Commit</button></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </li>
+            </ul>
+            <hr>
+            <div id="userTable" class="hx-activeTable">  </div>
+        </div>
+    </div>
+
+
+	<div class="tab-pane fade" id="CCCCC">
+        <br>
+        <div class="am-u-sm-12">
+            <a class="am-btn am-btn-warning hx-fixwidth" id="addResource"  onclick="change(this)" data-am-collapse="{parent: '#collapase-nav-1', target: '#resource-nav'}">+ New ...</a>
+            <a class="am-btn am-btn-default hx-fixwidth" onclick="delTr('resourceTable','ckb')">- Delete ...</a>
+            <ul class="am-list am-collapse admin-sidebar-sub" id="resource-nav">
+                <li>
+                    <table id="addResourceTable" class="am-table am-table-bd am-table-striped admin-content-table">
+                        <thead><tr><th></th><th>Name</th><th>Resource type</th><th>ContentId</th><th></th></tr></thead>
+                        <tbody>
+                        <tr id="newResource">
+                            <script>
+                                $(function () {
+                                    resetAddResourceTable();
+                                })
+
+                            </script>
+
+
+                        </tr>
+                        </tbody>
+                    </table>
+                </li>
+            </ul>
+            <hr>
+            <div id="resourceTable" class="hx-activeTable">  </div>
+        </div>
+    </div>
+
+<script>
+
+    function getNewResourceInfor(){
+        var newResource=[]
+        var rname=$("#newResource").children().eq(1).children().val();
+        var rtype=$("#addResourceTable").find(".am-selected-status").text();
+        var rcontentId=$("#newResource").children().eq(3).children().val();
+        newResource.push(rname);
+        newResource.push(rtype);
+        newResource.push(rcontentId);
+        newResource=JSON.stringify(newResource);
+        $.ajax("/addResource/{0}".format(newResource), {
+            dataType: 'json'
+        }).done(function (data) {
+            return data;
+        }).fail(function (xhr, atatus) {
+            alert("Failed: {0}\n Reason: {1}\n".format(xhr.status, status));
+        })
+    }
+
+
+    function resetAddResourceTable() {
+        $.ajax("/getResourceTypes/", {
+            dataType: 'json', async: false
+        }).done(function (data) {
+            if(data.flag){
+                data = data.data;
+                var selectId='newSelectResourceType';
+                $("#newResource").empty();
+                var html = '<td contenteditable="true" spellcheck="false">1</td>';
+                html+= '<td spellcheck="false"><input type="text" onkeydown="preventEnterSpace(event)" style="border:0; height :100%;width:100%" placeholder="resource name "></td>'
+                html += "<td><select data-am-selected id='{0}' >".format(selectId);
+                for (var i in data) {
+                    html += "<option value='{1}' data-type-id={0}>{1}</option>".format(data[i][0],data[i][1]);
+                }
+                html += '</select></td>';
+                html += '<td ><input type="text" onkeydown="preventEnterSpace(event)" style="border:0; height :100%;width:100%" placeholder="id"></td>'
+                html += '<td><button class=" am-btn am-btn-secondary" type="button" onclick="addResourceTr(\'resourceTable\',\'-1\')" >Commit</button></td>'
+                $("#newResource").append(html);
+                $('#newSelectResourceType').selected();
+            }
+            else{
+                alert("Error: read resourceType failed!!!")
+            }
+
+
+        }).fail(function (xhr, atatus) {
+            alert("Failed: {0}\n Reason: {1}\n".format(xhr.status, status));
+        })
+    }
+
+
+
+    function addResourceTr(tab, row){
+        var data = getNewResourceInfor();
+        resetAddResourceTable()
+        var trHtml = '<tr onclick="setActive(this)" ondblclick="dblclickToShow()"><td><label class="am-checkbox hx-rmmargin"><input name="ckb" type="checkbox"/> </label></td>';
+        trHtml+="<td>IDDDDDD</td>"
+        for (var i=0; i<data.length; i++ )
+        {
+            trHtml+="<td>" + data[i]+ "</td>";
+        }
+        trHtml +='</tr>'
+        addTr(tab, row, trHtml);
+        
+    }
+
+
+
+
+    $(function showResource() {
+
+        $.ajax("/getResources", {
+            dataType: 'json', async: false
+        }).done(function (data) {
+            if(data.flag){
+                data = data.data;
+                var tbhtml = '<table class="am-table am-table-bd am-table-striped admin-content-table am-table-hover  am-table-centered">';
+                tbhtml += '<thead><tr><th></th><th>ID</th><th>Name</th><th>Resource type</th><th>ContendIds</th><th>Group</th></tr></thead>';
+                tbhtml += '<tbody></tbody></table>';
+                $("#resourceTable").append(tbhtml);
+                for (var i = 0; i < data.length; ++i) {
+                    var trhtml = '<tr onclick="setActive(this)" ondblclick="dblclickToShow()" ><td width="5%"><label class="am-checkbox hx-rmmargin"><input name="ckb" type="checkbox"/> </label></td>';
+                    trhtml += '<td>{0}</td>'.format(data[i][0]);
+                    trhtml += '<td>{0}</td>'.format(data[i][1]);
+                    trhtml += "<td>{0}</td>".format(data[i][2]);
+                    trhtml += "<td>{0}</td>".format(data[i][3]);
+                    if (data[i][4]){
+                        trhtml += "<td>Yes</td></tr>";
+                    }
+                    else{
+                        trhtml += "<td>No</td></tr>";
+                    }
+                    if (i == 0) {
+                        addF1('resourceTable', trhtml)
+                    }
+                    else {
+                        addTr('resourceTable', '-1', trhtml)
+                    }
+                }
+            }
+            else {
+                alert("Error: read resources failed!!!")
+            }
+
+
+        }).fail(function (xhr, atatus) {
+            alert("Failed: {0}\n Reason: {1}\n".format(xhr.status, status));
+        })
+
+    });
+
+    
+</script>
+
+
+
+    <div class="tab-pane fade" id="DDDDD">
+        <br>
+        <div class="am-u-sm-12">
+            <a class="am-btn am-btn-warning hx-fixwidth" id="addResourceType"  onclick="change(this)" data-am-collapse="{parent: '#collapase-nav-1', target: '#resourceType-nav'}">+ New ...</a>
+            <a class="am-btn am-btn-default hx-fixwidth" onclick="delTr('resourceTypeTable','ckb')">- Delete ...</a>
+            <ul class="am-list am-collapse admin-sidebar-sub" id="resourceType-nav">
+                <li>
+                    <div class="am-u-sm-6 am-u-sm-centered ">
+                        <table id="addResourceTypeTable" class="am-table am-table-bd am-table-striped admin-content-table"  >
+                            <tr ><th>Name :</th><td spellcheck="false"  class="typeName"><input type="text" onkeydown="preventEnterSpace(event)" style="border:0; height :100%;width:100%" placeholder="type name"></td> <td></td></tr>
+                            <tr ><th rowspan="999">Permissions :</th></tr>
+                            <tr><td spellcheck="false"  class="typePermission"><input type="text" onkeydown="preventEnterSpace(event)" style="border:0; height :100%;width:100%" placeholder="permission name"></td>
+                                <td><button  class="am-btn am-btn-default am-btn-xs" onclick="newTablePlusBtn(this)"><span class="am-icon-plus"></span></button>
+                                    <button  class="am-btn am-btn-default am-btn-xs" onclick="newTableMinusBtn(this)"><span class="am-icon-minus"></span></button></td></tr>
+                            <tr class="hx-fix"><td ><button class=" am-btn am-btn-secondary" type="button" onclick="addResourceTypeTr('resourceTypeTable','-1')" >Commit</button></td> <td></td></tr>
+                        </table>
+                    </div>
+                </li>
+            </ul>
+            <hr>
+            <div id="resourceTypeTable" class="hx-activeTable">  </div>
+        </div>
+    </div>
+
+<script>
+    function newTablePlusBtn (obj){
+        var trHtml =' <tr><td spellcheck="false"  class="typePermission"><input type="text" onkeydown="preventEnterSpace(event)" style="border:0; height :100%;width:100%" placeholder="permission name"></td> '
+        trHtml +='<td><button class="am-btn am-btn-default am-btn-xs" onclick="newTablePlusBtn(this)"><span class="am-icon-plus"></span></button>'
+        trHtml +='<button  class="am-btn am-btn-default am-btn-xs" onclick="newTableMinusBtn(this)"><span class="am-icon-minus"></span></button></td></tr>'
+        var tbl=$(obj).parent().parent().parent()
+        tbl.find("tr").eq(-2).after(trHtml)
+        $(obj).remove()
+    }
+
+
+    function newTableMinusBtn(obj){
+        var trIndex = $(obj).parent().parent().index();
+        if  (trIndex != 2){
+            if ($(obj).siblings().length>0){
+                var newBtn='<button class="am-btn am-btn-default am-btn-xs" onclick="newTablePlusBtn(this)"><span class="am-icon-plus"></span></button>';
+                $(obj).parent().parent().prev().children().eq(-1).children().before(newBtn);
+                $(obj).parent().parent().remove();
+            }
+            else{
+                $(obj).parent().parent().remove()
+            }
+        }
+        else {
+            // 第二行的减号只有下面没东西了才能使用
+            if($(obj).parent().parent().siblings().length==3){
+                var ccc=$(obj).parent().prev().children()
+                $(obj).parent().prev().children().val("");
+            }
+            else{
+                $(obj).parent().parent().remove()
+            }
+        }
+    };
+
+
+
+
+
+    function getNewResourceTypeInfor(){
+        var typeName=$("#addResourceTypeTable").find('.typeName').eq(0).children().val()
+        var pNumber = $("#addResourceTypeTable").find('.typePermission').length
+        var p=[]
+        for(var i=0; i<pNumber; i++){
+            var pName=$("#addResourceTypeTable").find('.typePermission').eq(i).children().val()
+            p.push(pName)
+        }
+        var resourceType=[typeName, p]
+        return resourceType;
+        //c =  c.replace(/\s+|\&nbsp;|<br>/g, "")
+    }
+
+
+    function resetAddResourceTypeTable() {
+        $("#addResourceTypeTable").empty()
+        var html = '<tr ><th>Name :</th><td  spellcheck="false" class="typeName"><input type="text" onkeydown="preventEnterSpace(event)" style="border:0; height :100%;width:100%" placeholder="type name"></td> <td></td></tr>'
+        html += '<tr ><th rowspan="999">Permissions :</th></tr>'
+        html += '<tr><td spellcheck="false" class="typePermission"><input type="text" onkeydown="preventEnterSpace(event)" style="border:0; height :100%;width:100%" placeholder="permission name"></td>'
+        html += '<td><button  class="am-btn am-btn-default am-btn-xs" onclick="newTablePlusBtn(this)"><span class="am-icon-plus"></span></button>'
+        html += '<button  class="am-btn am-btn-default am-btn-xs" onclick="newTableMinusBtn(this)"><span class="am-icon-minus"></span></button></td></tr>'
+        html += '<tr class="hx-fix"><td ><button class=" am-btn am-btn-secondary" type="button" onclick="addResourceTypeTr(\'resourceTypeTable\',\'-1\')" >Commit</button></td> <td></td></tr></table>'
+        $("#addResourceTypeTable").append(html)
+
+    }
+
+
+    function addResourceTypeTr(tab, row){
+        var data = getNewResourceTypeInfor();
+        resetAddResourceTypeTable();
+        var trHtml = '<tr onclick="setActive(this)" ondblclick="dblclickToShow()"><td><label class="am-checkbox hx-rmmargin"><input name="ckb" type="checkbox"/> </label></td>';
+        trHtml+= ' <td>IDDD</td>'
+        trHtml+= '<td>{0}</td>'.format(data[0])
+        var pNumber=data[1].length
+        trHtml+='<td ><a href="#" data-toggle="tooltip" title="{1}">{0}</a></td>'.format(pNumber,data[1]);
+        addTr(tab, row, trHtml);
+
+    }
+
+
+
+
+
+    $(function showResourceType() {
+        // var data = getRoleInfor();
+        var data = [['1', 'syszhang',['UseAcl','UserSec']], ['2', 'sysyang',['UseTempl']], ['3', 'syswei',['UseObject']]]
+        var tbhtml = '<table class="am-table am-table-bd am-table-striped admin-content-table am-table-hover  am-table-centered">'
+        tbhtml += '<thead><tr><th></th><th>ID</th><th>Name</th><th>Permissions</th></tr></thead>'
+        tbhtml += '<tbody></tbody></table>'
+        $("#resourceTypeTable").append(tbhtml);
+        for (var i = 0; i < data.length; ++i) {
+            var trhtml = '<tr onclick="setActive(this)" ondblclick="dblclickToShow()"><td width="5%"><label class="am-checkbox hx-rmmargin"><input name="ckb" type="checkbox"/> </label></td>';
+            trhtml += '<td>{0}</td>'.format(data[i][0]);
+            trhtml += '<td>{0}</td>'.format(data[i][1]);
+            var pNumber = data[i][2].length
+            trhtml += '<td><a href="#"  data-toggle="tooltip"  title="{1}" >{0}</a></td>'.format(pNumber, data[i][2] );
+
+            if (i == 0) {
+                addF1('resourceTypeTable', trhtml)
+
+            }
+            else {
+                addTr('resourceTypeTable', '-1', trhtml)
+            }
+            //$(function () { $("[data-toggle='tooltip']").tooltip(); });
+        }
+    });
+
+</script>
+    
+</div>
+
+<div id="showInfo_trigger"><a class="am-btn am-btn-primary hx-showdetail" id="showTriggerBtn">< Show details</a> </div>
+<div class="mask"></div>
+<div id="showInfo"></div>
+
+
+
+
+<script>
+
+$(function (){
+    var showTriggerBtn=$("#showTriggerBtn");
+    $('#myTab li:eq(0) a').tab('show');
+    showAndHide();
+
+});
+
+function setActive(line) {
+    $(line).parent().find('.am-active').removeClass('am-active');
+    $(line).attr('class','am-active')
+};
+
+function rmOneRow(icon) {
+    $(icon).parent().remove()
+};
+
+function sendRoleToShow() {
+    var objToShow = $("#roleTable table").find('.am-active').children().eq(1).text(),
+            objId=JSON.stringify(objToShow);
+    if (objToShow){
+        $.ajax("/showRoleInfo/{0}".format(objId), {dataType:'json', async: true
+        }).done(function (data) {
+            $('#showInfo').children().remove()
+            var rData= data;
+            var  nhtml = '<div id="roledetail" class="hx-box am-u-md-8" >';
+            nhtml +='<h1>Role Details</h1>'
+            nhtml +='<table class=" am-table am-table-bd am-table-striped admin-content-table am-table-centered">';
+            nhtml +='<tr><th width=30% >Name :</th><td>{0}</td></tr>'.format(rData[1]);
+            nhtml +='<tr><th width=30%>ID :</th><td>{0}</td></tr>'.format(rData[0]);
+            nhtml +='<tr><th width=30%>Resource :</th><td>{0}</td></tr>'.format(rData[2]);
+            nhtml +='<tr><th rowspan="999" width=30%>Permissions :</th></tr>';
+            for(var i=0;i<rData[3].length;i++){
+                nhtml +='<tr><td><span class="am-icon-remove" onclick="rmOneRow(this)" style="float:right;cursor:pointer;"></span>{0} </td><tr>'.format(rData[3][i])
+            }
+            nhtml +=' </table></div>';
+            $('#showInfo').append(nhtml) ;
+
+        }).fail(function (xhr,atatus) {
+            alert("Failed: {0}\n Reason: {1}\n".format(xhr.status,status));
+        })
+
+
+    }
+
+
+}
+
+function sendUserInfoToShow() {
+    var uId = $("#userTable table").find('.am-active').children().eq(1).text();
+    if (uId){
+        $.ajax("/showUserInfo/{0}".format(parseInt(uId)), {
+            dataType:'json'
+        }).done(function (data) {
+            data = data.user[0];
+            $('#showInfo').children().remove();
+            var uData= data;
+            var  nhtml = '<div id="userdetail" class="hx-box am-u-md-8" >';
+            nhtml +='<h1>User Details</h1>'
+            nhtml +='<div class="hx-pic">'
+            nhtml +='<img class="hx-img" src="{0}" alt="avatar"></div><hr>'.format(uData[0]);
+            nhtml +='<table class=" am-table am-table-bd am-table-striped admin-content-table">';
+            nhtml +='<tr><td>ID : </td><td>{0}</td></tr>'.format(uData[1]);
+            nhtml +='<tr><td>Name : </td><td>{0}</td></tr>'.format(uData[2]);
+            nhtml +='<tr><td>Email : </td><td>{0}</td></td></tr>'.format(uData[3]);
+            nhtml +='<tr><td>Telephone :</td><td>{0}</td></tr>'.format(uData[4]);
+            nhtml +='<tr><td>Description :</td><td>{0}</td></tr>'.format(uData[5]);
+            nhtml +='<tr><td>Own Roles :</td><td>{0}</td></tr>'.format(uData[6]);
+            nhtml +=' </table></div>';
+            $('#showInfo').append(nhtml) ;
+
+        }).fail(function (xhr,atatus) {
+            alert("Failed: {0}\n Reason: {1}\n".format(xhr.status,status));
+        })
+    }
+
+}
+
+function sendResourceInfoToShow() {
+    var objToShow = $("#resourceTable table").find('.am-active').children().eq(1).text(),
+            objId=JSON.stringify(objToShow);
+    if (objToShow){
+        $.ajax("/showResourceInfo/{0}".format(objId), {dataType:'json', async: false
+        }).done(function (data) {
+            $('#showInfo').children().remove()
+            var rData= data;
+            var  nhtml = '<div id="resourcedetail" class="hx-box am-u-md-8" >';
+            nhtml +='<h1>Resource Details</h1>'
+            nhtml +='<table class=" am-table am-table-bd am-table-striped admin-content-table am-table-centered">';
+            nhtml +='<tr><th width=30% >Name :</th><td>{0}</td></tr>'.format(rData[1]);
+            nhtml +='<tr><th width=30%>ID :</th><td>{0}</td></tr>'.format(rData[0]);
+
+            nhtml +='<tr><th width=30%>Type</th><td>{0}</td><tr>'.format(rData[2])
+            nhtml +='<tr><th rowspan="9" width=30%>ContentId :</th></tr>';
+            nhtml +='<tr><td><span class="am-icon-remove" onclick="rmOneRow(this)" style="display:inline-block; float:right;cursor:pointer;"></span>{0}</td><tr>'.format(rData[3])
+
+            $('#showInfo').append(nhtml) ;
+
+
+        }).fail(function (xhr,atatus) {
+            alert("Failed: {0}\n Reason: {1}\n".format(xhr.status,status));
+        })
+    }
+
+}
+
+function sendTypeInfoToShow() {
+    var objToShow = $("#resourceTypeTable table").find('.am-active').children().eq(1).text(),
+            objId=JSON.stringify(objToShow);
+    if (objToShow){
+        $.ajax("/showTypeInfo/{0}".format(objId), {dataType:'json', async: false
+        }).done(function (data) {
+            $('#showInfo').children().remove()
+            var rData= data;
+            var  nhtml = '<div id="typedetail" class="hx-box am-u-md-8" >';
+            nhtml +='<h1>Resource Type Details</h1>'
+            nhtml +='<table class=" am-table am-table-bd am-table-striped admin-content-table am-table-centered">';
+            nhtml +='<tr><th width=30% >Name :</th><td>{0}</td></tr>'.format(rData[1]);
+            nhtml +='<tr><th width=30%>ID :</th><td>{0}</td></tr>'.format(rData[0]);
+            nhtml +='<tr><th rowspan="999" width=30%>Permissions :</th></tr>';
+            for(var i=0;i<rData[2].length;i++){
+                nhtml +='<tr><td><span class="am-icon-remove" onclick="rmOneRow(this)" style="float:right;cursor:pointer;"></span>{0}</td><tr>'.format(rData[2][i])
+            }
+            $('#showInfo').append(nhtml) ;
+        }).fail(function (xhr,atatus) {
+            alert("Failed: {0}\n Reason: {1}\n".format(xhr.status,status));
+        })
+    }
+}
+
+function dblclickToShow() {
+    var showInfo=$("#showInfo"),
+            mask=$(".mask"),
+            showInfo_trigger = $("#showInfo_trigger"),
+            showTriggerBtn=$("#showTriggerBtn");
+
+    var activeId=$("#myTabContent").find(".in").find(".am-active").children().eq(1).text(),
+            activeTable= $("#myTabContent").find(".in").find(".hx-activeTable").attr("id");
+    //showAndchange()
+    if (activeTable=='roleTable'){
+        sendRoleToShow()
+    }
+    else if (activeTable=='userTable'){
+        sendUserInfoToShow();
+    }
+    else if (activeTable=='resourceTable'){
+        sendResourceInfoToShow()
+    }
+    else if (activeTable=='resourceTypeTable'){
+        sendTypeInfoToShow()
+
+    }
+    else{
+        alert('error: not find active table.')
+    }
+
+    mask.fadeIn();
+    showInfo.css("right",0);
+    showTriggerBtn.text("> Hide Details");
+}
+
+function showAndHide(){
+    var showInfo=$("#showInfo"),
+            mask=$(".mask"),
+            showInfo_trigger = $("#showInfo_trigger"),
+            showTriggerBtn=$("#showTriggerBtn");
+
+
+    function showAndchange(){
+        var activeId=$("#myTabContent").find(".in").find(".am-active").children().eq(1).text(),
+                activeTable= $("#myTabContent").find(".in").find(".hx-activeTable").attr("id");
+
+        if (activeTable=='roleTable'){
+
+            sendRoleToShow()
+        }
+        else if (activeTable=='userTable'){
+
+            sendUserInfoToShow();
+        }
+        else if (activeTable=='resourceTable'){
+
+            sendResourceInfoToShow()
+        }
+        else if (activeTable=='resourceTypeTable'){
+
+            sendTypeInfoToShow()
+        }
+        else{
+            alert('error: not find active table.')
+        }
+
+        mask.fadeIn();
+        showInfo.css("right",0);
+        showTriggerBtn.text("> Hide Details");
+    }
+
+    function hideAndchange() {
+        mask.fadeOut();
+        showInfo.css("right",-showInfo.width());
+        showTriggerBtn.text("< Show Details")
+    }
+
+    showInfo_trigger.on("click",showAndchange);
+
+    mask.on("click",hideAndchange);
+
+};
+
+
+</script>
+
+
+
+{% endblock %}

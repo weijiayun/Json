@@ -1,0 +1,66 @@
+.popupContainer{
+    position:absolute;
+    left:0;
+    top:0;
+}
+
+
+.popupContent
+{
+    background-color: #FFF;
+    min-width: 175px;
+    min-height: 50px;
+}
+
+.popupPopup .popupImage
+{
+    margin: 5px;
+    margin-right: 15px;
+}
+
+.popupPopup .corner
+{
+    width: 19px;
+    height: 15px;
+}
+
+.popupPopup .topLeft
+{
+    background: url(../images/popup/balloon_topLeft.png) no-repeat;
+}
+
+.popupPopup .bottomLeft
+{
+    background: url(../images/popup/balloon_bottomLeft.png) no-repeat;
+}
+
+.popupPopup .left
+{
+    background: url(../images/popup/balloon_left.png) repeat-y;
+}
+
+.popupPopup .right
+{
+    background: url(../images/popup/balloon_right.png) repeat-y;
+}
+
+.popupPopup .topRight
+{
+    background: url(../images/popup/balloon_topRight.png) no-repeat;
+}
+
+.popupPopup .bottomRight
+{
+    background: url(../images/popup/balloon_bottomRight.png) no-repeat;
+}
+
+.popupPopup .top
+{
+    background: url(../images/popup/balloon_top.png) repeat-x;
+}
+
+.popupPopup .bottom
+{
+    background: url(../images/popup/balloon_bottom.png) repeat-x;
+    text-align: center;
+}

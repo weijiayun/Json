@@ -7,8 +7,7 @@ from decorator import decorator
 import os
 import time
 import logging
-from RMS import Role, Resource, ResourceType, RoleManager
-
+from RMS import Role, Resource,RoleManager
 class ACLServer(MessagePlugin):
 
     def __init__(self, messageHandle):
@@ -30,6 +29,7 @@ class ACLServer(MessagePlugin):
 
         self.handle('addresourcetype:aclproto', True, self.onAddResourceType)
         self.handle('deleteresourcetype:aclproto', True, self.onDeleteResourceType)
+        self.handle('listresourcetype:aclproto', True, self.onListResourceType)
 
         self.handle('addresource:aclproto', True, self.onAddResource)
         self.handle('deleteresource:aclproto', True, self.onDeleteResource)
@@ -41,16 +41,15 @@ class ACLServer(MessagePlugin):
 
         self.handle('haspermission:aclproto', True, self.onHasPermission)
 
-        self.handle('getresources:aclproto', True, self.onGetPublicKey)
-
         self.handle('addrole:aclproto', True, self.onAddRole)
+        self.handle('deleterole:aclproto', True, self.onDeleteRole)
+        self.handle('listroles:aclproto', True, self.onListRoles)
+
         self.handle('adduser:aclproto', True, self.onAddUser)
         self.handle('deleteuser:aclproto', True, self.onDeleteUser)
-        self.handle('deleterole:aclproto', True, self.onDeleteRole)
+        self.handle('listuser:aclproto', True, self.onListUser)
 
         self.handle('setroletouser:aclproto', True, self.onSetRoleToUser)
-        self.handle('clearroleofuser:aclproto', True, self.onClearRoleOfUser)
-
         self.handle('granttorole:aclproto', True, self.onGrantToRole)
         self.handle('revokefromrole:aclproto', True, self.onRevokeFromRole)
         self.handle('grantresourcetorole:aclproto', True, self.onGrantResourceToRole)
@@ -59,8 +58,8 @@ class ACLServer(MessagePlugin):
         self.handle('login:aclproto', True, self.onLogin)
         self.handle('logout:aclproto', True, self.onLogout)
         self.handle('listlogin:aclproto', True, self.onListLogin)
-        self.handle('listuser:aclproto', True, self.onListUser)
 
+        self.handle('changeroleofuser:aclproto', True, self.onChangeRoleOfUser)
         self.handle('changepassword:aclproto', True, self.onChangePassword)
         self.handle('changeusername:aclproto', True, self.onChangeUserName)
         self.handle('changemyinformation:aclproto', True, self.onChangeMyInformation)
@@ -72,6 +71,7 @@ class ACLServer(MessagePlugin):
 
         self.handle('myrole:aclproto', True, self.onMyRole)
         self.handle('myinformation:aclproto', True, self.onMyInformation)
+        self.handle('otherinformation:aclproto', True, self.onOtherInformation)
         self.handle('alluserinformation:aclproto', True, self.onAllUserInformation)
 
     def write_log(self, log_type, userId, message):
@@ -100,7 +100,6 @@ class ACLServer(MessagePlugin):
                     failedResponse.message = 'time out. please log in again.'
                     self.write_log('error', body.session.userId, failedResponse.message )
                     self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-
             except:
                 self.aclsql.sessionTimeOut(body.session.userId)
                 (responseSpec, failedResponse) = self.create(spec.messageName, False)
@@ -123,27 +122,44 @@ class ACLServer(MessagePlugin):
         else:
             return False
 
-    @decorator
-    def checkPermission(f, self, proto, spec, message, body):
-        '''增加检查登录,防止其他人构造SESSION登录'''
-        if self.permission(proto, spec, message, body):
-            f(self, proto, spec, message, body)
-            print 'call %s() ' % f.__name__
-        else:
-            (responseSpec, successResponse) = self.create(spec.messageName, False)
-            successResponse.status = 1
-            successResponse.message = 'No permission '
-            self.write_log('error', body.session.userId, successResponse.message)
-            self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+    # @decorator
+    # def checkPermission(f, self, proto, spec, message, body):
+    #     '''增加检查登录,防止其他人构造SESSION登录'''
+    #     if self.permission(proto, spec, message, body):
+    #         f(self, proto, spec, message, body)
+    #         print 'call %s() ' % f.__name__
+    #     else:
+    #         (responseSpec, successResponse) = self.create(spec.messageName, False)
+    #         successResponse.status = 1
+    #         successResponse.message = 'No permission '
+    #         self.write_log('error', body.session.userId, successResponse.message)
+    #         self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
             # print 'No permission'
 
-    def permission(self, proto, spec, message, body):
-        '''检查是否有权限使用这一函数'''
-        p = self.aclsql.checkPermission(body.session.userId, spec.name)
-        if p :
-            return True
-        else:
-            return False
+    #@staticmethod
+    def checkPermission(resourceId, permission):
+        def decoratorPerm(func):
+            def wrapper(self, proto, spec, message, body):
+                roleId = self.aclsql.myRole(body.session.userId)
+                if roleId:
+                    if self.roleManager.allRoles[roleId[0]].hasPermission(resourceId,permission):
+                        return func(self, proto, spec, message, body)
+                    else:
+                        (responseSpec, failedResponse) = self.create(spec.messageName, False)
+                        failedResponse.status = 1
+                        failedResponse.message = '<User: {0} Role:{1}> has no permission to {2}'\
+                            .format(body.session.userId, str(roleId), func.__name__)
+                        self.write_log('error', body.session.userId, failedResponse.message)
+                        self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+                else:
+                    (responseSpec, failedResponse) = self.create(spec.messageName, False)
+                    failedResponse.status = 1
+                    failedResponse.message = 'User: {0} has not been granted a role to use {1}'\
+                        .format(body.session.userId, func.__name__)
+                    self.write_log('error', body.session.userId, failedResponse.message)
+                    self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+            return wrapper
+        return decoratorPerm
 
     def md5(self, str):
         '''加密算法'''
@@ -191,8 +207,8 @@ class ACLServer(MessagePlugin):
             successResponse.session = login
             self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
 
-    @checkLogin
-    @checkPermission
+   # @checkLogin
+    @checkPermission(40, "AddResourceType")
     def onAddResourceType(self, proto, spec, message, body):
         try:
             print '------begin add resource type------'
@@ -226,14 +242,13 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     # @checkLogin
-    # @checkPermission
     def onDeleteResourceType(self, proto, spec, message, body):
         try:
-            print '------begin add resource type------'
+            print '------begin delete resource type------'
             print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
             print 'name:%s' % body.resourceTypeId
             print 'force delete?: {0}'.format(body.force)
-            print '------end add resource type--------'
+            print '------end delete resource type--------'
             if body.force:
                 resourceTypeId = self.aclsql.deleteResourceType(body.resourceTypeId)
                 if resourceTypeId:
@@ -254,8 +269,36 @@ class ACLServer(MessagePlugin):
             self.write_log('error', body.session.userId, failedResponse.message)
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
+    # @checkLogin
+    def onListResourceType(self, proto, spec, message, body):
+        try:
+            print '------begin list resource type------'
+            print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
+            print '------end list resource type--------'
+
+            resourceTypes = self.roleManager.allResourceTypes
+            if resourceTypes:
+                temp = []
+                for rtid, RT in resourceTypes.items():
+                    resT = self.createGeneric("ResType:ACLProto")
+                    resT.id = rtid
+                    resT.name = RT.getName()
+                    resT.description = RT.getDesc()
+                    resT.permissions = map(lambda x: self.roleManager.permissionTable[x]["name"], RT.getPermissions())
+                    temp.append(resT)
+                (responseSpec, successResponse) = self.create("listresourcetype:aclproto", False)
+                successResponse.status = 0
+                successResponse.message = 'ok'
+                successResponse.resourceTypes = temp
+                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+        except Exception as e:
+            (responseSpec, failedResponse) = self.create("listresourcetype:aclproto", False)
+            failedResponse.status = 1
+            failedResponse.message = str(e)
+            self.write_log('error', body.session.userId, failedResponse.message)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
     @checkLogin
-    @checkPermission
     def onAddResource(self, proto, spec, message, body):
         try:
             print '--------begin add resource --------'
@@ -277,15 +320,17 @@ class ACLServer(MessagePlugin):
             isRegisteResource = self.roleManager.registResource(resourceTmp)
 
             r = self.aclsql.myRole(body.session.userId)
+
             isGrantsuccess = self.aclsql.grantResourceToRole(r[0],
                                                              self.roleManager.allResourceTypes[body.resourceTypeId].getPermissions(),
                                                              resourceId[0])
+
             role = self.roleManager.allRoles[r[0]]
+
             role.addResource((self.roleManager.allResources[resourceId[0]],
                               map(lambda x: self.roleManager.permIdToName(x),
                                   self.roleManager.allResourceTypes[body.resourceTypeId].getPermissions())))
 
-            print role.getResources()
             if resourceId and isRegisteResource and r and isGrantsuccess:
                 (responseSpec, successResponse) = self.create("addresource:aclproto", False)
                 successResponse.status = 0
@@ -306,12 +351,11 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onGetResources(self, proto, spec, message, body):
         try:
-            print '--------begin add resource --------'
+            print '--------begin get resources --------'
             print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
-            print '--------end add resource ----------'
+            print '--------end get resource ----------'
             r = self.aclsql.myRole(body.session.userId)
             if r:
                 role = self.roleManager.allRoles[r[0]]
@@ -320,8 +364,8 @@ class ACLServer(MessagePlugin):
                     resm = self.createGeneric("Res:ACLProto")
                     resm.id = resId
                     resm.name = resPerm[0].getName()
-                    resm.resourceTypeId = resPerm[0].getResourceType().getId()
-                    resm.contentId = str(resPerm[0].getContentId())
+                    resm.resourceType = resPerm[0].getResourceType().getName()
+                    resm.contentId = resPerm[0].getContentId()
                     resm.isGroup = resPerm[0].getIsGroup()
                     resources.append(resm)
                 (responseSpec, successResponse) = self.create("getresources:aclproto", False)
@@ -340,14 +384,13 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onAddResourceToGroup(self, proto, spec, message, body):
         try:
-            print '--------begin add resource --------'
+            print '--------begin add resource to group --------'
             print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
             print 'groupId:{0}'.format(body.groupId)
             print 'resourceIds: {0}'.format(body.resourceIds)
-            print '--------end add resource ----------'
+            print '--------end add resource to group----------'
             if body.groupId in self.roleManager.allResources and self.roleManager.allResources[body.groupId].getIsGroup() == 1:
                 r = self.aclsql.insertResourceToGroup(body.groupId, body.resourceIds)
             else:
@@ -372,14 +415,13 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onRemoveResourceFromGroup(self, proto, spec, message, body):
         try:
-            print '--------begin add resource --------'
+            print '--------begin remove resource from group--------'
             print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
             print 'groupId:{0}'.format(body.groupId)
             print 'resourceIds: {0}'.format(body.resourceIds)
-            print '--------end add resource ----------'
+            print '--------end remove resource from group----------'
             if body.groupId in self.roleManager.allResources and self.roleManager.allResources[body.groupId].getIsGroup() == 1:
                 r = self.aclsql.removeResourceFromGroup(body.groupId, body.resourceIds)
             else:
@@ -404,13 +446,12 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onGetGroup(self, proto, spec, message, body):
         try:
-            print '--------begin add resource --------'
+            print '--------begin get group --------'
             print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
             print 'groupId: {0}'.format(body.groupId)
-            print '--------end add resource ----------'
+            print '--------end get group ----------'
             if body.groupId in self.roleManager.allResources and self.roleManager.allResources[body.groupId].getIsGroup() == 1:
                 resources = self.roleManager.allResources[body.groupId].getMembers()
                 resourcesTmp = []
@@ -419,7 +460,7 @@ class ACLServer(MessagePlugin):
                     resm.id = resId
                     resm.name = res.getName()
                     resm.resourceTypeId = res.getResourceType().getId()
-                    resm.contentId = str(res.getContentId())
+                    resm.contentId = res.getContentId()
                     resm.isGroup = res.getIsGroup()
                     resourcesTmp.append(resm)
                 (responseSpec, successResponse) = self.create("getgroup:aclproto", False)
@@ -438,14 +479,13 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onHasPermission(self, proto, spec, message, body):
         try:
-            print '--------begin add resource --------'
+            print '--------begin has permission --------'
             print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
             print 'resourceId: {0}'.format(body.resourceId)
             print 'validate permission: {0}'.format(body.permission)
-            print '--------end add resource ----------'
+            print '--------end haspermission ----------'
             r = self.aclsql.myRole(body.session.userId)
             if r:
                 if r[0] in self.roleManager.allRoles:
@@ -474,7 +514,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onAddRole(self, proto, spec, message, body):
         try:
             print '--------begin add role --------'
@@ -503,22 +542,17 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onAddUser(self, proto, spec, message, body):
         try:
             print '--------begin add user --------'
             print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
             print 'userName:%s' % body.userName
-            print 'phoneNumber:%s' % body.phoneNumber
-            print 'privateKey : %s' % body.privateKey
-            print 'publicKey : %s' % body.publicKey
-            print 'password: %s '% body.password
+            print 'password: %s ' % body.password
+            print 'email: %s' % body.email
+            print 'role id {0}'.format(body.roleId)
             print '--------end add user ----------'
 
-            userId = self.aclsql.insertUser(body.userName, body.phoneNumber,
-                                            self.md5(body.password), body.privateKey,
-                                            body.publicKey)
-
+            userId = self.aclsql.insertUser(body.userName, body.password, body.email, body.roleId)
             if userId:
                 (responseSpec, successResponse) = self.create("adduser:aclproto", False)
                 successResponse.status = 0
@@ -536,7 +570,6 @@ class ACLServer(MessagePlugin):
 
 
     @checkLogin
-    @checkPermission
     def onSetRoleToUser(self, proto, spec, message, body):
         try:
             print '--------begin grant role --------'
@@ -545,7 +578,7 @@ class ACLServer(MessagePlugin):
             print 'roleId:%s' % body.roleId
             print '--------end grant user ----------'
             if body.roleId in self.roleManager.allRoles:
-                r = self.aclsql.setRoleToUser(body.userId, body.roleId)
+                r = self.aclsql.updateUserRole(body.userId, body.roleId)
             else:
                 raise Exception("No Role: id:{0} has been registed".format(body.roleId))
 
@@ -565,33 +598,6 @@ class ACLServer(MessagePlugin):
 
 
     @checkLogin
-    @checkPermission
-    def onClearRoleOfUser(self, proto, spec, message, body):
-        try:
-            print '--------begin grant role --------'
-            print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
-            print 'userId:%s' % body.userId
-            print 'roleId:%s' % body.roleId
-            print '--------end grant user ----------'
-
-            r = self.aclsql.clearRoleOfUser(body.userId, body.roleId)
-
-            if r:
-                (responseSpec, successResponse) = self.create("clearroleofuser:aclproto", False)
-                successResponse.status = 0
-                successResponse.message = 'ok'
-                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
-            else:
-                raise Exception("ClearRoleOfUser: userId:{0}, roleId:{1}".format(body.session.userId, body.roleId))
-        except Exception as e:
-            (responseSpec, failedResponse) = self.create("clearroleofuser:aclproto", False)
-            failedResponse.status = 1
-            failedResponse.message = str(e)
-            self.write_log('error', body.session.userId, failedResponse.message)
-            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
-
-    @checkLogin
-    @checkPermission
     def onGrantToRole(self, proto, spec, message, body):
         try:
             print '--------begin grant role --------'
@@ -624,7 +630,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onRevokeFromRole(self, proto, spec, message, body):
         try:
             print '--------begin grant role --------'
@@ -655,7 +660,31 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
+    def onChangeRoleOfUser(self, proto, spec, message, body):
+        try:
+            print '--------begin change role of user --------'
+            print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
+            print 'userId:%s' % body.userId
+            print 'roleId:%s' % body.roleId
+            print '--------end change role of user ----------'
+
+            r = self.aclsql.updateUserRole(body.userId, body.roleId)
+            if r:
+                (responseSpec, successResponse) = self.create("changeroleofuser:aclproto", False)
+                successResponse.status = 0
+                successResponse.message = 'ok'
+                self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+            else:
+                raise Exception("changeroleofuser: userId:{0}, roleId:{1}".format(body.userId, body.roleId))
+        except Exception as e:
+            print e
+            (responseSpec, failedResponse) = self.create("changeroleofuser:aclproto", False)
+            failedResponse.status = 1
+            failedResponse.message = str(e)
+            self.write_log('error', body.session.userId, failedResponse.message)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+    @checkLogin
     def onChangePassword(self, proto, spec, message, body):
         try:
             print '--------begin change password --------'
@@ -680,7 +709,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onLogout(self, proto, spec, message, body):
         try:
             print '--------begin logout  --------'
@@ -707,7 +735,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onGrantResourceToRole(self, proto, spec, message, body):
         try:
             print '--------begin grant permission  --------'
@@ -738,7 +765,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onRevokeResourceFromRole(self, proto, spec, message, body):
         try:
             print '--------begin grant permission  --------'
@@ -764,7 +790,6 @@ class ACLServer(MessagePlugin):
                 self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
             else:
                 raise Exception("RevokeResourceFromRole: roleId:{0}, resourceId:{1}".format(body.roleId, body.resourceId))
-
         except Exception as e:
             print e
             (responseSpec, failedResponse) = self.create("grantresourcetorole:aclproto", False)
@@ -774,13 +799,13 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onListUser(self, proto, spec, message, body):
         try:
             print '--------begin list user --------'
             print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
+            print 'body userId: %s'%body.userId
             print '--------end list user----------'
-            users = self.aclsql.listUser()
+            users = self.aclsql.listUser(body.userId)
             if users:
                 (responseSpec, successResponse) = self.create("listuser:aclproto", False)
                 successResponse.status = 0
@@ -790,6 +815,18 @@ class ACLServer(MessagePlugin):
                     r = self.createGeneric("User:ACLProto")
                     r.userId = i[0]
                     r.userName = i[1]
+                    r.phoneNamber = i[2]
+                    r.password = i[3]
+                    r.privateKey = i[4]
+                    r.publicKey = i[5]
+                    r.email = i[6]
+                    r.description = i[7]
+                    r.avatar = i[8]
+                    rid = self.aclsql.myRole(r.userId)
+                    if rid:
+                        r.roleName = rid[1]
+                    else:
+                        raise Exception("user id:{0} has no role".format(r.userId))
                     user.append(r)
                 successResponse.users = user
                 self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
@@ -803,7 +840,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onChangeUserName(self, proto, spec, message, body):
         try:
             print '--------begin change user nanme --------'
@@ -827,7 +863,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onChangeRoleName(self, proto, spec, message, body):
         try:
             print '--------begin change role nanme --------'
@@ -854,7 +889,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onChangePublicKey(self, proto, spec, message, body):
         try:
             print '--------begin change public key --------'
@@ -879,7 +913,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onChangePrivateKey(self, proto, spec, message, body):
         try:
             print '--------begin change public key --------'
@@ -930,7 +963,6 @@ class ACLServer(MessagePlugin):
 
 
     @checkLogin
-    @checkPermission
     def onDeleteResource(self, proto, spec, message, body):
         try:
             print '--------begin delete resource --------'
@@ -959,7 +991,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onDeleteUser(self, proto, spec, message, body):
         try:
             print '--------begin delete user --------'
@@ -983,7 +1014,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onDeleteRole(self, proto, spec, message, body):
         try:
             print '--------begin delete role --------'
@@ -1009,7 +1039,42 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
+    def onListRoles(self, proto, spec, message, body):
+        try:
+            print '--------begin list role --------'
+            print 'userId-seqId: %s-%s' % (body.session.userId, body.session.seqId)
+            print '--------end list role----------'
+            temp = []
+            for rid, role in self.roleManager.allRoles.items():
+                r = self.createGeneric("Role:ACLProto")
+                r.id = rid
+                r.name = role.getName()
+                parents = role.getParents()
+                r.parents = map(lambda x: parents[x].getName(), parents)
+                r.resources = []
+                for resid, resPerm in role.getResources().items():
+                    res = self.createGeneric("Res:ACLProto")
+                    res.id = resid
+                    res.name = resPerm[0].getName()
+                    res.resourceType = resPerm[0].getResourceType().getName()
+                    res.contentId = resPerm[0].getContentId()
+                    res.isGroup = resPerm[0].getIsGroup()
+                    r.resources.append(res)
+                temp.append(r)
+            (responseSpec, successResponse) = self.create("listroles:aclproto", False)
+            successResponse.status = 0
+            successResponse.message = 'ok'
+            successResponse.roles = temp
+            self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
+
+        except Exception as e:
+            (responseSpec, failedResponse) = self.create("listroles:aclproto", False)
+            failedResponse.status = 1
+            failedResponse.message = str(e)
+            self.write_log('error', body.session.userId, failedResponse.message)
+            self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
+    @checkLogin
     def onListLogin(self,proto, spec, message, body):
         try:
             print '--------begin list login --------'
@@ -1039,7 +1104,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onMyRole(self,proto, spec, message, body):
         try:
             print '--------begin my role --------'
@@ -1094,7 +1158,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onChangeMyInformation(self,proto, spec, message, body):
         try:
             print '--------begin change my information --------'
@@ -1122,7 +1185,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onChangeMyPassword(self, proto, spec, message, body):
         try:
             print '--------begin change my password --------'
@@ -1152,7 +1214,6 @@ class ACLServer(MessagePlugin):
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
     @checkLogin
-    @checkPermission
     def onOtherInformation(self, proto, spec, message, body):
         try:
             print '--------begin other information --------'
@@ -1187,7 +1248,6 @@ class ACLServer(MessagePlugin):
 
 
     @checkLogin
-    @checkPermission
     def onAllUserInformation(self, proto, spec, message, body):
         try:
             print '--------begin all user information --------'

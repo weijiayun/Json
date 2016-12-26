@@ -78,28 +78,20 @@ class ConfigureObjectSql(object):
         finally:
             cur.close()
 
-    def createObject(self, nameIdDict):
+    def createCollection(self, collectionNameIdDict):
         cur = self.conn.cursor()
         try:
-            if nameIdDict is not None:
-                temp1 = []
-                for key, secId in nameIdDict.items():
+            if collectionNameIdDict is not None:
+                for key, secId in collectionNameIdDict.items():
                     temp2 = key.split("-")
                     name = temp2[0]
                     createDate = temp2[1]
                     version = temp2[2]
                     category = temp2[3]
                     templName = temp2[4]
-                    collectionName = temp2[5]
-                    temp1.append([secId, name, createDate, version, category, templName, collectionName])
 
-                def list2str(li):
-                    return "(" + "{0},'{1}','{2}','{3}','{4}', '{5}', '{6}'"\
-                        .format(li[0], li[1], li[2], li[3], li[4], li[5], li[6]) + ")"
-                temp1 = map(list2str, temp1)
-                temp1 = ",".join(temp1)
-                sql = '''INSERT INTO t_object(id, name, create_date, version, category, template_name, collection_name)
-                         VALUES {0};'''.format(temp1)
+                sql = '''INSERT INTO t_collection(content_id, name, create_date, version, category, template_name)
+                         VALUES ({0},'{1}','{2}','{3}','{4}','{5}')'''.format(secId, name, createDate, version, category, templName)
                 cur.execute(sql)
                 self.conn.commit()
                 return [True, "Create Objects Successfully!!!"]
@@ -112,16 +104,16 @@ class ConfigureObjectSql(object):
         finally:
             cur.close()
 
-    def deleteObject(self, objectIdList):
+    def deleteCollection(self, collectionIdList):
         cur = self.conn.cursor()
         try:
-            for objectId in objectIdList:
-                sql = '''DELETE FROM t_object WHERE t_object.id={0};'''.format(objectId)
+            for objectId in collectionIdList:
+                sql = '''DELETE FROM t_collection WHERE t_collection.content_id={0};'''.format(objectId)
                 cur.execute(sql)
                 if cur.rowcount == 0:
-                    raise Exception('''The object Name :{0} doesn't exist'''.format(objectId))
+                    raise Exception('''The Collection Name :{0} doesn't exist'''.format(objectId))
             self.conn.commit()
-            return [True, "Delete Object<Id: {0}> successfully".format(str(objectIdList))]
+            return [True, "Delete Collection<Id: {0}> successfully".format(str(collectionIdList))]
         except Exception as e:
             print e
             self.conn.rollback()
@@ -129,21 +121,16 @@ class ConfigureObjectSql(object):
         finally:
             cur.close()
 
-    def getObject(self, objectName, createDate, version, category, templateName, collectionName):
+    def getCollection(self, collectionName, createDate, version, category, templateName):
         cur = self.conn.cursor()
         try:
-            sql = '''SELECT * FROM t_object WHERE t_object.name='{0}'
-                          AND t_object.create_date='{1}'
-                          AND t_object.version='{2}'
-                          AND t_object.template_name='{3}'
-                          AND t_object.category='{4}'
-                          AND t_object.collection_name='{5}';'''\
-                .format(objectName,
-                        createDate,
-                        version,
-                        templateName,
-                        category,
-                        collectionName)
+            sql = '''SELECT * FROM t_collection WHERE t_collection.name='{0}'
+                          AND t_collection.create_date='{1}'
+                          AND t_collection.version='{2}'
+                          AND t_collection.category='{3}'
+                          AND t_collection.template_name='{4}'
+
+                          '''.format(collectionName, createDate, version, category, templateName)
             cur.execute(sql)
             Objectdata = cur.fetchone()
             if Objectdata is None:
@@ -170,58 +157,25 @@ class ConfigureObjectSql(object):
         finally:
             cur.close()
 
-    def getAll(self,objectIdList):
+    def getAll(self, contentIdList):
         cur = self.conn.cursor()
         try:
-            objectIdList = list(set(objectIdList))
-            temp = ""
-            for Id in objectIdList:
-                if objectIdList.index(Id) == 0:
-                    temp += '''t_object.id={0}'''.format(Id)
-                else:
-                    temp += ''' OR t_object.id={0}'''.format(Id)
-            sql = '''SELECT * FROM t_object WHERE {0};'''.format(temp)
+            contentIdList = list(set(contentIdList))
+            temp = ",".join(map(lambda x: str(x), contentIdList))
+            sql = '''SELECT * FROM t_collection WHERE t_collection.content_id IN ({0});'''.format(temp)
             cur.execute(sql)
             temp = cur.fetchall()
             cateDict = {}
+            if cur.rowcount == 0:
+                raise Exception('''The Collections:{0} doesn't exist'''.format(contentIdList))
             for e in temp:
-                if not cateDict.has_key(e[4]):
-                    cateDict[e[4]] = {}
-                if not cateDict[e[4]].has_key(e[6]):
-                    cateDict[e[4]][e[6]] = []
-                cateDict[e[4]][e[6]].append("-".join([e[1], e[2], e[3], e[5]]))
+                if not cateDict.has_key(e[5]):
+                    cateDict[e[5]] = []
+                cateDict[e[5]].append([e[2], e[3], e[4], e[5], e[6]])
             return [True, cateDict]
         except Exception as e:
             print e
             return [False, str(e)]
         finally:
             cur.close()
-
-    def getCollection(self, createDate, version, templateName, category, collectionName):
-        cur = self.conn.cursor()
-        try:
-            sql = '''SELECT * FROM t_object WHERE t_object.create_date='{0}'
-                              AND t_object.version='{1}'
-                              AND t_object.template_name='{2}'
-                              AND t_object.category='{3}'
-                              AND t_object.collection_name='{4}';''' \
-                .format(createDate,
-                        version,
-                        templateName,
-                        category,
-                        collectionName)
-            cur.execute(sql)
-            Objectdata = cur.fetchall()
-            if Objectdata is None:
-                raise Exception('''Error: the collection<collection: {0}> the is not exist!!!'''.format(collectionName))
-            return Objectdata
-        except Exception as e:
-            print e
-            return False
-        finally:
-            cur.close()
-
-
-
-
 
