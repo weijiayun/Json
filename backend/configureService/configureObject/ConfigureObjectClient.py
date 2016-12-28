@@ -114,7 +114,7 @@ class ConfigureObjectClient(MessagePlugin):
             if 0 != body.status:
                 p.reject(Exception(body.message))
             else:
-                p.fulfill(body.message)
+                p.fulfill(body.resourceId)
 
     def createCollection(self, session, collectionName, createDate, version, category, templateName, content, publicKey):
         try:

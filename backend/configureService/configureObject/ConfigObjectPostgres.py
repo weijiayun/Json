@@ -93,8 +93,10 @@ class ConfigureObjectSql(object):
                 sql = '''INSERT INTO t_collection(content_id, name, create_date, version, category, template_name)
                          VALUES ({0},'{1}','{2}','{3}','{4}','{5}')'''.format(secId, name, createDate, version, category, templName)
                 cur.execute(sql)
+                sql = '''  SELECT currval('t_content_id_seq');'''
+                cur.execute(sql)
                 self.conn.commit()
-                return [True, "Create Objects Successfully!!!"]
+                return [cur.fetchone()[0], name]
             else:
                 raise Exception("input is none when creating objects in t_object")
         except Exception as e:

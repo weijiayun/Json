@@ -141,7 +141,7 @@ class ConfigureObjectServer(MessagePlugin):
                         body.Collection.Content, getkey()]]
 
             def putContentSuccess(nameIdDict):
-                self.registCollectionInT_Collection(message, proto, nameIdDict)
+                self.registCollectionInT_Collection(message, proto, body,nameIdDict)
 
             def putContentFailed(errMesg):
                 print 'putSeriesContent failed: %s' % errMesg
@@ -157,13 +157,24 @@ class ConfigureObjectServer(MessagePlugin):
             failedResponse.message = e
             self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
 
-    def registCollectionInT_Collection(self, message, proto, nameIdDict):
+    def registCollectionInT_Collection(self, message, proto, body, nameIdDict):
         try:
-            IsCreateObject = self.configsql3.createCollection(nameIdDict)
-            if IsCreateObject[0]:
+            idName = self.configsql3.createCollection(nameIdDict)
+            if idName[0]:
+                resource = {}
+                def addResourceSuccess(resourceId):
+                    resource["data"] = resourceId
+
+                def addResourceFailed(ErrMsg):
+                    pass
+
+                self.aclClient.addResource(body.session, idName[1], body.ResourceTypeId, idName[0],0)\
+                    .then(addResourceSuccess).catch(addResourceFailed).wait()
+
                 (responseSpec, successResponse) = self.create("createcollection:configureobjectproto", False)
                 successResponse.status = 0
-                successResponse.message = IsCreateObject[1]
+                successResponse.message = 'ok'
+                successResponse.resourceId = resource["data"]
                 self.send(message.getSource(), proto, responseSpec, successResponse, message.getRequestId())
             else:
                 (responseSpec, failedResponse) = self.create("createcollection:configureobjectproto", False)
@@ -296,9 +307,10 @@ class ConfigureObjectServer(MessagePlugin):
         try:
             print '---------------Begin Grant Object To Others---------------'
             print 'userId-seqId: {0}-{1}'.format(body.session.userId, body.session.seqId)
-            print 'Object Name: {0}'.format(body.CollectionList)
-            print 'Object OthersId: {0}'.format(body.OthersId)
+            print 'Object Name: {0}'.format(body.ResourceIds)
+            print 'Object OthersId: {0}'.format(body.RoleId)
             print '---------------end Query Configure Object---------------'
+
 
             secIdDict = {"-".join([elem.Name, elem.Date, elem.Version, elem.Category, elem.TemplateName]):
                              self.configsql3.getCollection(elem.Name, elem.Date,
@@ -321,6 +333,7 @@ class ConfigureObjectServer(MessagePlugin):
                 failedResponse.status = 1
                 failedResponse.message = 'Error: grant objects to others is failed!!!'
                 self.send(message.getSource(), proto, responseSpec, failedResponse, message.getRequestId())
+
             self.securityClient.grantSeriesToOther(body.session,
                                                    secIdDict,
                                                    body.OthersId,

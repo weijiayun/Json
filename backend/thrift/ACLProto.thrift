@@ -246,6 +246,7 @@ const i32 ACLPROTO_MESSAGE_GET_RESOURCES = 100024
 struct GetResources
 {
 	1: required LoginSession session;
+	2: optional i32
 }
 struct Res
 {

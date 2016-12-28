@@ -69,6 +69,7 @@ struct CreateCollectionResponse
 {
     1: i32 status;
     2: string message;
+    3: i32 resourceId;
 }
 
 // -------------------------Delete Collection-----------------------------
@@ -133,10 +134,9 @@ const i32 CONFIGUREOBJECTPROTO_MESSAGE_GRANT_COLLECTION = 310032
 struct GrantCollection
 {
 	1: required ACLProto.LoginSession session;
-	2: required i32 OthersId;
-	3: required list<collection> CollectionList;
-	4: required string privateKey;
-	5: required string othersPublicKey;
+	2: required i32 RoleId;
+	3: required list<i32> ResourceIds;
+	4: required string PrivateKey;
 }
 
 struct GrantCollectionResponse

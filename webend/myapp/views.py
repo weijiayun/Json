@@ -605,15 +605,15 @@ def listUsers():
     return json.dumps(categoryDict)
 
 
-@app.route("/collection/grantCollections/<userId>/<collectionList>", methods=["Get", "POST"])
+@app.route("/collection/grantCollections/<roleId>/<collectionList>", methods=["Get", "POST"])
 @login_required
-def grantCollectionToUser(userId, collectionList):
+def grantCollectionToUser(roleId, collectionList):
     global userClientBasket
     aclClient = userClientBasket.getClient(session, "aclClient")
     loginSession = userClientBasket.getClient(session, "session")
     configClient = userClientBasket.getClient(session, "configClient")
     collectionList = json.loads(collectionList)
-    userId = int(userId)
+    userId = int(roleId)
     collectionList = map(lambda x:x.split("-"), collectionList)
     flag = {}
 
